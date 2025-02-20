@@ -1,0 +1,12 @@
+name: constructor-de-mensajes
+services:
+  - name: constructor-de-mensajes
+    github:
+      repo: dtalero78/Constructor-de-Mensajes
+      branch: main
+    dockerfile_path: ./Dockerfile
+    envs:
+      - key: PORT
+        scope: RUN_TIME
+        value: "3000"
+    run_command: "node index.js"
