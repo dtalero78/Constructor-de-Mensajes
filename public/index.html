@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <title>Constructor de Mensajes Speakers LVR</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;700&display=swap"
+        rel="stylesheet" />
+    <style>
+        /* ----- RESET BÁSICO ----- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'IBM Plex Sans', sans-serif;
+            font-size: 11px;
+            background-color: #f4f4f4;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            flex: 1;
+        }
+
+        /* ----- SIDEBAR ----- */
+        .sidebar {
+            width: 250px;
+            background-color: #000;
+            color: #fff;
+            padding: 1em;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar h2 {
+            margin-bottom: 1em;
+            font-size: 1rem;
+        }
+
+        .sidebar ul {
+            list-style: none;
+        }
+
+        .sidebar li {
+            margin-bottom: 0.5em;
+        }
+
+        .sidebar button {
+            width: 100%;
+            padding: 0.75em;
+            background-color: transparent;
+            color: #fff;
+            border: 1px solid #ffffff30;
+            border-radius: 5px;
+            text-align: left;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .sidebar button:hover,
+        .sidebar button.active {
+            background-color: #545454;
+        }
+
+        /* ----- CONTENIDO PRINCIPAL ----- */
+        .main-content {
+            flex: 1;
+            padding: 1em 2em;
+            overflow-y: auto;
+            background-color: #f4f4f4;
+        }
+
+        .main-content>h1 {
+            margin-bottom: 1em;
+            font-size: 1.2rem;
+        }
+
+        /* ----- SECCIONES ----- */
+        .content-section {
+            display: none;
+            margin-bottom: 1em;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .content-section h2 {
+            margin-bottom: 0.5em;
+            font-size: 1rem;
+            color: #000;
+        }
+
+        label {
+            display: block;
+            margin: 0.5em 0 0.2em;
+        }
+
+        input,
+        button,
+        textarea {
+            width: 100%;
+            padding: 0.75em;
+            margin-bottom: 1em;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-family: 'IBM Plex Sans', sans-serif;
+        }
+
+        button {
+            background-color: #000;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #545454;
+        }
+
+        /* Botón rojo al grabar */
+        .recording-active {
+            background-color: red !important;
+            color: #fff;
+        }
+
+        /* Botones de grabación */
+        .recording-buttons button {
+            width: auto;
+            padding: 0.5em 1em;
+            font-size: 0.9rem;
+        }
+
+        .status-message {
+            margin-bottom: 1em;
+            font-style: italic;
+            color: #555;
+        }
+
+        /* ----- TARJETAS (CARDS) ----- */
+        .card-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1em;
+            margin-bottom: 1em;
+        }
+
+        .card {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .card-header {
+            background-color: #f2f2f2;
+            border-bottom: 1px solid #ccc;
+            padding: 0.75em 1em;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #333;
+            text-align: center;
+        }
+
+        .card-body {
+            padding: 1em;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            min-height: 250px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Botón "Aplicar sugerencias" */
+        .apply-suggestions-btn {
+            background-color: #000000;
+            color: #fff;
+            font-size: 0.6rem;
+            font-weight: normal;
+            padding: 0.4em 1.5em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: none;
+            width: 100%;
+            text-align: center;
+            margin-top: 0.5em;
+        }
+
+        .apply-suggestions-btn:hover {
+            background-color: #545454;
+        }
+
+        /* Botón para mostrar transcripción (emergente) */
+        .mostrar-transcripcion {
+            display: none;
+            margin-bottom: 1em;
+            padding: 0.5em;
+            background-color: #0077cc;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        /* ----- MODALES ----- */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 5px;
+        }
+
+        #modalConsolidado .modal-content {
+            width: 600px;
+            /* Fijamos el ancho a 600px */
+            max-height: 580px;
+            /* Fijamos la altura máxima a 580px */
+            overflow-y: auto;
+            /* Cuando exceda esa altura, agrega scroll vertical */
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            background-color: #fff;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        #contenidoConsolidado {
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        /* ----- BOTONES BLOC DE NOTAS ----- */
+        .close-button {
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .action-buttons {
+            display: flex;
+            width: 100%;
+            gap: 8px;
+        }
+
+        .action-buttons button {
+            flex: 1;
+            box-sizing: border-box;
+            padding: 0.4em 0.6em;
+            background-color: #0077cc;
+            font-size: 0.85rem;
+        }
+
+        /* ----- FOOTER ----- */
+        .footer {
+            display: flex;
+            height: 50px;
+        }
+
+        .footer-left {
+            width: 250px;
+            background-color: #000;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .footer-left a {
+            color: rgba(255, 255, 255, 0.95);
+            font-weight: bold;
+        }
+
+        .footer-left a:hover {
+            text-decoration: none;
+        }
+
+        .footer-right {
+            flex: 1;
+            background-color: #f4f4f4;
+        }
+
+        audio {
+            display: block;
+            margin-bottom: 1em;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <h2>Secciones</h2>
+            <ul>
+                <!-- Se elimina el botón "Construcción Mensaje" -->
+                <li><button class="menu-btn active" data-section="preguntas">Preguntas iniciales</button></li>
+                <li><button class="menu-btn" data-section="titulo">Título</button></li>
+                <li><button class="menu-btn" data-section="introduccion">Introducción</button></li>
+                <li><button class="menu-btn" data-section="costura">Costura</button></li>
+                <li><button class="menu-btn" data-section="problematica">Problemática</button></li>
+                <li><button class="menu-btn" data-section="conector">Conector</button></li>
+                <li><button class="menu-btn" data-section="desarrollo">Desarrollo</button></li>
+                <li><button class="menu-btn" data-section="conclusion">Conclusión</button></li>
+                <li><button class="menu-btn" data-section="ministracion">Ministración</button></li>
+                <li><button class="menu-btn" data-section="mensajeConsolidado">Mensaje Consolidado</button></li>
+                <li><button class="menu-btn" data-section="calibracion">Calibración</button></li>
+            </ul>
+        </aside>
+        <!-- CONTENIDO PRINCIPAL -->
+        <main class="main-content">
+            <h1>Constructor de Mensajes Speakers LVR</h1>
+            <!-- SECCIÓN: PREGUNTAS INICIALES -->
+            <div id="preguntas" class="content-section active">
+                <h2>Preguntas Iniciales</h2>
+                <form id="questionsForm">
+                    <label for="tema">Tema:</label>
+                    <input type="text" id="tema" name="tema" required />
+                    <label for="proposito">Propósito:</label>
+                    <input type="text" id="proposito" name="proposito" required />
+                    <label for="audiencia">Audiencia:</label>
+                    <input type="text" id="audiencia" name="audiencia" required />
+                    <label for="tiempo">Tiempo:</label>
+                    <input type="text" id="tiempo" name="tiempo" required />
+                    <button type="submit">Guardar Preguntas</button>
+                </form>
+                <div id="questionsResult"></div>
+            </div>
+            <!-- ================== TODAS LAS SECCIONES ================== -->
+            <!-- 1) TÍTULO -->
+            <div id="titulo" class="content-section">
+                <h2>Sección: Título</h2>
+                <div class="recording-buttons">
+                    <button id="startBtn-titulo">Iniciar Grabación</button>
+                    <button id="stopBtn-titulo" disabled>Detener Grabación</button>
+                    <button id="uploadBtn-titulo" disabled>Enviar Audio</button>
+                </div>
+                <p id="status-titulo" class="status-message"></p>
+                <audio id="audioPlayback-titulo" controls style="display:none;"></audio>
+                <button id="mostrarTranscripcion-titulo" class="mostrar-transcripcion">Mostrar Transcripción</button>
+                <div class="card-grid">
+                    <div class="card">
+                        <div class="card-header">Bloc de notas</div>
+                        <div class="card-body">
+                            <textarea id="notas-titulo" rows="6" placeholder="Escribe el contenido aquí..."></textarea>
+                            <div class="action-buttons">
+                                <button id="evaluar-titulo">Evaluar</button>
+                                <button id="guardar-titulo" onclick="guardarNota('titulo')">Guardar</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">Evaluación</div>
+                        <div id="evaluationResult-titulo" class="card-body"></div>
+                        <button id="applySuggestions-titulo" class="apply-suggestions-btn">Aplicar sugerencias</button>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">Sugerencias Aplicadas</div>
+                        <div id="suggestedResult-titulo" class="card-body"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- 2) INTRODUCCIÓN -->
+            <div id="introduccion" class="content-section">
+                <h2>Sección: Introducción</h2>
+                <div class="recording-buttons">
+                    <button id="startBtn-introduccion">Iniciar Grabación</button>
+                    <button id="stopBtn-introduccion" disabled>Detener Grabación</button>
+                    <button id="uploadBtn-introduccion" disabled>Enviar Audio</button>
+                </div>
+                <p id="status-introduccion" class="status-message"></p>
+                <audio id="audioPlayback-introduccion" controls style="display:none;"></audio>
+                <button id="mostrarTranscripcion-introduccion" class="mostrar-transcripcion">Mostrar
+                    Transcripción</button>
+                <div class="card-grid">
+                    <div class="card">
+                        <div class="card-header">Bloc de notas</div>
+                        <div class="card-body">
+                            <textarea id="notas-introduccion" rows="6"
+                                placeholder="Escribe el contenido aquí..."></textarea>
+                            <div class="action-buttons">
+                                <button id="evaluar-introduccion">Evaluar</button>
+                                <button id="guardar-introduccion" onclick="guardarNota('introduccion')">Guardar</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">Evaluación</div>
+                        <div id="evaluationResult-introduccion" class="card-body"></div>
+                        <button id="applySuggestions-introduccion" class="apply-suggestions-btn">Aplicar
+                            sugerencias</button>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">Sugerencias Aplicadas</div>
+                        <div id="suggestedResult-introduccion" class="card-body"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- 3) COSTURA -->
+            <div id="costura" class="content-section">
+                <h2>Sección: Costura</h2>
+                <div class="recording-buttons">
+                    <button id="startBtn-costura">Iniciar Grabación</button>
+                    <button id="stopBtn-costura" disabled>Detener Grabación</button>
+                    <button id="uploadBtn-costura" disabled>Enviar Audio</button>
+                </div>
+                <p id="status-costura" class="status-message"></p>
+                <audio id="audioPlayback-costura" controls style="display:none;"></audio>
+                <button id="mostrarTranscripcion-costura" class="mostrar-transcripcion">Mostrar Transcripción</button>
+                <div class="card-grid">
+                    <div class="card">
+                        <div class="card-header">Bloc de notas</div>
+                        <div class="card-body">
+                            <textarea id="notas-costura" rows="6" placeholder="Escribe el contenido aquí..."></textarea>
+                            <div class="action-buttons">
+                                <button id="evaluar-costura">Evaluar</button>
+                                <button id="guardar-costura" onclick="guardarNota('costura')">Guardar</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">Evaluación</div>
+                        <div id="evaluationResult-costura" class="card-body"></div>
+                        <button id="applySuggestions-costura" class="apply-suggestions-btn">Aplicar sugerencias</button>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">Sugerencias Aplicadas</div>
+                        <div id="suggestedResult-costura" class="card-body"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- 4) PROBLEMÁTICA -->
+            <div id="problematica" class="content-section">
+                <h2>Sección: Problemática</h2>
+                <div class="recording-buttons">
+                    <button id="startBtn-problematica">Iniciar Grabación</button>
+                    <button id="stopBtn-problematica" disabled>Detener Grabación</button>
+                    <button id="uploadBtn-problematica" disabled>Enviar Audio</button>
+                </div>
+                <p id="status-problematica" class="status-message"></p>
+                <audio id="audioPlayback-problematica" controls style="display:none;"></audio>
+                <button id="mostrarTranscripcion-problematica" class="mostrar-transcripcion">Mostrar
+                    Transcripción</button>
+                <div class="card-grid">
+                    <div class="card">
+                        <div class="card-header">Bloc de notas</div>
+                        <div class="card-body">
+                            <textarea id="notas-problematica" rows="6"
+                                placeholder="Escribe el contenido aquí..."></textarea>
+                            <div class="action-buttons">
+                                <button id="evaluar-problematica">Evaluar</button>
+                                <button id="guardar-problematica" onclick="guardarNota('problematica')">Guardar</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">Evaluación</div>
+                        <div id="evaluationResult-problematica" class="card-body"></div>
+                        <button id="applySuggestions-problematica" class="apply-suggestions-btn">Aplicar
+                            sugerencias</button>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">Sugerencias Aplicadas</div>
+                        <div id="suggestedResult-problematica" class="card-body"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- 5) CONECTOR -->
+            <div id="conector" class="content-section">
+                <h2>Sección: Conector</h2>
+                <div class="recording-buttons">
+                    <button id="startBtn-conector">Iniciar Grabación</button>
+                    <button id="stopBtn-conector" disabled>Detener Grabación</button>
+                    <button id="uploadBtn-conector" disabled>Enviar Audio</button>
+                </div>
+                <p id="status-conector" class="status-message"></p>
+                <audio id="audioPlayback-conector" controls style="display:none;"></audio>
+                <button id="mostrarTranscripcion-conector" class="mostrar-transcripcion">Mostrar Transcripción</button>
+                <div class="card-grid">
+                    <div class="card">
+                        <div class="card-header">Bloc de notas</div>
+                        <div class="card-body">
+                            <textarea id="notas-conector" rows="6"
+                                placeholder="Escribe el contenido aquí..."></textarea>
+                            <div class="action-buttons">
+                                <button id="evaluar-conector">Evaluar</button>
+                                <button id="guardar-conector" onclick="guardarNota('conector')">Guardar</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">Evaluación</div>
+                        <div id="evaluationResult-conector" class="card-body"></div>
+                        <button id="applySuggestions-conector" class="apply-suggestions-btn">Aplicar
+                            sugerencias</button>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">Sugerencias Aplicadas</div>
+                        <div id="suggestedResult-conector" class="card-body"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- 6) DESARROLLO -->
+            <div id="desarrollo" class="content-section">
+                <h2>Sección: Desarrollo</h2>
+                <div class="recording-buttons">
+                    <button id="startBtn-desarrollo">Iniciar Grabación</button>
+                    <button id="stopBtn-desarrollo" disabled>Detener Grabación</button>
+                    <button id="uploadBtn-desarrollo" disabled>Enviar Audio</button>
+                </div>
+                <p id="status-desarrollo" class="status-message"></p>
+                <audio id="audioPlayback-desarrollo" controls style="display:none;"></audio>
+                <button id="mostrarTranscripcion-desarrollo" class="mostrar-transcripcion">Mostrar
+                    Transcripción</button>
+                <div class="card-grid">
+                    <div class="card">
+                        <div class="card-header">Bloc de notas</div>
+                        <div class="card-body">
+                            <textarea id="notas-desarrollo" rows="6"
+                                placeholder="Escribe el contenido aquí..."></textarea>
+                            <div class="action-buttons">
+                                <button id="evaluar-desarrollo">Evaluar</button>
+                                <button id="guardar-desarrollo" onclick="guardarNota('desarrollo')">Guardar</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">Evaluación</div>
+                        <div id="evaluationResult-desarrollo" class="card-body"></div>
+                        <button id="applySuggestions-desarrollo" class="apply-suggestions-btn">Aplicar
+                            sugerencias</button>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">Sugerencias Aplicadas</div>
+                        <div id="suggestedResult-desarrollo" class="card-body"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- 7) CONCLUSIÓN -->
+            <div id="conclusion" class="content-section">
+                <h2>Sección: Conclusión</h2>
+                <div class="recording-buttons">
+                    <button id="startBtn-conclusion">Iniciar Grabación</button>
+                    <button id="stopBtn-conclusion" disabled>Detener Grabación</button>
+                    <button id="uploadBtn-conclusion" disabled>Enviar Audio</button>
+                </div>
+                <p id="status-conclusion" class="status-message"></p>
+                <audio id="audioPlayback-conclusion" controls style="display:none;"></audio>
+                <button id="mostrarTranscripcion-conclusion" class="mostrar-transcripcion">Mostrar
+                    Transcripción</button>
+                <div class="card-grid">
+                    <div class="card">
+                        <div class="card-header">Bloc de notas</div>
+                        <div class="card-body">
+                            <textarea id="notas-conclusion" rows="6"
+                                placeholder="Escribe el contenido aquí..."></textarea>
+                            <div class="action-buttons">
+                                <button id="evaluar-conclusion">Evaluar</button>
+                                <button id="guardar-conclusion" onclick="guardarNota('conclusion')">Guardar</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">Evaluación</div>
+                        <div id="evaluationResult-conclusion" class="card-body"></div>
+                        <button id="applySuggestions-conclusion" class="apply-suggestions-btn">Aplicar
+                            sugerencias</button>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">Sugerencias Aplicadas</div>
+                        <div id="suggestedResult-conclusion" class="card-body"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- 8) MINISTRACIÓN -->
+            <div id="ministracion" class="content-section">
+                <h2>Sección: Ministración</h2>
+                <div class="recording-buttons">
+                    <button id="startBtn-ministracion">Iniciar Grabación</button>
+                    <button id="stopBtn-ministracion" disabled>Detener Grabación</button>
+                    <button id="uploadBtn-ministracion" disabled>Enviar Audio</button>
+                </div>
+                <p id="status-ministracion" class="status-message"></p>
+                <audio id="audioPlayback-ministracion" controls style="display:none;"></audio>
+                <button id="mostrarTranscripcion-ministracion" class="mostrar-transcripcion">Mostrar
+                    Transcripción</button>
+                <div class="card-grid">
+                    <div class="card">
+                        <div class="card-header">Bloc de notas</div>
+                        <div class="card-body">
+                            <textarea id="notas-ministracion" rows="6"
+                                placeholder="Escribe el contenido aquí..."></textarea>
+                            <div class="action-buttons">
+                                <button id="evaluar-ministracion">Evaluar</button>
+                                <button id="guardar-ministracion" onclick="guardarNota('ministracion')">Guardar</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">Evaluación</div>
+                        <div id="evaluationResult-ministracion" class="card-body"></div>
+                        <button id="applySuggestions-ministracion" class="apply-suggestions-btn">Aplicar
+                            sugerencias</button>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">Sugerencias Aplicadas</div>
+                        <div id="suggestedResult-ministracion" class="card-body"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- SECCIÓN: MENSAJE CONSOLIDADO -->
+            <div id="mensajeConsolidado" class="content-section">
+                <h2>Mensaje Consolidado</h2>
+                <div class="card">
+                    <div class="card-header">Mensaje Consolidado</div>
+                    <div id="contenidoMensajeConsolidado" class="card-body">
+                        <!-- Aquí se mostrará el mensaje consolidado -->
+                    </div>
+                    <!-- Botón para descargar en PDF desde la sección -->
+                    <button id="btnDescargarSeccion">Descargar PDF</button>
+                </div>
+            </div>
+
+            <!-- SECCIÓN: CALIBRACIÓN -->
+            <div id="calibracion" class="content-section">
+                <h2>Calibración de Prompts</h2>
+                <div class="card-grid" style="grid-template-columns: repeat(4, 1fr);">
+                    <div class="card">
+                        <div class="card-header">Título</div>
+                        <div class="card-body">
+                            <textarea id="prompt-titulo" rows="6"></textarea>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">Introducción</div>
+                        <div class="card-body">
+                            <textarea id="prompt-introduccion" rows="6"></textarea>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">Costura</div>
+                        <div class="card-body">
+                            <textarea id="prompt-costura" rows="6"></textarea>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">Problemática</div>
+                        <div class="card-body">
+                            <textarea id="prompt-problematica" rows="6"></textarea>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">Conector</div>
+                        <div class="card-body">
+                            <textarea id="prompt-conector" rows="6"></textarea>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">Desarrollo</div>
+                        <div class="card-body">
+                            <textarea id="prompt-desarrollo" rows="6"></textarea>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">Conclusión</div>
+                        <div class="card-body">
+                            <textarea id="prompt-conclusion" rows="6"></textarea>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">Ministración</div>
+                        <div class="card-body">
+                            <textarea id="prompt-ministracion" rows="6"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <button id="guardarCalibracion" style="padding: 0.75em 1em; margin-top: 1em;">Guardar Cambios</button>
+                <div id="resultadoCalibracion"></div>
+            </div>
+        </main>
+    </div>
+    <!-- Modal para mostrar la transcripción del audio -->
+    <div id="modalTranscripcion" class="modal">
+        <div class="modal-content">
+            <span class="close-button" id="closeTranscripcion">&times;</span>
+            <h3>Transcripción</h3>
+            <div id="contenidoTranscripcion" style="white-space: pre-wrap;"></div>
+        </div>
+    </div>
+    <!-- Modal para mostrar el mensaje consolidado -->
+    <div id="modalConsolidado" class="modal">
+        <div class="modal-content">
+            <span class="close-button" id="closeConsolidado">&times;</span>
+            <h3>Mensaje Consolidado</h3>
+            <div id="contenidoConsolidado" style="white-space: pre-wrap;"></div>
+            <!-- Botón para descargar en PDF desde el modal -->
+            <button id="btnDescargarModal">Descargar PDF</button>
+        </div>
+    </div>
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-left">
+            Powered by: <a
+                href="https://api.whatsapp.com/send?phone=573008021701&text=Vi%20la%20aplicacion%20que%20desarrollaste"
+                target="_blank">Daniel Talero</a>
+        </div>
+        <div class="footer-right"></div>
+    </footer>
+
+
+    <script>
+        // Variable global para almacenar el nombre de usuario
+        let currentUser = "";
+        window.addEventListener('load', async function () {
+            currentUser = prompt("Ingresa tu nombre de usuario:");
+            if (!currentUser) {
+                alert("El usuario es obligatorio. Se asignará 'Usuario' por defecto.");
+                currentUser = "Usuario";
+            }
+
+            // Llamamos a la función para cargar las notas de este usuario
+            await loadUserNotes(currentUser);
+        });
+
+        // Función que obtiene la última nota guardada para el usuario dado
+        async function loadUserNotes(username) {
+            try {
+                const response = await fetch(`/obtener-ultimo-mensaje?usuario=${encodeURIComponent(username)}`);
+                const data = await response.json();
+
+                if (data.success && data.mensaje) {
+                    // data.mensaje contiene las columnas de la tabla 'mensajes'
+                    // Carga cada sección en su textarea correspondiente
+                    document.getElementById('notas-titulo').value = data.mensaje.titulo || "";
+                    document.getElementById('notas-introduccion').value = data.mensaje.introduccion || "";
+                    document.getElementById('notas-costura').value = data.mensaje.costura || "";
+                    document.getElementById('notas-problematica').value = data.mensaje.problematica || "";
+                    document.getElementById('notas-conector').value = data.mensaje.conector || "";
+                    document.getElementById('notas-desarrollo').value = data.mensaje.desarrollo || "";
+                    document.getElementById('notas-conclusion').value = data.mensaje.conclusion || "";
+                    document.getElementById('notas-ministracion').value = data.mensaje.ministracion || "";
+                } else {
+                    // Si no hay notas para este usuario, puedes mostrar un mensaje o simplemente no hacer nada
+                    console.log("No se encontraron notas para este usuario.");
+                }
+            } catch (error) {
+                console.error("Error al obtener notas del usuario:", error);
+            }
+        }
+
+
+        /* Objeto global para almacenar las transcripciones en el frontend */
+        const transcripcionesFrontend = {};
+        /* Función para formatear texto (negritas y saltos de línea) */
+        function formatOpenAiText(text) {
+            if (!text) return "";
+            let formatted = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            formatted = formatted.replace(/\n/g, '<br>');
+            return formatted;
+        }
+        /* NAVEGACIÓN ENTRE SECCIONES */
+        const menuButtons = document.querySelectorAll('.menu-btn');
+        const sections = document.querySelectorAll('.content-section');
+
+        menuButtons.forEach((btn) => {
+            btn.addEventListener('click', () => {
+                menuButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const targetSection = btn.getAttribute('data-section');
+                sections.forEach(sec => {
+                    sec.classList.toggle('active', sec.id === targetSection);
+                });
+                // Aquí se evalúa si se ha seleccionado la sección "mensajeConsolidado"
+                if (targetSection === "mensajeConsolidado") {
+                    document.getElementById("contenidoMensajeConsolidado").innerText = consolidarMensaje();
+                }
+                document.getElementById('btnDescargarSeccion').addEventListener('click', function () {
+                    downloadAsPDF('contenidoMensajeConsolidado');
+                });
+            });
+        });
+        /* PREGUNTAS INICIALES */
+        const questionsForm = document.getElementById('questionsForm');
+        const questionsResult = document.getElementById('questionsResult');
+        questionsForm && questionsForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const tema = document.getElementById('tema').value;
+            const proposito = document.getElementById('proposito').value;
+            const audiencia = document.getElementById('audiencia').value;
+            const tiempo = document.getElementById('tiempo').value;
+            questionsResult.textContent = "Guardando preguntas...";
+            try {
+                const response = await fetch("/guardar-preguntas", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ tema, proposito, audiencia, tiempo })
+                });
+                const data = await response.json();
+                if (data.error) {
+                    questionsResult.textContent = "Error: " + data.error;
+                } else {
+                    questionsResult.textContent = "Preguntas guardadas exitosamente.";
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                questionsResult.textContent = "Ocurrió un error al guardar las preguntas.";
+            }
+        });
+        /* Función para guardar una nota en la base de datos */
+        async function guardarNota(section) {
+            const contenido = document.getElementById('notas-' + section).value;
+            if (!contenido.trim()) {
+                alert("El contenido está vacío");
+                return;
+            }
+            if (!currentUser) {
+                alert("El usuario es obligatorio");
+                return;
+            }
+            // Objeto mensaje con todas las secciones vacías
+            const mensaje = {
+                usuario: currentUser,
+                titulo: "",
+                introduccion: "",
+                costura: "",
+                problematica: "",
+                conector: "",
+                desarrollo: "",
+                conclusion: "",
+                ministracion: ""
+            };
+            // Asigna el contenido sólo a la sección actual
+            mensaje[section] = contenido;
+            try {
+                const response = await fetch('/guardar-mensaje', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(mensaje)
+                });
+                const data = await response.json();
+                if (data.success) {
+                    alert("Nota guardada correctamente");
+                    // Mostrar el mensaje consolidado en un modal
+                    mostrarConsolidado();
+                } else {
+                    alert("Error al guardar la nota");
+                }
+            } catch (error) {
+                console.error("Error al guardar la nota:", error);
+                alert("Error al guardar la nota");
+            }
+        }
+
+        /* MOSTRAR CONSOLIDADO */
+
+        function mostrarConsolidado() {
+            // Define las secciones y sus etiquetas
+            const secciones = [
+                { id: 'notas-titulo', label: 'TÍTULO' },
+                { id: 'notas-introduccion', label: 'INTRODUCCIÓN' },
+                { id: 'notas-costura', label: 'COSTURA' },
+                { id: 'notas-problematica', label: 'PROBLEMÁTICA' },
+                { id: 'notas-conector', label: 'CONECTOR' },
+                { id: 'notas-desarrollo', label: 'DESARROLLO' },
+                { id: 'notas-conclusion', label: 'CONCLUSIÓN' },
+                { id: 'notas-ministracion', label: 'MINISTRACIÓN' }
+            ];
+            let mensajeConsolidado = "";
+            secciones.forEach(seccion => {
+                const valor = document.getElementById(seccion.id)?.value || "";
+                if (valor.trim() !== "") {
+                    mensajeConsolidado += seccion.label + ":\n" + valor.trim() + "\n\n";
+                }
+            });
+            // Coloca el mensaje en el modal
+            document.getElementById('contenidoConsolidado').innerText = mensajeConsolidado;
+            // Muestra el modal
+            document.getElementById('modalConsolidado').style.display = 'block';
+            // Agregar el listener para cerrar el modal
+            document.getElementById('closeConsolidado').addEventListener('click', function () {
+                document.getElementById('modalConsolidado').style.display = 'none';
+            });
+            document.getElementById('btnDescargarModal').addEventListener('click', function () {
+                downloadAsPDF('contenidoConsolidado');
+            });
+        }
+
+        function consolidarMensaje() {
+            const secciones = [
+                { id: 'notas-titulo', label: 'TÍTULO' },
+                { id: 'notas-introduccion', label: 'INTRODUCCIÓN' },
+                { id: 'notas-costura', label: 'COSTURA' },
+                { id: 'notas-problematica', label: 'PROBLEMÁTICA' },
+                { id: 'notas-conector', label: 'CONECTOR' },
+                { id: 'notas-desarrollo', label: 'DESARROLLO' },
+                { id: 'notas-conclusion', label: 'CONCLUSIÓN' },
+                { id: 'notas-ministracion', label: 'MINISTRACIÓN' }
+            ];
+
+            let mensajeConsolidado = "";
+            secciones.forEach(seccion => {
+                const valor = document.getElementById(seccion.id)?.value || "";
+                if (valor.trim() !== "") {
+                    mensajeConsolidado += `${seccion.label}:\n${valor.trim()}\n\n`;
+                }
+            });
+
+            // Devolvemos el texto ya armado
+            return mensajeConsolidado;
+        }
+
+        /* DESCARGAR EN PDF */
+
+        function downloadAsPDF(contenedorId) {
+            // 1. Obtenemos la clase jsPDF desde la librería
+            const { jsPDF } = window.jspdf;
+
+            // 2. Creamos una instancia
+            const doc = new jsPDF();
+
+            // 3. Obtenemos el texto del contenedor
+            const contenido = document.getElementById(contenedorId).innerText || "";
+
+            // 4. Dividimos el texto en líneas que quepan en el ancho de la página (por ejemplo 180)
+            const lines = doc.splitTextToSize(contenido, 180);
+
+            // Ajusta el tamaño de fuente si deseas
+            doc.setFontSize(12);
+
+            // 5. Agregamos las líneas al PDF (coordenadas X=10, Y=10)
+            doc.text(lines, 10, 10);
+
+            // 6. Guardamos el PDF con un nombre
+            doc.save("mensaje_consolidado.pdf");
+        }
+
+
+
+        /* EVENTOS PARA EVALUAR TEXTO ESCRITO */
+        const sectionsEscritas = ['titulo', 'introduccion', 'costura', 'problematica', 'conector', 'desarrollo', 'conclusion', 'ministracion'];
+        sectionsEscritas.forEach(section => {
+            const evaluarBtn = document.getElementById(`evaluar-${section}`);
+            if (!evaluarBtn) return;
+            evaluarBtn.addEventListener('click', async () => {
+                const texto = document.getElementById(`notas-${section}`).value.trim();
+                if (!texto) {
+                    alert("Por favor, escribe algo para evaluar.");
+                    return;
+                }
+                const evalCard = document.getElementById(`evaluationResult-${section}`);
+                evalCard.innerHTML = "Evaluando...";
+                try {
+                    const response = await fetch('/evaluar-escrito', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ section, texto })
+                    });
+                    const result = await response.json();
+                    if (result.error) {
+                        evalCard.innerHTML = "Error: " + result.error;
+                    } else {
+                        evalCard.innerHTML = formatOpenAiText(result.evaluacion);
+                        document.getElementById(`applySuggestions-${section}`).style.display = "block";
+                    }
+                } catch (err) {
+                    console.error("Error al evaluar el texto:", err);
+                    evalCard.innerHTML = "Error al evaluar el texto.";
+                }
+            });
+        });
+        /* GRABACIÓN DE AUDIO Y EVALUACIÓN */
+        const sectionsToRecord = ['titulo', 'introduccion', 'costura', 'problematica', 'conector', 'desarrollo', 'conclusion', 'ministracion'];
+        const recorders = {};
+        const audioChunks = {};
+        sectionsToRecord.forEach(sectionId => {
+            const startBtn = document.getElementById(`startBtn-${sectionId}`);
+            const stopBtn = document.getElementById(`stopBtn-${sectionId}`);
+            const uploadBtn = document.getElementById(`uploadBtn-${sectionId}`);
+            const audioPlayback = document.getElementById(`audioPlayback-${sectionId}`);
+            const statusMessage = document.getElementById(`status-${sectionId}`);
+            const evaluationResult = document.getElementById(`evaluationResult-${sectionId}`);
+            const applySuggestionsBtn = document.getElementById(`applySuggestions-${sectionId}`);
+            if (!startBtn) return;
+            let mediaRecorder = null;
+            startBtn.addEventListener('click', async () => {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream);
+                    recorders[sectionId] = mediaRecorder;
+                    audioChunks[sectionId] = [];
+                    mediaRecorder.addEventListener('dataavailable', (e) => {
+                        audioChunks[sectionId].push(e.data);
+                    });
+                    mediaRecorder.addEventListener('stop', () => {
+                        const blob = new Blob(audioChunks[sectionId], { type: 'audio/wav' });
+                        const url = URL.createObjectURL(blob);
+                        if (audioPlayback) {
+                            audioPlayback.src = url;
+                            audioPlayback.style.display = "block";
+                        }
+                    });
+                    mediaRecorder.start();
+                    startBtn.classList.add('recording-active');
+                    startBtn.disabled = true;
+                    stopBtn.disabled = false;
+                    uploadBtn.disabled = true;
+                    if (evaluationResult) evaluationResult.innerHTML = "";
+                    if (applySuggestionsBtn) applySuggestionsBtn.style.display = "none";
+                    statusMessage.textContent = "Grabando...";
+                } catch (err) {
+                    console.error("Error al acceder al micrófono:", err);
+                    statusMessage.textContent = "Error al acceder al micrófono. Revisa los permisos.";
+                }
+            });
+            stopBtn.addEventListener('click', () => {
+                if (mediaRecorder && mediaRecorder.state === "recording") {
+                    mediaRecorder.stop();
+                    startBtn.classList.remove('recording-active');
+                    startBtn.disabled = false;
+                    stopBtn.disabled = true;
+                    uploadBtn.disabled = false;
+                    uploadBtn.style.backgroundColor = "green";
+                    uploadBtn.style.color = "#fff";
+                    statusMessage.textContent = "Grabación detenida. Puedes reproducirla o enviarla.";
+                }
+            });
+            uploadBtn.addEventListener('click', async () => {
+                if (!audioChunks[sectionId] || audioChunks[sectionId].length === 0) {
+                    statusMessage.textContent = "No hay grabación para subir.";
+                    return;
+                }
+                statusMessage.textContent = "Subiendo y procesando el audio...";
+                const blob = new Blob(audioChunks[sectionId], { type: 'audio/wav' });
+                const formData = new FormData();
+                formData.append("audio", blob, "grabacion.wav");
+                formData.append("section", sectionId);
+                try {
+                    const response = await fetch("/transcribir", {
+                        method: "POST",
+                        body: formData
+                    });
+                    const data = await response.json();
+                    if (data.error) {
+                        statusMessage.textContent = "Error: " + data.error;
+                    } else {
+                        statusMessage.textContent = "Transcripción y evaluación listas.";
+                        transcripcionesFrontend[sectionId] = data.transcripcion;
+                        evaluationResult.innerHTML = formatOpenAiText(data.evaluacion);
+                        const btnMostrar = document.getElementById(`mostrarTranscripcion-${sectionId}`);
+                        if (btnMostrar) btnMostrar.style.display = "block";
+                        if (applySuggestionsBtn) applySuggestionsBtn.style.display = "block";
+                    }
+                } catch (error) {
+                    console.error("Error al subir el audio:", error);
+                    statusMessage.textContent = "Ocurrió un error al subir la grabación.";
+                }
+            });
+            applySuggestionsBtn && applySuggestionsBtn.addEventListener('click', async () => {
+                applySuggestionsBtn.innerText = "Aplicando sugerencias...";
+                const transcripcion = transcripcionesFrontend[sectionId] || document.getElementById(`notas-${sectionId}`).value.trim();
+                const evaluacion = evaluationResult.textContent.trim();
+                if (!transcripcion || !evaluacion) {
+                    alert("Faltan la transcripción o la evaluación.");
+                    applySuggestionsBtn.innerText = "Aplicar sugerencias";
+                    return;
+                }
+                try {
+                    const resp = await fetch('/aplicar-sugerencias', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ transcripcion, evaluacion })
+                    });
+                    const result = await resp.json();
+                    if (result.error) {
+                        document.getElementById(`suggestedResult-${sectionId}`).innerHTML = "Error: " + result.error;
+                    } else {
+                        document.getElementById(`suggestedResult-${sectionId}`).innerHTML = formatOpenAiText(result.transcripcionSugerida);
+                    }
+                } catch (err) {
+                    console.error("Error al aplicar sugerencias:", err);
+                    document.getElementById(`suggestedResult-${sectionId}`).innerHTML = "Error al aplicar sugerencias.";
+                } finally {
+                    applySuggestionsBtn.innerText = "Aplicar sugerencias";
+                }
+            });
+        });
+        /* Modal para mostrar la transcripción del audio */
+        document.querySelectorAll('.mostrar-transcripcion').forEach(button => {
+            button.addEventListener('click', function () {
+                const section = this.id.split('-')[1];
+                const transcripcion = transcripcionesFrontend[section] || "(No hay transcripción)";
+                document.getElementById('contenidoTranscripcion').innerText = transcripcion;
+                document.getElementById('modalTranscripcion').style.display = 'block';
+            });
+        });
+        document.getElementById('closeTranscripcion').addEventListener('click', function () {
+            document.getElementById('modalTranscripcion').style.display = 'none';
+        });
+        /* Precargar los prompts de calibración */
+        async function precargarPrompts() {
+            try {
+                const response = await fetch('/obtener-calibracion');
+                const data = await response.json();
+                const prompts = data.promptsCalibracion;
+                document.getElementById('prompt-titulo').value = prompts.titulo || "";
+                document.getElementById('prompt-introduccion').value = prompts.introduccion || "";
+                document.getElementById('prompt-costura').value = prompts.costura || "";
+                document.getElementById('prompt-problematica').value = prompts.problematica || "";
+                document.getElementById('prompt-conector').value = prompts.conector || "";
+                document.getElementById('prompt-desarrollo').value = prompts.desarrollo || "";
+                document.getElementById('prompt-conclusion').value = prompts.conclusion || "";
+                document.getElementById('prompt-ministracion').value = prompts.ministracion || "";
+            } catch (err) {
+                console.error("Error al obtener la calibración:", err);
+            }
+        }
+        document.querySelector('[data-section="calibracion"]').addEventListener('click', precargarPrompts);
+        /* Guardar cambios en Calibración */
+        document.getElementById('guardarCalibracion').addEventListener('click', async () => {
+            const nuevosPrompts = {
+                titulo: document.getElementById('prompt-titulo').value,
+                introduccion: document.getElementById('prompt-introduccion').value,
+                costura: document.getElementById('prompt-costura').value,
+                problematica: document.getElementById('prompt-problematica').value,
+                conector: document.getElementById('prompt-conector').value,
+                desarrollo: document.getElementById('prompt-desarrollo').value,
+                conclusion: document.getElementById('prompt-conclusion').value,
+                ministracion: document.getElementById('prompt-ministracion').value
+            };
+            try {
+                const response = await fetch('/actualizar-calibracion', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(nuevosPrompts)
+                });
+                const result = await response.json();
+                const resultadoDiv = document.getElementById('resultadoCalibracion');
+                if (result.success) {
+                    resultadoDiv.innerText = "Prompts actualizados correctamente.";
+                } else {
+                    resultadoDiv.innerText = "Error al actualizar los prompts.";
+                }
+            } catch (err) {
+                console.error("Error al actualizar calibración:", err);
+                document.getElementById('resultadoCalibracion').innerText = "Error al actualizar los prompts.";
+            }
+        });
+    </script>
+</body>
+
+</html>
