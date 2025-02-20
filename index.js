@@ -496,9 +496,7 @@ app.get('/', (req, res) => {
 });
 
 // Detectar puerto libre y lanzar servidor
-detect(DEFAULT_PORT).then((availablePort) => {
-    const port = availablePort !== DEFAULT_PORT ? availablePort : DEFAULT_PORT;
-    app.listen(port, () => {
-        console.log(`🚀 Servidor corriendo en http://localhost:${port}`);
-    });
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
 });
