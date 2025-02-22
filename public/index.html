@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -327,7 +326,6 @@
         <aside class="sidebar">
             <h2>Secciones</h2>
             <ul>
-                <!-- Se elimina el botón "Construcción Mensaje" -->
                 <li><button class="menu-btn active" data-section="preguntas">Preguntas iniciales</button></li>
                 <li><button class="menu-btn" data-section="titulo">Título</button></li>
                 <li><button class="menu-btn" data-section="introduccion">Introducción</button></li>
@@ -341,9 +339,14 @@
                 <li><button class="menu-btn" data-section="calibracion">Calibración</button></li>
             </ul>
         </aside>
+
         <!-- CONTENIDO PRINCIPAL -->
         <main class="main-content">
-            <h1>Constructor de Mensajes Speakers LVR</h1>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <img src="images/logolvr.png" alt="Logo LVR" style="height: 40px;">
+                <h1>Constructor de Mensajes Speakers LVR</h1>
+            </div>
+
             <!-- SECCIÓN: PREGUNTAS INICIALES -->
             <div id="preguntas" class="content-section active">
                 <h2>Preguntas Iniciales</h2>
@@ -360,6 +363,7 @@
                 </form>
                 <div id="questionsResult"></div>
             </div>
+
             <!-- ================== TODAS LAS SECCIONES ================== -->
             <!-- 1) TÍTULO -->
             <div id="titulo" class="content-section">
@@ -372,6 +376,7 @@
                 <p id="status-titulo" class="status-message"></p>
                 <audio id="audioPlayback-titulo" controls style="display:none;"></audio>
                 <button id="mostrarTranscripcion-titulo" class="mostrar-transcripcion">Mostrar Transcripción</button>
+
                 <div class="card-grid">
                     <div class="card">
                         <div class="card-header">Bloc de notas</div>
@@ -394,6 +399,7 @@
                     </div>
                 </div>
             </div>
+
             <!-- 2) INTRODUCCIÓN -->
             <div id="introduccion" class="content-section">
                 <h2>Sección: Introducción</h2>
@@ -406,12 +412,12 @@
                 <audio id="audioPlayback-introduccion" controls style="display:none;"></audio>
                 <button id="mostrarTranscripcion-introduccion" class="mostrar-transcripcion">Mostrar
                     Transcripción</button>
+
                 <div class="card-grid">
                     <div class="card">
                         <div class="card-header">Bloc de notas</div>
                         <div class="card-body">
-                            <textarea id="notas-introduccion" rows="6"
-                                placeholder="Escribe el contenido aquí..."></textarea>
+                            <textarea id="notas-introduccion" rows="6" placeholder="Escribe el contenido aquí..."></textarea>
                             <div class="action-buttons">
                                 <button id="evaluar-introduccion">Evaluar</button>
                                 <button id="guardar-introduccion" onclick="guardarNota('introduccion')">Guardar</button>
@@ -421,8 +427,7 @@
                     <div class="card">
                         <div class="card-header">Evaluación</div>
                         <div id="evaluationResult-introduccion" class="card-body"></div>
-                        <button id="applySuggestions-introduccion" class="apply-suggestions-btn">Aplicar
-                            sugerencias</button>
+                        <button id="applySuggestions-introduccion" class="apply-suggestions-btn">Aplicar sugerencias</button>
                     </div>
                     <div class="card">
                         <div class="card-header">Sugerencias Aplicadas</div>
@@ -430,6 +435,7 @@
                     </div>
                 </div>
             </div>
+
             <!-- 3) COSTURA -->
             <div id="costura" class="content-section">
                 <h2>Sección: Costura</h2>
@@ -441,6 +447,7 @@
                 <p id="status-costura" class="status-message"></p>
                 <audio id="audioPlayback-costura" controls style="display:none;"></audio>
                 <button id="mostrarTranscripcion-costura" class="mostrar-transcripcion">Mostrar Transcripción</button>
+
                 <div class="card-grid">
                     <div class="card">
                         <div class="card-header">Bloc de notas</div>
@@ -463,6 +470,7 @@
                     </div>
                 </div>
             </div>
+
             <!-- 4) PROBLEMÁTICA -->
             <div id="problematica" class="content-section">
                 <h2>Sección: Problemática</h2>
@@ -473,14 +481,13 @@
                 </div>
                 <p id="status-problematica" class="status-message"></p>
                 <audio id="audioPlayback-problematica" controls style="display:none;"></audio>
-                <button id="mostrarTranscripcion-problematica" class="mostrar-transcripcion">Mostrar
-                    Transcripción</button>
+                <button id="mostrarTranscripcion-problematica" class="mostrar-transcripcion">Mostrar Transcripción</button>
+
                 <div class="card-grid">
                     <div class="card">
                         <div class="card-header">Bloc de notas</div>
                         <div class="card-body">
-                            <textarea id="notas-problematica" rows="6"
-                                placeholder="Escribe el contenido aquí..."></textarea>
+                            <textarea id="notas-problematica" rows="6" placeholder="Escribe el contenido aquí..."></textarea>
                             <div class="action-buttons">
                                 <button id="evaluar-problematica">Evaluar</button>
                                 <button id="guardar-problematica" onclick="guardarNota('problematica')">Guardar</button>
@@ -490,8 +497,7 @@
                     <div class="card">
                         <div class="card-header">Evaluación</div>
                         <div id="evaluationResult-problematica" class="card-body"></div>
-                        <button id="applySuggestions-problematica" class="apply-suggestions-btn">Aplicar
-                            sugerencias</button>
+                        <button id="applySuggestions-problematica" class="apply-suggestions-btn">Aplicar sugerencias</button>
                     </div>
                     <div class="card">
                         <div class="card-header">Sugerencias Aplicadas</div>
@@ -499,6 +505,7 @@
                     </div>
                 </div>
             </div>
+
             <!-- 5) CONECTOR -->
             <div id="conector" class="content-section">
                 <h2>Sección: Conector</h2>
@@ -510,12 +517,12 @@
                 <p id="status-conector" class="status-message"></p>
                 <audio id="audioPlayback-conector" controls style="display:none;"></audio>
                 <button id="mostrarTranscripcion-conector" class="mostrar-transcripcion">Mostrar Transcripción</button>
+
                 <div class="card-grid">
                     <div class="card">
                         <div class="card-header">Bloc de notas</div>
                         <div class="card-body">
-                            <textarea id="notas-conector" rows="6"
-                                placeholder="Escribe el contenido aquí..."></textarea>
+                            <textarea id="notas-conector" rows="6" placeholder="Escribe el contenido aquí..."></textarea>
                             <div class="action-buttons">
                                 <button id="evaluar-conector">Evaluar</button>
                                 <button id="guardar-conector" onclick="guardarNota('conector')">Guardar</button>
@@ -525,8 +532,7 @@
                     <div class="card">
                         <div class="card-header">Evaluación</div>
                         <div id="evaluationResult-conector" class="card-body"></div>
-                        <button id="applySuggestions-conector" class="apply-suggestions-btn">Aplicar
-                            sugerencias</button>
+                        <button id="applySuggestions-conector" class="apply-suggestions-btn">Aplicar sugerencias</button>
                     </div>
                     <div class="card">
                         <div class="card-header">Sugerencias Aplicadas</div>
@@ -534,6 +540,7 @@
                     </div>
                 </div>
             </div>
+
             <!-- 6) DESARROLLO -->
             <div id="desarrollo" class="content-section">
                 <h2>Sección: Desarrollo</h2>
@@ -546,12 +553,12 @@
                 <audio id="audioPlayback-desarrollo" controls style="display:none;"></audio>
                 <button id="mostrarTranscripcion-desarrollo" class="mostrar-transcripcion">Mostrar
                     Transcripción</button>
+
                 <div class="card-grid">
                     <div class="card">
                         <div class="card-header">Bloc de notas</div>
                         <div class="card-body">
-                            <textarea id="notas-desarrollo" rows="6"
-                                placeholder="Escribe el contenido aquí..."></textarea>
+                            <textarea id="notas-desarrollo" rows="6" placeholder="Escribe el contenido aquí..."></textarea>
                             <div class="action-buttons">
                                 <button id="evaluar-desarrollo">Evaluar</button>
                                 <button id="guardar-desarrollo" onclick="guardarNota('desarrollo')">Guardar</button>
@@ -561,8 +568,7 @@
                     <div class="card">
                         <div class="card-header">Evaluación</div>
                         <div id="evaluationResult-desarrollo" class="card-body"></div>
-                        <button id="applySuggestions-desarrollo" class="apply-suggestions-btn">Aplicar
-                            sugerencias</button>
+                        <button id="applySuggestions-desarrollo" class="apply-suggestions-btn">Aplicar sugerencias</button>
                     </div>
                     <div class="card">
                         <div class="card-header">Sugerencias Aplicadas</div>
@@ -570,6 +576,7 @@
                     </div>
                 </div>
             </div>
+
             <!-- 7) CONCLUSIÓN -->
             <div id="conclusion" class="content-section">
                 <h2>Sección: Conclusión</h2>
@@ -582,12 +589,12 @@
                 <audio id="audioPlayback-conclusion" controls style="display:none;"></audio>
                 <button id="mostrarTranscripcion-conclusion" class="mostrar-transcripcion">Mostrar
                     Transcripción</button>
+
                 <div class="card-grid">
                     <div class="card">
                         <div class="card-header">Bloc de notas</div>
                         <div class="card-body">
-                            <textarea id="notas-conclusion" rows="6"
-                                placeholder="Escribe el contenido aquí..."></textarea>
+                            <textarea id="notas-conclusion" rows="6" placeholder="Escribe el contenido aquí..."></textarea>
                             <div class="action-buttons">
                                 <button id="evaluar-conclusion">Evaluar</button>
                                 <button id="guardar-conclusion" onclick="guardarNota('conclusion')">Guardar</button>
@@ -597,8 +604,7 @@
                     <div class="card">
                         <div class="card-header">Evaluación</div>
                         <div id="evaluationResult-conclusion" class="card-body"></div>
-                        <button id="applySuggestions-conclusion" class="apply-suggestions-btn">Aplicar
-                            sugerencias</button>
+                        <button id="applySuggestions-conclusion" class="apply-suggestions-btn">Aplicar sugerencias</button>
                     </div>
                     <div class="card">
                         <div class="card-header">Sugerencias Aplicadas</div>
@@ -606,6 +612,7 @@
                     </div>
                 </div>
             </div>
+
             <!-- 8) MINISTRACIÓN -->
             <div id="ministracion" class="content-section">
                 <h2>Sección: Ministración</h2>
@@ -618,12 +625,12 @@
                 <audio id="audioPlayback-ministracion" controls style="display:none;"></audio>
                 <button id="mostrarTranscripcion-ministracion" class="mostrar-transcripcion">Mostrar
                     Transcripción</button>
+
                 <div class="card-grid">
                     <div class="card">
                         <div class="card-header">Bloc de notas</div>
                         <div class="card-body">
-                            <textarea id="notas-ministracion" rows="6"
-                                placeholder="Escribe el contenido aquí..."></textarea>
+                            <textarea id="notas-ministracion" rows="6" placeholder="Escribe el contenido aquí..."></textarea>
                             <div class="action-buttons">
                                 <button id="evaluar-ministracion">Evaluar</button>
                                 <button id="guardar-ministracion" onclick="guardarNota('ministracion')">Guardar</button>
@@ -633,8 +640,7 @@
                     <div class="card">
                         <div class="card-header">Evaluación</div>
                         <div id="evaluationResult-ministracion" class="card-body"></div>
-                        <button id="applySuggestions-ministracion" class="apply-suggestions-btn">Aplicar
-                            sugerencias</button>
+                        <button id="applySuggestions-ministracion" class="apply-suggestions-btn">Aplicar sugerencias</button>
                     </div>
                     <div class="card">
                         <div class="card-header">Sugerencias Aplicadas</div>
@@ -642,6 +648,7 @@
                     </div>
                 </div>
             </div>
+
             <!-- SECCIÓN: MENSAJE CONSOLIDADO -->
             <div id="mensajeConsolidado" class="content-section">
                 <h2>Mensaje Consolidado</h2>
@@ -713,6 +720,7 @@
             </div>
         </main>
     </div>
+
     <!-- Modal para mostrar la transcripción del audio -->
     <div id="modalTranscripcion" class="modal">
         <div class="modal-content">
@@ -721,6 +729,7 @@
             <div id="contenidoTranscripcion" style="white-space: pre-wrap;"></div>
         </div>
     </div>
+
     <!-- Modal para mostrar el mensaje consolidado -->
     <div id="modalConsolidado" class="modal">
         <div class="modal-content">
@@ -731,16 +740,16 @@
             <button id="btnDescargarModal">Descargar PDF</button>
         </div>
     </div>
+
     <!-- FOOTER -->
     <footer class="footer">
         <div class="footer-left">
-            Powered by: <a
-                href="https://api.whatsapp.com/send?phone=573008021701&text=Vi%20la%20aplicacion%20que%20desarrollaste"
+            Powered by: 
+            <a href="https://api.whatsapp.com/send?phone=573008021701&text=Vi%20la%20aplicacion%20que%20desarrollaste"
                 target="_blank">Daniel Talero</a>
         </div>
         <div class="footer-right"></div>
     </footer>
-
 
     <script>
         // Variable global para almacenar el nombre de usuario
@@ -763,7 +772,6 @@
                 const data = await response.json();
 
                 if (data.success && data.mensaje) {
-                    // data.mensaje contiene las columnas de la tabla 'mensajes'
                     // Carga cada sección en su textarea correspondiente
                     document.getElementById('notas-titulo').value = data.mensaje.titulo || "";
                     document.getElementById('notas-introduccion').value = data.mensaje.introduccion || "";
@@ -774,7 +782,6 @@
                     document.getElementById('notas-conclusion').value = data.mensaje.conclusion || "";
                     document.getElementById('notas-ministracion').value = data.mensaje.ministracion || "";
                 } else {
-                    // Si no hay notas para este usuario, puedes mostrar un mensaje o simplemente no hacer nada
                     console.log("No se encontraron notas para este usuario.");
                 }
             } catch (error) {
@@ -782,17 +789,18 @@
             }
         }
 
-
-        /* Objeto global para almacenar las transcripciones en el frontend */
+        // Objeto global para almacenar las transcripciones en el frontend
         const transcripcionesFrontend = {};
-        /* Función para formatear texto (negritas y saltos de línea) */
+
+        // Función para formatear texto (negritas y saltos de línea)
         function formatOpenAiText(text) {
             if (!text) return "";
             let formatted = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
             formatted = formatted.replace(/\n/g, '<br>');
             return formatted;
         }
-        /* NAVEGACIÓN ENTRE SECCIONES */
+
+        // NAVEGACIÓN ENTRE SECCIONES
         const menuButtons = document.querySelectorAll('.menu-btn');
         const sections = document.querySelectorAll('.content-section');
 
@@ -804,7 +812,7 @@
                 sections.forEach(sec => {
                     sec.classList.toggle('active', sec.id === targetSection);
                 });
-                // Aquí se evalúa si se ha seleccionado la sección "mensajeConsolidado"
+                // Al mostrar "mensajeConsolidado", construimos su texto
                 if (targetSection === "mensajeConsolidado") {
                     document.getElementById("contenidoMensajeConsolidado").innerText = consolidarMensaje();
                 }
@@ -813,7 +821,8 @@
                 });
             });
         });
-        /* PREGUNTAS INICIALES */
+
+        // PREGUNTAS INICIALES
         const questionsForm = document.getElementById('questionsForm');
         const questionsResult = document.getElementById('questionsResult');
         questionsForm && questionsForm.addEventListener('submit', async (e) => {
@@ -840,7 +849,8 @@
                 questionsResult.textContent = "Ocurrió un error al guardar las preguntas.";
             }
         });
-        /* Función para guardar una nota en la base de datos */
+
+        // Función para guardar una nota en la base de datos
         async function guardarNota(section) {
             const contenido = document.getElementById('notas-' + section).value;
             if (!contenido.trim()) {
@@ -885,8 +895,7 @@
             }
         }
 
-        /* MOSTRAR CONSOLIDADO */
-
+        // MOSTRAR CONSOLIDADO
         function mostrarConsolidado() {
             // Define las secciones y sus etiquetas
             const secciones = [
@@ -906,11 +915,8 @@
                     mensajeConsolidado += seccion.label + ":\n" + valor.trim() + "\n\n";
                 }
             });
-            // Coloca el mensaje en el modal
             document.getElementById('contenidoConsolidado').innerText = mensajeConsolidado;
-            // Muestra el modal
             document.getElementById('modalConsolidado').style.display = 'block';
-            // Agregar el listener para cerrar el modal
             document.getElementById('closeConsolidado').addEventListener('click', function () {
                 document.getElementById('modalConsolidado').style.display = 'none';
             });
@@ -938,40 +944,25 @@
                     mensajeConsolidado += `${seccion.label}:\n${valor.trim()}\n\n`;
                 }
             });
-
-            // Devolvemos el texto ya armado
             return mensajeConsolidado;
         }
 
-        /* DESCARGAR EN PDF */
-
+        // DESCARGAR EN PDF
         function downloadAsPDF(contenedorId) {
-            // 1. Obtenemos la clase jsPDF desde la librería
             const { jsPDF } = window.jspdf;
-
-            // 2. Creamos una instancia
             const doc = new jsPDF();
-
-            // 3. Obtenemos el texto del contenedor
             const contenido = document.getElementById(contenedorId).innerText || "";
-
-            // 4. Dividimos el texto en líneas que quepan en el ancho de la página (por ejemplo 180)
             const lines = doc.splitTextToSize(contenido, 180);
-
-            // Ajusta el tamaño de fuente si deseas
             doc.setFontSize(12);
-
-            // 5. Agregamos las líneas al PDF (coordenadas X=10, Y=10)
             doc.text(lines, 10, 10);
-
-            // 6. Guardamos el PDF con un nombre
             doc.save("mensaje_consolidado.pdf");
         }
 
-
-
-        /* EVENTOS PARA EVALUAR TEXTO ESCRITO */
-        const sectionsEscritas = ['titulo', 'introduccion', 'costura', 'problematica', 'conector', 'desarrollo', 'conclusion', 'ministracion'];
+        // EVENTOS PARA EVALUAR TEXTO ESCRITO
+        const sectionsEscritas = [
+            'titulo', 'introduccion', 'costura', 'problematica',
+            'conector', 'desarrollo', 'conclusion', 'ministracion'
+        ];
         sectionsEscritas.forEach(section => {
             const evaluarBtn = document.getElementById(`evaluar-${section}`);
             if (!evaluarBtn) return;
@@ -1002,10 +993,15 @@
                 }
             });
         });
-        /* GRABACIÓN DE AUDIO Y EVALUACIÓN */
-        const sectionsToRecord = ['titulo', 'introduccion', 'costura', 'problematica', 'conector', 'desarrollo', 'conclusion', 'ministracion'];
+
+        // GRABACIÓN DE AUDIO Y EVALUACIÓN
+        const sectionsToRecord = [
+            'titulo', 'introduccion', 'costura', 'problematica',
+            'conector', 'desarrollo', 'conclusion', 'ministracion'
+        ];
         const recorders = {};
         const audioChunks = {};
+
         sectionsToRecord.forEach(sectionId => {
             const startBtn = document.getElementById(`startBtn-${sectionId}`);
             const stopBtn = document.getElementById(`stopBtn-${sectionId}`);
@@ -1015,7 +1011,10 @@
             const evaluationResult = document.getElementById(`evaluationResult-${sectionId}`);
             const applySuggestionsBtn = document.getElementById(`applySuggestions-${sectionId}`);
             if (!startBtn) return;
+
             let mediaRecorder = null;
+
+            // Iniciar grabación
             startBtn.addEventListener('click', async () => {
                 try {
                     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -1046,6 +1045,8 @@
                     statusMessage.textContent = "Error al acceder al micrófono. Revisa los permisos.";
                 }
             });
+
+            // Detener grabación
             stopBtn.addEventListener('click', () => {
                 if (mediaRecorder && mediaRecorder.state === "recording") {
                     mediaRecorder.stop();
@@ -1058,6 +1059,8 @@
                     statusMessage.textContent = "Grabación detenida. Puedes reproducirla o enviarla.";
                 }
             });
+
+            // Enviar audio al backend
             uploadBtn.addEventListener('click', async () => {
                 if (!audioChunks[sectionId] || audioChunks[sectionId].length === 0) {
                     statusMessage.textContent = "No hay grabación para subir.";
@@ -1068,6 +1071,7 @@
                 const formData = new FormData();
                 formData.append("audio", blob, "grabacion.wav");
                 formData.append("section", sectionId);
+
                 try {
                     const response = await fetch("/transcribir", {
                         method: "POST",
@@ -1089,36 +1093,49 @@
                     statusMessage.textContent = "Ocurrió un error al subir la grabación.";
                 }
             });
+
+            // Aplicar sugerencias
             applySuggestionsBtn && applySuggestionsBtn.addEventListener('click', async () => {
                 applySuggestionsBtn.innerText = "Aplicando sugerencias...";
-                const transcripcion = transcripcionesFrontend[sectionId] || document.getElementById(`notas-${sectionId}`).value.trim();
+                const transcripcion = transcripcionesFrontend[sectionId]
+                    || document.getElementById(`notas-${sectionId}`).value.trim();
                 const evaluacion = evaluationResult.textContent.trim();
+
                 if (!transcripcion || !evaluacion) {
                     alert("Faltan la transcripción o la evaluación.");
                     applySuggestionsBtn.innerText = "Aplicar sugerencias";
                     return;
                 }
+
                 try {
+                    // Aquí enviamos también "seccion: sectionId"
                     const resp = await fetch('/aplicar-sugerencias', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ transcripcion, evaluacion })
+                        body: JSON.stringify({
+                            transcripcion,
+                            evaluacion,
+                            seccion: sectionId
+                        })
                     });
                     const result = await resp.json();
                     if (result.error) {
                         document.getElementById(`suggestedResult-${sectionId}`).innerHTML = "Error: " + result.error;
                     } else {
-                        document.getElementById(`suggestedResult-${sectionId}`).innerHTML = formatOpenAiText(result.transcripcionSugerida);
+                        document.getElementById(`suggestedResult-${sectionId}`).innerHTML =
+                            formatOpenAiText(result.transcripcionSugerida);
                     }
                 } catch (err) {
                     console.error("Error al aplicar sugerencias:", err);
-                    document.getElementById(`suggestedResult-${sectionId}`).innerHTML = "Error al aplicar sugerencias.";
+                    document.getElementById(`suggestedResult-${sectionId}`).innerHTML =
+                        "Error al aplicar sugerencias.";
                 } finally {
                     applySuggestionsBtn.innerText = "Aplicar sugerencias";
                 }
             });
         });
-        /* Modal para mostrar la transcripción del audio */
+
+        // Modal para mostrar la transcripción del audio
         document.querySelectorAll('.mostrar-transcripcion').forEach(button => {
             button.addEventListener('click', function () {
                 const section = this.id.split('-')[1];
@@ -1130,7 +1147,8 @@
         document.getElementById('closeTranscripcion').addEventListener('click', function () {
             document.getElementById('modalTranscripcion').style.display = 'none';
         });
-        /* Precargar los prompts de calibración */
+
+        // Precargar los prompts de calibración
         async function precargarPrompts() {
             try {
                 const response = await fetch('/obtener-calibracion');
@@ -1148,8 +1166,10 @@
                 console.error("Error al obtener la calibración:", err);
             }
         }
-        document.querySelector('[data-section="calibracion"]').addEventListener('click', precargarPrompts);
-        /* Guardar cambios en Calibración */
+        document.querySelector('[data-section="calibracion"]')
+                .addEventListener('click', precargarPrompts);
+
+        // Guardar cambios en Calibración
         document.getElementById('guardarCalibracion').addEventListener('click', async () => {
             const nuevosPrompts = {
                 titulo: document.getElementById('prompt-titulo').value,
@@ -1181,5 +1201,4 @@
         });
     </script>
 </body>
-
 </html>
