@@ -273,37 +273,45 @@ app.get("/evaluacion", async (req, res) => {
 
 // Ruta para aplicar sugerencias y generar una nueva versión del texto
 app.post("/aplicar-sugerencias", async (req, res) => {
-    const { transcripcion, evaluacion } = req.body;
-    if (!transcripcion || !evaluacion) {
-        return res.status(400).json({ error: "Faltan la transcripción o la evaluación." });
+    const { transcripcion, evaluacion, seccion } = req.body;
+    if (!transcripcion || !evaluacion || !seccion) {
+      return res
+        .status(400)
+        .json({ error: "Faltan la transcripción, la evaluación o la sección." });
     }
-    const prompt = `
-  Eres un asistente de escritura experto. 
-  Tienes esta transcripción original:
+  
+    // Obtener el prompt inicial correspondiente a la sección
+    const promptInicial = promptsCalibracion[seccion] || "";
+  
+    // Construir el prompt final integrando el prompt inicial, la transcripción y la evaluación
+    const promptFinal = `
+  Eres un asistente de escritura experto.
+  Considera el siguiente prompt inicial para la sección "${seccion}":
+  "${promptInicial}"
+  
+  A continuación, tienes la transcripción original:
   "${transcripcion}"
   
-  Y estas sugerencias para mejorarla:
+  Y estas son las sugerencias para mejorarla:
   "${evaluacion}"
   
-  Tu tarea es producir una nueva versión de la transcripción 
-  que incorpore las sugerencias de manera coherente y clara, 
-  manteniendo el estilo y la intención originales, 
-  pero elevando la calidad según lo evaluado.
-
-  Importante! Si lo que vas a sugerir es sobre un título, debe ser corto, concreto y creativo usando un lenguaje sencillo.
-  `;
+  Tu tarea es producir una nueva versión de la transcripción que incorpore las sugerencias de manera coherente y clara, siguiendo las indicaciones del prompt inicial.
+  
+    `;
+  
     try {
-        const response = await openai.chat.completions.create({
-            model: "gpt-4o",
-            messages: [{ role: "system", content: prompt }]
-        });
-        const sugerida = response.choices[0].message.content;
-        res.json({ transcripcionSugerida: sugerida });
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [{ role: "system", content: promptFinal }]
+      });
+      const sugerida = response.choices[0].message.content;
+      res.json({ transcripcionSugerida: sugerida });
     } catch (error) {
-        console.error("❌ Error al aplicar sugerencias:", error);
-        res.status(500).json({ error: "No se pudo aplicar las sugerencias." });
+      console.error("❌ Error al aplicar sugerencias:", error);
+      res.status(500).json({ error: "No se pudo aplicar las sugerencias." });
     }
-});
+  });
+  
 
 // Ruta para guardar un mensaje completo (usuario, fecha, y secciones)
 app.post('/guardar-mensaje', (req, res) => {
