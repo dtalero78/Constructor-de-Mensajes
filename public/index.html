@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
     <title>Constructor de Mensajes Speakers LVR</title>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;700&display=swap"
         rel="stylesheet" />
@@ -13,6 +14,11 @@
             margin: 0;
             padding: 0;
         }
+
+        [data-section="calibracion"] {
+            display: none;
+        }
+
 
         body {
             font-family: 'IBM Plex Sans', sans-serif;
@@ -79,7 +85,7 @@
         }
 
         .main-content>h1 {
-            margin-top: 1em; 
+            margin-top: 1em;
             margin-bottom: 1em;
             font-size: 1.2rem;
         }
@@ -141,7 +147,7 @@
             padding: 0.5em 1em;
             font-size: 0.9rem;
             margin-bottom: 1.5em;
-            line-height: 1.3; 
+            line-height: 1.3;
 
         }
 
@@ -287,6 +293,23 @@
             font-size: 0.85rem;
         }
 
+        .btn-instrucciones {
+            width: auto;
+            /* Evita que se extienda al 100% */
+            padding: 0.15em 17.9em;
+            /* Ajusta el padding para que sea similar al de los botones de grabación, pero un poco más delgado */
+            font-size: 0.6rem;
+            margin-bottom: 1.5em;
+            border: 1px solid #ffffff30;
+            /* Si deseas que tenga un borde similar */
+            border-radius: 5px;
+            background-color: black;
+            color: #ffffff;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+
         /* ----- FOOTER ----- */
         .footer {
             display: flex;
@@ -348,12 +371,21 @@
         <main class="main-content">
             <div style="display: flex; align-items: center; justify-content: space-between;">
                 <h1 style="margin: 0;">
-                  Constructor de Mensajes Speakers LVR
+                    Constructor de Mensajes Speakers LVR
                 </h1>
                 <!-- Logo en la derecha, con 1/4 del tamaño anterior (10px en vez de 40px) -->
                 <img src="images/logolvr.png" alt="Logo LVR" style="height: 20px;">
-              </div>
-              
+            </div>
+
+            <!-- Modal para mostrar las instrucciones -->
+            <div id="modalInstrucciones" class="modal">
+                <div class="modal-content">
+                    <span class="close-button" id="cerrarModalInstrucciones">&times;</span>
+                    <h3>Instrucciones</h3>
+                    <div id="contenidoInstrucciones" style="white-space: pre-wrap;"></div>
+                </div>
+            </div>
+
 
             <!-- SECCIÓN: PREGUNTAS INICIALES -->
             <div id="preguntas" class="content-section active">
@@ -376,7 +408,10 @@
             <!-- 1) TÍTULO -->
             <div id="titulo" class="content-section">
                 <h2>Sección: Título</h2>
+                <button class="btn-instrucciones" data-seccion="titulo">Instrucciones</button>
+
                 <div class="recording-buttons">
+
                     <button id="startBtn-titulo">Iniciar Grabación</button>
                     <button id="stopBtn-titulo" disabled>Detener Grabación</button>
                     <button id="uploadBtn-titulo" disabled>Enviar Audio</button>
@@ -411,6 +446,8 @@
             <!-- 2) INTRODUCCIÓN -->
             <div id="introduccion" class="content-section">
                 <h2>Sección: Introducción</h2>
+                <button class="btn-instrucciones" data-seccion="introduccion">Instrucciones</button>
+
                 <div class="recording-buttons">
                     <button id="startBtn-introduccion">Iniciar Grabación</button>
                     <button id="stopBtn-introduccion" disabled>Detener Grabación</button>
@@ -425,7 +462,8 @@
                     <div class="card">
                         <div class="card-header">Bloc de notas</div>
                         <div class="card-body">
-                            <textarea id="notas-introduccion" rows="6" placeholder="Escribe el contenido aquí..."></textarea>
+                            <textarea id="notas-introduccion" rows="6"
+                                placeholder="Escribe el contenido aquí..."></textarea>
                             <div class="action-buttons">
                                 <button id="evaluar-introduccion">Evaluar</button>
                                 <button id="guardar-introduccion" onclick="guardarNota('introduccion')">Guardar</button>
@@ -435,7 +473,8 @@
                     <div class="card">
                         <div class="card-header">Evaluación</div>
                         <div id="evaluationResult-introduccion" class="card-body"></div>
-                        <button id="applySuggestions-introduccion" class="apply-suggestions-btn">Aplicar sugerencias</button>
+                        <button id="applySuggestions-introduccion" class="apply-suggestions-btn">Aplicar
+                            sugerencias</button>
                     </div>
                     <div class="card">
                         <div class="card-header">Sugerencias Aplicadas</div>
@@ -447,6 +486,8 @@
             <!-- 3) COSTURA -->
             <div id="costura" class="content-section">
                 <h2>Sección: Costura</h2>
+                <button class="btn-instrucciones" data-seccion="costura">Instrucciones</button>
+
                 <div class="recording-buttons">
                     <button id="startBtn-costura">Iniciar Grabación</button>
                     <button id="stopBtn-costura" disabled>Detener Grabación</button>
@@ -482,6 +523,8 @@
             <!-- 4) PROBLEMÁTICA -->
             <div id="problematica" class="content-section">
                 <h2>Sección: Problemática</h2>
+                <button class="btn-instrucciones" data-seccion="problematica">Instrucciones</button>
+
                 <div class="recording-buttons">
                     <button id="startBtn-problematica">Iniciar Grabación</button>
                     <button id="stopBtn-problematica" disabled>Detener Grabación</button>
@@ -489,13 +532,15 @@
                 </div>
                 <p id="status-problematica" class="status-message"></p>
                 <audio id="audioPlayback-problematica" controls style="display:none;"></audio>
-                <button id="mostrarTranscripcion-problematica" class="mostrar-transcripcion">Mostrar Transcripción</button>
+                <button id="mostrarTranscripcion-problematica" class="mostrar-transcripcion">Mostrar
+                    Transcripción</button>
 
                 <div class="card-grid">
                     <div class="card">
                         <div class="card-header">Bloc de notas</div>
                         <div class="card-body">
-                            <textarea id="notas-problematica" rows="6" placeholder="Escribe el contenido aquí..."></textarea>
+                            <textarea id="notas-problematica" rows="6"
+                                placeholder="Escribe el contenido aquí..."></textarea>
                             <div class="action-buttons">
                                 <button id="evaluar-problematica">Evaluar</button>
                                 <button id="guardar-problematica" onclick="guardarNota('problematica')">Guardar</button>
@@ -505,7 +550,8 @@
                     <div class="card">
                         <div class="card-header">Evaluación</div>
                         <div id="evaluationResult-problematica" class="card-body"></div>
-                        <button id="applySuggestions-problematica" class="apply-suggestions-btn">Aplicar sugerencias</button>
+                        <button id="applySuggestions-problematica" class="apply-suggestions-btn">Aplicar
+                            sugerencias</button>
                     </div>
                     <div class="card">
                         <div class="card-header">Sugerencias Aplicadas</div>
@@ -517,6 +563,8 @@
             <!-- 5) CONECTOR -->
             <div id="conector" class="content-section">
                 <h2>Sección: Conector</h2>
+                <button class="btn-instrucciones" data-seccion="conector">Instrucciones</button>
+
                 <div class="recording-buttons">
                     <button id="startBtn-conector">Iniciar Grabación</button>
                     <button id="stopBtn-conector" disabled>Detener Grabación</button>
@@ -530,7 +578,8 @@
                     <div class="card">
                         <div class="card-header">Bloc de notas</div>
                         <div class="card-body">
-                            <textarea id="notas-conector" rows="6" placeholder="Escribe el contenido aquí..."></textarea>
+                            <textarea id="notas-conector" rows="6"
+                                placeholder="Escribe el contenido aquí..."></textarea>
                             <div class="action-buttons">
                                 <button id="evaluar-conector">Evaluar</button>
                                 <button id="guardar-conector" onclick="guardarNota('conector')">Guardar</button>
@@ -540,7 +589,8 @@
                     <div class="card">
                         <div class="card-header">Evaluación</div>
                         <div id="evaluationResult-conector" class="card-body"></div>
-                        <button id="applySuggestions-conector" class="apply-suggestions-btn">Aplicar sugerencias</button>
+                        <button id="applySuggestions-conector" class="apply-suggestions-btn">Aplicar
+                            sugerencias</button>
                     </div>
                     <div class="card">
                         <div class="card-header">Sugerencias Aplicadas</div>
@@ -552,6 +602,8 @@
             <!-- 6) DESARROLLO -->
             <div id="desarrollo" class="content-section">
                 <h2>Sección: Desarrollo</h2>
+                <button class="btn-instrucciones" data-seccion="desarrollo">Instrucciones</button>
+
                 <div class="recording-buttons">
                     <button id="startBtn-desarrollo">Iniciar Grabación</button>
                     <button id="stopBtn-desarrollo" disabled>Detener Grabación</button>
@@ -566,7 +618,8 @@
                     <div class="card">
                         <div class="card-header">Bloc de notas</div>
                         <div class="card-body">
-                            <textarea id="notas-desarrollo" rows="6" placeholder="Escribe el contenido aquí..."></textarea>
+                            <textarea id="notas-desarrollo" rows="6"
+                                placeholder="Escribe el contenido aquí..."></textarea>
                             <div class="action-buttons">
                                 <button id="evaluar-desarrollo">Evaluar</button>
                                 <button id="guardar-desarrollo" onclick="guardarNota('desarrollo')">Guardar</button>
@@ -576,7 +629,8 @@
                     <div class="card">
                         <div class="card-header">Evaluación</div>
                         <div id="evaluationResult-desarrollo" class="card-body"></div>
-                        <button id="applySuggestions-desarrollo" class="apply-suggestions-btn">Aplicar sugerencias</button>
+                        <button id="applySuggestions-desarrollo" class="apply-suggestions-btn">Aplicar
+                            sugerencias</button>
                     </div>
                     <div class="card">
                         <div class="card-header">Sugerencias Aplicadas</div>
@@ -588,6 +642,8 @@
             <!-- 7) CONCLUSIÓN -->
             <div id="conclusion" class="content-section">
                 <h2>Sección: Conclusión</h2>
+                <button class="btn-instrucciones" data-seccion="conclusion">Instrucciones</button>
+
                 <div class="recording-buttons">
                     <button id="startBtn-conclusion">Iniciar Grabación</button>
                     <button id="stopBtn-conclusion" disabled>Detener Grabación</button>
@@ -602,7 +658,8 @@
                     <div class="card">
                         <div class="card-header">Bloc de notas</div>
                         <div class="card-body">
-                            <textarea id="notas-conclusion" rows="6" placeholder="Escribe el contenido aquí..."></textarea>
+                            <textarea id="notas-conclusion" rows="6"
+                                placeholder="Escribe el contenido aquí..."></textarea>
                             <div class="action-buttons">
                                 <button id="evaluar-conclusion">Evaluar</button>
                                 <button id="guardar-conclusion" onclick="guardarNota('conclusion')">Guardar</button>
@@ -612,7 +669,8 @@
                     <div class="card">
                         <div class="card-header">Evaluación</div>
                         <div id="evaluationResult-conclusion" class="card-body"></div>
-                        <button id="applySuggestions-conclusion" class="apply-suggestions-btn">Aplicar sugerencias</button>
+                        <button id="applySuggestions-conclusion" class="apply-suggestions-btn">Aplicar
+                            sugerencias</button>
                     </div>
                     <div class="card">
                         <div class="card-header">Sugerencias Aplicadas</div>
@@ -624,6 +682,8 @@
             <!-- 8) MINISTRACIÓN -->
             <div id="ministracion" class="content-section">
                 <h2>Sección: Ministración</h2>
+                <button class="btn-instrucciones" data-seccion="ministracion">Instrucciones</button>
+
                 <div class="recording-buttons">
                     <button id="startBtn-ministracion">Iniciar Grabación</button>
                     <button id="stopBtn-ministracion" disabled>Detener Grabación</button>
@@ -638,7 +698,8 @@
                     <div class="card">
                         <div class="card-header">Bloc de notas</div>
                         <div class="card-body">
-                            <textarea id="notas-ministracion" rows="6" placeholder="Escribe el contenido aquí..."></textarea>
+                            <textarea id="notas-ministracion" rows="6"
+                                placeholder="Escribe el contenido aquí..."></textarea>
                             <div class="action-buttons">
                                 <button id="evaluar-ministracion">Evaluar</button>
                                 <button id="guardar-ministracion" onclick="guardarNota('ministracion')">Guardar</button>
@@ -648,7 +709,8 @@
                     <div class="card">
                         <div class="card-header">Evaluación</div>
                         <div id="evaluationResult-ministracion" class="card-body"></div>
-                        <button id="applySuggestions-ministracion" class="apply-suggestions-btn">Aplicar sugerencias</button>
+                        <button id="applySuggestions-ministracion" class="apply-suggestions-btn">Aplicar
+                            sugerencias</button>
                     </div>
                     <div class="card">
                         <div class="card-header">Sugerencias Aplicadas</div>
@@ -752,7 +814,7 @@
     <!-- FOOTER -->
     <footer class="footer">
         <div class="footer-left">
-            Powered by: 
+            Powered by:
             <a href="https://api.whatsapp.com/send?phone=573008021701&text=Vi%20la%20aplicacion%20que%20desarrollaste"
                 target="_blank">Daniel Talero</a>
         </div>
@@ -760,17 +822,93 @@
     </footer>
 
     <script>
+
+        // Variable global que almacenará la calibración
+        let promptsCalibracion = {};
+
+        // Función para cargar la calibración desde el servidor
+        async function loadPromptsCalibracion() {
+            try {
+                const response = await fetch('/obtener-calibracion');
+                const data = await response.json();
+                // Guardamos en la variable global
+                promptsCalibracion = data.promptsCalibracion || {};
+            } catch (err) {
+                console.error("Error al obtener la calibración:", err);
+            }
+        }
+
+
+        function extraerInstrucciones(prompt) {
+            // Texto que indica el final de la parte a ocultar
+            const marcador = "teniendo en cuenta:";
+
+            // Busca dónde empieza 'marcador' en el prompt
+            const indice = prompt.indexOf(marcador);
+
+            // Si no lo encuentra, simplemente devuelve todo el prompt
+            if (indice === -1) return prompt;
+
+            // Cortamos desde el final del marcador hasta el final del prompt
+            const parteVisible = prompt.substring(indice + marcador.length);
+
+            // Retornamos la parte visible (quitando espacios extra si quieres)
+            return parteVisible.trim();
+        }
+
+        // Cuando cargue la página, pedimos los prompts
+        window.addEventListener('DOMContentLoaded', async () => {
+            await loadPromptsCalibracion();
+
+
+        });
+
         // Variable global para almacenar el nombre de usuario
         let currentUser = "";
-        window.addEventListener('load', async function () {
-            currentUser = prompt("Ingresa tu nombre de usuario:");
-            if (!currentUser) {
-                alert("El usuario es obligatorio. Se asignará 'Usuario' por defecto.");
-                currentUser = "Usuario";
-            }
 
-            // Llamamos a la función para cargar las notas de este usuario
-            await loadUserNotes(currentUser);
+        window.addEventListener('load', async function () {
+  currentUser = prompt("Ingresa tu nombre de usuario:");
+  if (!currentUser) {
+    alert("El usuario es obligatorio. Se asignará 'Usuario' por defecto.");
+    currentUser = "Usuario";
+  }
+
+  // Mostrar el botón de calibración solo si el usuario es FRAITALERO
+  if (currentUser === "FRAITALERO") {
+    const btnCalibracion = document.querySelector('[data-section="calibracion"]');
+    if (btnCalibracion) {
+      btnCalibracion.style.display = 'block';
+    }
+  }
+
+  // Llamamos a la función para cargar las notas de este usuario
+  await loadUserNotes(currentUser);
+});
+
+
+        // Suponiendo que ya tienes un modal en el HTML con id "modalInstrucciones" y un contenedor con id "contenidoInstrucciones"
+
+        // Agregar listener a todos los botones "Instrucciones"
+        document.querySelectorAll('.btn-instrucciones').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const seccion = this.getAttribute('data-seccion'); // 'titulo', etc.
+                // 1) Tomamos el prompt completo desde promptsCalibracion:
+                const promptCompleto = promptsCalibracion[seccion]
+                    || "No hay instrucciones disponibles para esta sección.";
+
+                // 2) Recortamos el texto con la función extraerInstrucciones:
+                const instruccionesMostradas = extraerInstrucciones(promptCompleto);
+
+                // 3) Mostramos el texto recortado en el modal:
+                document.getElementById('contenidoInstrucciones').innerText = instruccionesMostradas;
+                document.getElementById('modalInstrucciones').style.display = 'block';
+            });
+        });
+
+
+        // Ejemplo de listener para cerrar el modal
+        document.getElementById('cerrarModalInstrucciones').addEventListener('click', () => {
+            document.getElementById('modalInstrucciones').style.display = 'none';
         });
 
         // Función que obtiene la última nota guardada para el usuario dado
@@ -907,6 +1045,7 @@
         function mostrarConsolidado() {
             // Define las secciones y sus etiquetas
             const secciones = [
+
                 { id: 'notas-titulo', label: 'TÍTULO' },
                 { id: 'notas-introduccion', label: 'INTRODUCCIÓN' },
                 { id: 'notas-costura', label: 'COSTURA' },
@@ -928,12 +1067,29 @@
             document.getElementById('closeConsolidado').addEventListener('click', function () {
                 document.getElementById('modalConsolidado').style.display = 'none';
             });
+
             document.getElementById('btnDescargarModal').addEventListener('click', function () {
                 downloadAsPDF('contenidoConsolidado');
             });
         }
 
         function consolidarMensaje() {
+            let mensajeConsolidado = "";
+            // Agregar Preguntas Iniciales:
+            const tema = document.getElementById('tema').value.trim();
+            const proposito = document.getElementById('proposito').value.trim();
+            const audiencia = document.getElementById('audiencia').value.trim();
+            const tiempo = document.getElementById('tiempo').value.trim();
+
+            if (tema || proposito || audiencia || tiempo) {
+                mensajeConsolidado += "PREGUNTAS INICIALES:\n";
+                mensajeConsolidado += "Tema: " + tema + "\n";
+                mensajeConsolidado += "Propósito: " + proposito + "\n";
+                mensajeConsolidado += "Audiencia: " + audiencia + "\n";
+                mensajeConsolidado += "Tiempo: " + tiempo + "\n\n";
+            }
+
+            // Agregar el contenido de las demás secciones:
             const secciones = [
                 { id: 'notas-titulo', label: 'TÍTULO' },
                 { id: 'notas-introduccion', label: 'INTRODUCCIÓN' },
@@ -945,26 +1101,28 @@
                 { id: 'notas-ministracion', label: 'MINISTRACIÓN' }
             ];
 
-            let mensajeConsolidado = "";
             secciones.forEach(seccion => {
                 const valor = document.getElementById(seccion.id)?.value || "";
                 if (valor.trim() !== "") {
-                    mensajeConsolidado += `${seccion.label}:\n${valor.trim()}\n\n`;
+                    mensajeConsolidado += seccion.label + ":\n" + valor.trim() + "\n\n";
                 }
             });
             return mensajeConsolidado;
         }
 
         // DESCARGAR EN PDF
-        function downloadAsPDF(contenedorId) {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            const contenido = document.getElementById(contenedorId).innerText || "";
-            const lines = doc.splitTextToSize(contenido, 180);
-            doc.setFontSize(12);
-            doc.text(lines, 10, 10);
-            doc.save("mensaje_consolidado.pdf");
+        function downloadAsPDF() {
+            const elemento = document.getElementById("contenidoMensajeConsolidado");
+            const opciones = {
+                margin: 0.5,
+                filename: 'mensaje_consolidado.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+            html2pdf().from(elemento).set(opciones).save();
         }
+
 
         // EVENTOS PARA EVALUAR TEXTO ESCRITO
         const sectionsEscritas = [
@@ -1175,7 +1333,7 @@
             }
         }
         document.querySelector('[data-section="calibracion"]')
-                .addEventListener('click', precargarPrompts);
+            .addEventListener('click', precargarPrompts);
 
         // Guardar cambios en Calibración
         document.getElementById('guardarCalibracion').addEventListener('click', async () => {
@@ -1209,4 +1367,5 @@
         });
     </script>
 </body>
+
 </html>
