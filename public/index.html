@@ -157,6 +157,17 @@
             color: #555;
         }
 
+        .botones-acciones {
+            display: flex;
+            gap: 10px;
+            /* Espacio entre botones */
+            justify-content: center;
+            /* Opcional: centra los botones */
+            margin-top: 10px;
+            /* Espacio por encima */
+        }
+
+
         /* ----- TARJETAS (CARDS) ----- */
         .card-grid {
             display: grid;
@@ -343,6 +354,28 @@
         audio {
             display: block;
             margin-bottom: 1em;
+        }
+
+        .spinner {
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid #fff;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
     </style>
 </head>
@@ -727,10 +760,18 @@
                     <div id="contenidoMensajeConsolidado" class="card-body">
                         <!-- Aquí se mostrará el mensaje consolidado -->
                     </div>
-                    <!-- Botón para descargar en PDF desde la sección -->
-                    <button id="btnDescargarSeccion">Descargar PDF</button>
+                    <!-- Contenedor para los botones -->
+                    <div class="botones-acciones">
+                        <button id="btnDescargarSeccion">Descargar PDF</button>
+                        <button id="btnTTS">Escuchar Mensaje</button>
+                    </div>
                 </div>
             </div>
+
+            <div id="ttsLoader" class="spinner" style="display:none;"></div>
+
+
+
 
             <!-- SECCIÓN: CALIBRACIÓN -->
             <div id="calibracion" class="content-section">
@@ -838,6 +879,69 @@
             }
         }
 
+        // Función para dividir el texto en partes de un tamaño máximo (por ejemplo, 4000 caracteres)
+        function splitText(text, maxLength) {
+            const parts = [];
+            for (let i = 0; i < text.length; i += maxLength) {
+                parts.push(text.substring(i, i + maxLength));
+            }
+            return parts;
+        }
+
+        // Listener para el botón TTS
+        document.getElementById('btnTTS').addEventListener('click', async () => {
+            const btnTTS = document.getElementById('btnTTS');
+            const originalHTML = btnTTS.innerHTML; // Guarda el contenido original
+            const mensaje = document.getElementById('contenidoMensajeConsolidado').innerText;
+
+            if (!mensaje.trim()) {
+                alert("No hay mensaje para reproducir.");
+                return;
+            }
+
+            // Actualiza el botón para mostrar el spinner y el mensaje de carga, y deshabilítalo
+            btnTTS.innerHTML = `<span class="spinner"></span> Esto tomará varios minutos... PACIENCIA`;
+            btnTTS.disabled = true;
+
+            // Dividir el mensaje en partes si es muy grande (asegúrate de tener la función splitText definida)
+            const partes = splitText(mensaje, 4000);
+
+            for (let part of partes) {
+                try {
+                    const response = await fetch('/api/tts', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            model: "tts-1",
+                            voice: "ash",
+                            input: part
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error("Error en TTS");
+                    }
+
+                    const blob = await response.blob();
+                    const audio = new Audio(URL.createObjectURL(blob));
+                    await audio.play();
+
+                    // Espera a que finalice cada fragmento antes de continuar
+                    await new Promise(resolve => audio.onended = resolve);
+                } catch (error) {
+                    console.error("Error:", error);
+                    alert("Ocurrió un error al reproducir el audio.");
+                    break;
+                }
+            }
+
+            // Restaura el estado original del botón
+            btnTTS.innerHTML = originalHTML;
+            btnTTS.disabled = false;
+        });
+
+
+
 
         function extraerInstrucciones(prompt) {
             // Texto que indica el final de la parte a ocultar
@@ -867,23 +971,23 @@
         let currentUser = "";
 
         window.addEventListener('load', async function () {
-  currentUser = prompt("Ingresa tu nombre de usuario:");
-  if (!currentUser) {
-    alert("El usuario es obligatorio. Se asignará 'Usuario' por defecto.");
-    currentUser = "Usuario";
-  }
+            currentUser = prompt("Ingresa tu nombre de usuario:");
+            if (!currentUser) {
+                alert("El usuario es obligatorio. Se asignará 'Usuario' por defecto.");
+                currentUser = "Usuario";
+            }
 
-  // Mostrar el botón de calibración solo si el usuario es FRAITALERO
-  if (currentUser === "FRAITALERO") {
-    const btnCalibracion = document.querySelector('[data-section="calibracion"]');
-    if (btnCalibracion) {
-      btnCalibracion.style.display = 'block';
-    }
-  }
+            // Mostrar el botón de calibración solo si el usuario es FRAITALERO
+            if (currentUser === "FRAITALERO") {
+                const btnCalibracion = document.querySelector('[data-section="calibracion"]');
+                if (btnCalibracion) {
+                    btnCalibracion.style.display = 'block';
+                }
+            }
 
-  // Llamamos a la función para cargar las notas de este usuario
-  await loadUserNotes(currentUser);
-});
+            // Llamamos a la función para cargar las notas de este usuario
+            await loadUserNotes(currentUser);
+        });
 
 
         // Suponiendo que ya tienes un modal en el HTML con id "modalInstrucciones" y un contenedor con id "contenidoInstrucciones"
