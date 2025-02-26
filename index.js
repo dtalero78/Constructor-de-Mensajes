@@ -509,14 +509,11 @@ app.post('/api/tts', async (req, res) => {
     res.set('Content-Type', 'audio/mpeg');
     res.send(buffer);
   } catch (error) {
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Error en TTS: ${errorText}`);
-    }
     console.error("Error en TTS:", error);
     res.status(500).json({ error: "Error al generar el audio." });
   }
 });
+
 
 // Ruta para obtener los prompts de calibración actuales
 app.get("/obtener-calibracion", (req, res) => {

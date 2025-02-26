@@ -8,375 +8,371 @@
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;700&display=swap"
         rel="stylesheet" />
     <style>
-        /* ----- RESET BÁSICO ----- */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        /* ----- RESET Y ESTILOS BASE ----- */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+[data-section="calibracion"] {
+  display: none;
+}
+body {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 11px;
+  background-color: #f4f4f4;
+  color: #333;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+.container {
+  display: flex;
+  flex: 1;
+}
 
-        [data-section="calibracion"] {
-            display: none;
-        }
+/* ----- SIDEBAR ----- */
+.sidebar {
+  width: 250px;
+  background-color: #000;
+  color: #fff;
+  padding: 1em;
+  display: flex;
+  flex-direction: column;
+}
+.sidebar h2 {
+  margin-bottom: 1em;
+  font-size: 1rem;
+}
+.sidebar ul {
+  list-style: none;
+}
+.sidebar li {
+  margin-bottom: 0.5em;
+}
+.sidebar button {
+  width: 100%;
+  padding: 0.75em;
+  background-color: transparent;
+  color: #fff;
+  border: 1px solid #ffffff30;
+  border-radius: 5px;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-size: 0.9rem;
+}
+.sidebar button:hover,
+.sidebar button.active {
+  background-color: #545454;
+}
 
+/* ----- CONTENIDO PRINCIPAL ----- */
+.main-content {
+  flex: 1;
+  padding: 1em 2em;
+  overflow-y: auto;
+  background-color: #f4f4f4;
+}
+.main-content > h1 {
+  margin-top: 1em;
+  margin-bottom: 1em;
+  font-size: 1.2rem;
+}
 
-        body {
-            font-family: 'IBM Plex Sans', sans-serif;
-            font-size: 11px;
-            background-color: #f4f4f4;
-            color: #333;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
+/* ----- SECCIONES ----- */
+.content-section {
+  display: none;
+  margin-bottom: 1em;
+}
+.content-section.active {
+  display: block;
+}
+.content-section h2 {
+  margin-bottom: 0.5em;
+  font-size: 1rem;
+  color: #000;
+}
 
-        .container {
-            display: flex;
-            flex: 1;
-        }
+/* ----- FORMULARIOS Y BOTONES ----- */
+label {
+  display: block;
+  margin: 0.5em 0 0.2em;
+}
+input, button, textarea {
+  width: 100%;
+  padding: 0.75em;
+  margin-bottom: 1em;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-family: 'IBM Plex Sans', sans-serif;
+}
+button {
+  background-color: #000;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+button:hover {
+  background-color: #545454;
+}
 
-        /* ----- SIDEBAR ----- */
-        .sidebar {
-            width: 250px;
-            background-color: #000;
-            color: #fff;
-            padding: 1em;
-            display: flex;
-            flex-direction: column;
-        }
+/* ----- ESTILOS PARA GRABACIÓN Y ESTADO ----- */
+.recording-buttons button {
+  width: auto;
+  padding: 0.5em 1em;
+  font-size: 0.9rem;
+  margin-bottom: 1.5em;
+  line-height: 1.3;
+}
+.recording-active {
+  background-color: red !important;
+  color: #fff;
+}
+.status-message {
+  margin-bottom: 1em;
+  font-style: italic;
+  color: #555;
+}
+.botones-acciones {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 10px;
+}
 
-        .sidebar h2 {
-            margin-bottom: 1em;
-            font-size: 1rem;
-        }
+/* ----- TARJETAS (CARDS) ----- */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1em;
+  margin-bottom: 1em;
+}
+.card {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.card-header {
+  background-color: #f2f2f2;
+  border-bottom: 1px solid #ccc;
+  padding: 0.75em 1em;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #333;
+  text-align: center;
+}
+.card-body {
+  padding: 1em;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  min-height: 250px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
 
-        .sidebar ul {
-            list-style: none;
-        }
+/* ----- BOTÓN APLICAR SUGERENCIAS ----- */
+.apply-suggestions-btn {
+  background-color: #000;
+  color: #fff;
+  font-size: 0.6rem;
+  font-weight: normal;
+  padding: 0.4em 1.5em;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  display: none;
+  width: 100%;
+  text-align: center;
+  margin-top: 0.5em;
+}
+.apply-suggestions-btn:hover {
+  background-color: #545454;
+}
 
-        .sidebar li {
-            margin-bottom: 0.5em;
-        }
+/* ----- BOTÓN MOSTRAR TRANSCRIPCIÓN ----- */
+.mostrar-transcripcion {
+  display: none;
+  margin-bottom: 1em;
+  padding: 0.5em;
+  background-color: #0077cc;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
 
-        .sidebar button {
-            width: 100%;
-            padding: 0.75em;
-            background-color: transparent;
-            color: #fff;
-            border: 1px solid #ffffff30;
-            border-radius: 5px;
-            text-align: left;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            font-size: 0.9rem;
-        }
+/* ----- MODALES ----- */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.4);
+}
+.modal-content {
+  position: relative;
+  background-color: #fff;
+  margin: 10% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+  max-width: 600px;
+  border-radius: 5px;
+}
+.audio-modal-content {
+  position: relative;
+  background-color: #2c2c2c;
+  color: #fff;
+  border-radius: 8px;
+  padding: 40px 20px 20px; /* Aumentado padding-top para mayor espacio */
+}
 
-        .sidebar button:hover,
-        .sidebar button.active {
-            background-color: #545454;
-        }
+/* ----- BOTÓN DE CERRAR ----- */
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 28px;
+  font-weight: normal;
+  cursor: pointer;
+  z-index: 20;
+  color: #000; /* Negro para modales claros */
+}
+.audio-modal-content .close-button {
+  color: #fff; /* Blanco para el modal de audio */
+  font-weight: normal;
+}
 
-        /* ----- CONTENIDO PRINCIPAL ----- */
-        .main-content {
-            flex: 1;
-            padding: 1em 2em;
-            overflow-y: auto;
-            background-color: #f4f4f4;
-        }
+/* ----- CONTENIDO CONSOLIDADO ----- */
+#contenidoConsolidado {
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
 
-        .main-content>h1 {
-            margin-top: 1em;
-            margin-bottom: 1em;
-            font-size: 1.2rem;
-        }
+/* ----- ACCIÓN BUTTONS ----- */
+.action-buttons {
+  display: flex;
+  width: 100%;
+  gap: 8px;
+}
+.action-buttons button {
+  flex: 1;
+  padding: 0.4em 0.6em;
+  background-color: #0077cc;
+  font-size: 0.85rem;
+}
 
-        /* ----- SECCIONES ----- */
-        .content-section {
-            display: none;
-            margin-bottom: 1em;
-        }
+/* ----- BOTÓN INSTRUCCIONES ----- */
+.btn-instrucciones {
+  width: auto;
+  padding: 0.15em 17.9em;
+  font-size: 0.6rem;
+  margin-bottom: 1.5em;
+  border: 1px solid #ffffff30;
+  border-radius: 5px;
+  background-color: black;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
 
-        .content-section.active {
-            display: block;
-        }
+/* ----- FOOTER ----- */
+.footer {
+  display: flex;
+  height: 50px;
+}
+.footer-left {
+  width: 250px;
+  background-color: #000;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+.footer-left a {
+  color: rgba(255,255,255,0.95);
+  font-weight: bold;
+}
+.footer-left a:hover {
+  text-decoration: none;
+}
+.footer-right {
+  flex: 1;
+  background-color: #f4f4f4;
+}
 
-        .content-section h2 {
-            margin-bottom: 0.5em;
-            font-size: 1rem;
-            color: #000;
-        }
+/* ----- AUDIO REPRODUCTOR Y SPINNER ----- */
+.player-area {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  position: relative;
+}
+.spinner-overlay {
+  display: none; /* Se mostrará via JavaScript cuando se active */
+  position: static;
+  transform: none;
+  z-index: auto;
+}
+.spinner {
+  border: 2px solid rgba(255,255,255,0.2);
+  border-top: 2px solid #ffffff;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  animation: spin 1s linear infinite;
+  display: inline-block;
+  vertical-align: middle;
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
 
-        label {
-            display: block;
-            margin: 0.5em 0 0.2em;
-        }
+/* ----- LISTA DE FRAGMENTOS ----- */
+.songs-list {
+  margin-top: 20px;
+}
+.song-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #3b3b3b;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  padding: 10px;
+  cursor: pointer;
+}
+.song-info {
+  flex: 1;
+}
+.song-title {
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+.song-duration {
+  font-size: 0.8rem;
+  color: #bbb;
+}
+.song-options {
+  cursor: pointer;
+  margin-left: auto;
+}
 
-        input,
-        button,
-        textarea {
-            width: 100%;
-            padding: 0.75em;
-            margin-bottom: 1em;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 0.9rem;
-            font-family: 'IBM Plex Sans', sans-serif;
-        }
-
-        button {
-            background-color: #000;
-            color: #fff;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        button:hover {
-            background-color: #545454;
-        }
-
-        /* Botón rojo al grabar */
-        .recording-active {
-            background-color: red !important;
-            color: #fff;
-        }
-
-        /* Botones de grabación */
-        .recording-buttons button {
-            width: auto;
-            padding: 0.5em 1em;
-            font-size: 0.9rem;
-            margin-bottom: 1.5em;
-            line-height: 1.3;
-
-        }
-
-        .status-message {
-            margin-bottom: 1em;
-            font-style: italic;
-            color: #555;
-        }
-
-        .botones-acciones {
-            display: flex;
-            gap: 10px;
-            /* Espacio entre botones */
-            justify-content: center;
-            /* Opcional: centra los botones */
-            margin-top: 10px;
-            /* Espacio por encima */
-        }
-
-
-        /* ----- TARJETAS (CARDS) ----- */
-        .card-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 1em;
-            margin-bottom: 1em;
-        }
-
-        .card {
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .card-header {
-            background-color: #f2f2f2;
-            border-bottom: 1px solid #ccc;
-            padding: 0.75em 1em;
-            font-weight: 600;
-            font-size: 0.95rem;
-            color: #333;
-            text-align: center;
-        }
-
-        .card-body {
-            padding: 1em;
-            font-size: 0.9rem;
-            line-height: 1.4;
-            min-height: 250px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Botón "Aplicar sugerencias" */
-        .apply-suggestions-btn {
-            background-color: #000000;
-            color: #fff;
-            font-size: 0.6rem;
-            font-weight: normal;
-            padding: 0.4em 1.5em;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            display: none;
-            width: 100%;
-            text-align: center;
-            margin-top: 0.5em;
-        }
-
-        .apply-suggestions-btn:hover {
-            background-color: #545454;
-        }
-
-        /* Botón para mostrar transcripción (emergente) */
-        .mostrar-transcripcion {
-            display: none;
-            margin-bottom: 1em;
-            padding: 0.5em;
-            background-color: #0077cc;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.8rem;
-        }
-
-        /* ----- MODALES ----- */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.4);
-        }
-
-        .modal-content {
-            background-color: #fff;
-            margin: 10% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-            max-width: 600px;
-            border-radius: 5px;
-        }
-
-        #modalConsolidado .modal-content {
-            width: 600px;
-            /* Fijamos el ancho a 600px */
-            max-height: 580px;
-            /* Fijamos la altura máxima a 580px */
-            overflow-y: auto;
-            /* Cuando exceda esa altura, agrega scroll vertical */
-            margin: 10% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            background-color: #fff;
-            border-radius: 5px;
-            font-size: 0.9rem;
-            line-height: 1.4;
-        }
-
-        #contenidoConsolidado {
-            font-size: 0.9rem;
-            line-height: 1.4;
-        }
-
-        /* ----- BOTONES BLOC DE NOTAS ----- */
-        .close-button {
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .action-buttons {
-            display: flex;
-            width: 100%;
-            gap: 8px;
-        }
-
-        .action-buttons button {
-            flex: 1;
-            box-sizing: border-box;
-            padding: 0.4em 0.6em;
-            background-color: #0077cc;
-            font-size: 0.85rem;
-        }
-
-        .btn-instrucciones {
-            width: auto;
-            /* Evita que se extienda al 100% */
-            padding: 0.15em 17.9em;
-            /* Ajusta el padding para que sea similar al de los botones de grabación, pero un poco más delgado */
-            font-size: 0.6rem;
-            margin-bottom: 1.5em;
-            border: 1px solid #ffffff30;
-            /* Si deseas que tenga un borde similar */
-            border-radius: 5px;
-            background-color: black;
-            color: #ffffff;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-
-        /* ----- FOOTER ----- */
-        .footer {
-            display: flex;
-            height: 50px;
-        }
-
-        .footer-left {
-            width: 250px;
-            background-color: #000;
-            color: #ffffff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-        }
-
-        .footer-left a {
-            color: rgba(255, 255, 255, 0.95);
-            font-weight: bold;
-        }
-
-        .footer-left a:hover {
-            text-decoration: none;
-        }
-
-        .footer-right {
-            flex: 1;
-            background-color: #f4f4f4;
-        }
-
-        audio {
-            display: block;
-            margin-bottom: 1em;
-        }
-
-        .spinner {
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-top: 2px solid #fff;
-            border-radius: 50%;
-            width: 16px;
-            height: 16px;
-            animation: spin 1s linear infinite;
-            display: inline-block;
-            vertical-align: middle;
-            margin-right: 8px;
-        }
-
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
-        }
     </style>
 </head>
 
@@ -852,6 +848,35 @@
         </div>
     </div>
 
+
+    <!-- Modal para reproducir audio generado -->
+
+    <div id="modalAudio" class="modal">
+        <div class="modal-content audio-modal-content">
+            <span class="close-button" id="closeAudioModal">&times;</span>
+
+            <!-- Área del reproductor -->
+            <div class="player-area">
+                <!-- Spinner dentro del reproductor -->
+                <div id="audioSpinner" class="spinner-overlay" style="display: none;">
+                    <span class="spinner"></span>
+                </div>
+                <audio id="audioPlayer" controls style="width: 100%;"></audio>
+            </div>
+
+            <!-- Lista de fragmentos -->
+            <div class="songs-list">
+                <ul id="fragmentsList" style="list-style: none; padding: 0; margin: 0;"></ul>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
+
     <!-- FOOTER -->
     <footer class="footer">
         <div class="footer-left">
@@ -889,9 +914,18 @@
         }
 
         // Listener para el botón TTS
+        // Función para dividir el texto en partes de longitud máxima (por ejemplo, 4000 caracteres)
+        function splitText(text, maxLength) {
+            const parts = [];
+            for (let i = 0; i < text.length; i += maxLength) {
+                parts.push(text.substring(i, i + maxLength));
+            }
+            return parts;
+        }
+
         document.getElementById('btnTTS').addEventListener('click', async () => {
             const btnTTS = document.getElementById('btnTTS');
-            const originalHTML = btnTTS.innerHTML; // Guarda el contenido original
+            const originalHTML = btnTTS.innerHTML;
             const mensaje = document.getElementById('contenidoMensajeConsolidado').innerText;
 
             if (!mensaje.trim()) {
@@ -899,14 +933,21 @@
                 return;
             }
 
-            // Actualiza el botón para mostrar el spinner y el mensaje de carga, y deshabilítalo
-            btnTTS.innerHTML = `<span class="spinner"></span> Esto tomará varios minutos... PACIENCIA`;
+            // Muestra el spinner dentro del reproductor
+            document.getElementById('audioSpinner').style.display = 'block';
             btnTTS.disabled = true;
 
-            // Dividir el mensaje en partes si es muy grande (asegúrate de tener la función splitText definida)
+            // Abre el modal y limpia la lista de fragmentos
+            const modalAudio = document.getElementById('modalAudio');
+            modalAudio.style.display = 'block';
+            const fragmentsList = document.getElementById('fragmentsList');
+            fragmentsList.innerHTML = '';
+
+            // Divide el mensaje en partes (máx 4000 caracteres)
             const partes = splitText(mensaje, 4000);
 
-            for (let part of partes) {
+            // Llamadas a la API TTS para cada fragmento (en paralelo)
+            const promises = partes.map(async (part, index) => {
                 try {
                     const response = await fetch('/api/tts', {
                         method: 'POST',
@@ -917,28 +958,68 @@
                             input: part
                         })
                     });
-
                     if (!response.ok) {
-                        throw new Error("Error en TTS");
+                        throw new Error("Error en TTS para fragmento " + (index + 1));
                     }
-
                     const blob = await response.blob();
-                    const audio = new Audio(URL.createObjectURL(blob));
-                    await audio.play();
+                    const audioUrl = URL.createObjectURL(blob);
 
-                    // Espera a que finalice cada fragmento antes de continuar
-                    await new Promise(resolve => audio.onended = resolve);
+                    // Crear el ítem de la lista
+                    const li = document.createElement('li');
+                    li.classList.add('song-item');
+                    li.addEventListener('click', () => {
+                        const audioPlayer = document.getElementById('audioPlayer');
+                        audioPlayer.src = audioUrl;
+                        audioPlayer.play();
+                    });
+
+                    const infoDiv = document.createElement('div');
+                    infoDiv.classList.add('song-info');
+                    const titleDiv = document.createElement('div');
+                    titleDiv.classList.add('song-title');
+                    titleDiv.textContent = `Fragmento ${index + 1}`;
+
+                    infoDiv.appendChild(titleDiv);
+
+
+                    const optionsDiv = document.createElement('div');
+                    optionsDiv.classList.add('song-options');
+                    optionsDiv.textContent = "...";
+
+                    li.appendChild(infoDiv);
+                    li.appendChild(optionsDiv);
+                    fragmentsList.appendChild(li);
+
                 } catch (error) {
                     console.error("Error:", error);
-                    alert("Ocurrió un error al reproducir el audio.");
-                    break;
+                    const li = document.createElement('li');
+                    li.textContent = `Error al cargar fragmento ${index + 1}`;
+                    fragmentsList.appendChild(li);
                 }
-            }
+            });
 
-            // Restaura el estado original del botón
-            btnTTS.innerHTML = originalHTML;
+            await Promise.all(promises);
+
+            // Oculta el spinner y restaura el botón
+            document.getElementById('audioSpinner').style.display = 'none';
             btnTTS.disabled = false;
+            btnTTS.innerHTML = originalHTML;
         });
+
+        // Cerrar el modal
+        document.getElementById('closeAudioModal').addEventListener('click', () => {
+            const audioPlayer = document.getElementById('audioPlayer');
+            // Pausar si está reproduciendo
+            audioPlayer.pause();
+            audioPlayer.currentTime = 0;
+
+            // Cerrar el modal
+            document.getElementById('modalAudio').style.display = 'none';
+        });
+
+
+
+
 
 
 
