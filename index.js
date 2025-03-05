@@ -500,9 +500,10 @@ app.post('/api/tts', async (req, res) => {
     // Llamada a la API de OpenAI para generar el audio
     const mp3 = await openai.audio.speech.create({
       model,   // "tts-1" o "tts-1-hd"
-      voice,   // Por ejemplo "alloy"
-      input    // El texto a convertir
+      voice,   // "nova" (más adecuado para español)
+      input: "Lee este texto con un acento neutro latinoamericano: " + input
     });
+    
     // Convertir la respuesta a un buffer
     const buffer = Buffer.from(await mp3.arrayBuffer());
     // Configurar el tipo de contenido y enviar el audio
