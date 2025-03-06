@@ -496,11 +496,13 @@ app.post("/actualizar-calibracion", (req, res) => {
 // Endpoint para convertir texto a audio (TTS)
 app.post('/api/tts', async (req, res) => {
   try {
-    const { model, voice, input } = req.body;
+    const { model, input } = req.body;
+    // Se define la voz "ash" para que suene menos gringa
+    const voice = "ash";
     // Llamada a la API de OpenAI para generar el audio
     const mp3 = await openai.audio.speech.create({
       model,   // "tts-1" o "tts-1-hd"
-      voice,   // Por ejemplo "alloy"
+      voice,   // Voz configurada: "ash"
       input    // El texto a convertir
     });
     // Convertir la respuesta a un buffer
@@ -513,6 +515,7 @@ app.post('/api/tts', async (req, res) => {
     res.status(500).json({ error: "Error al generar el audio." });
   }
 });
+
 
 
 // Ruta para obtener los prompts de calibración actuales
