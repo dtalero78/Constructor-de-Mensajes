@@ -91,7 +91,7 @@ async function evaluarTranscripcion(transcripcion, section) {
     console.log("Prompt final para sección", section, ":", promptFinal);
     try {
         const response = await openai.chat.completions.create({
-            model: "gpt-4o",
+            model: "gpt-4o-realtime-preview-2024-12-17",
             messages: [{ role: "system", content: promptFinal }]
         });
         return response.choices[0].message.content;
