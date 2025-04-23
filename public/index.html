@@ -9,370 +9,417 @@
         rel="stylesheet" />
     <style>
         /* ----- RESET Y ESTILOS BASE ----- */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-[data-section="calibracion"] {
-  display: none;
-}
-body {
-  font-family: 'IBM Plex Sans', sans-serif;
-  font-size: 11px;
-  background-color: #f4f4f4;
-  color: #333;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-.container {
-  display: flex;
-  flex: 1;
-}
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-/* ----- SIDEBAR ----- */
-.sidebar {
-  width: 250px;
-  background-color: #000;
-  color: #fff;
-  padding: 1em;
-  display: flex;
-  flex-direction: column;
-}
-.sidebar h2 {
-  margin-bottom: 1em;
-  font-size: 1rem;
-}
-.sidebar ul {
-  list-style: none;
-}
-.sidebar li {
-  margin-bottom: 0.5em;
-}
-.sidebar button {
-  width: 100%;
-  padding: 0.75em;
-  background-color: transparent;
-  color: #fff;
-  border: 1px solid #ffffff30;
-  border-radius: 5px;
-  text-align: left;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  font-size: 0.9rem;
-}
-.sidebar button:hover,
-.sidebar button.active {
-  background-color: #545454;
-}
+        [data-section="calibracion"] {
+            display: none;
+        }
 
-/* ----- CONTENIDO PRINCIPAL ----- */
-.main-content {
-  flex: 1;
-  padding: 1em 2em;
-  overflow-y: auto;
-  background-color: #f4f4f4;
-}
-.main-content > h1 {
-  margin-top: 1em;
-  margin-bottom: 1em;
-  font-size: 1.2rem;
-}
+        body {
+            font-family: 'IBM Plex Sans', sans-serif;
+            font-size: 11px;
+            background-color: #f4f4f4;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
 
-/* ----- SECCIONES ----- */
-.content-section {
-  display: none;
-  margin-bottom: 1em;
-}
-.content-section.active {
-  display: block;
-}
-.content-section h2 {
-  margin-bottom: 0.5em;
-  font-size: 1rem;
-  color: #000;
-}
+        .container {
+            display: flex;
+            flex: 1;
+        }
 
-/* ----- FORMULARIOS Y BOTONES ----- */
-label {
-  display: block;
-  margin: 0.5em 0 0.2em;
-}
-input, button, textarea {
-  width: 100%;
-  padding: 0.75em;
-  margin-bottom: 1em;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 0.9rem;
-  font-family: 'IBM Plex Sans', sans-serif;
-}
-button {
-  background-color: #000;
-  color: #fff;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-button:hover {
-  background-color: #545454;
-}
+        /* ----- SIDEBAR ----- */
+        .sidebar {
+            width: 250px;
+            background-color: #000;
+            color: #fff;
+            padding: 1em;
+            display: flex;
+            flex-direction: column;
+        }
 
-/* ----- ESTILOS PARA GRABACIÓN Y ESTADO ----- */
-.recording-buttons button {
-  width: auto;
-  padding: 0.5em 1em;
-  font-size: 0.9rem;
-  margin-bottom: 1.5em;
-  line-height: 1.3;
-}
-.recording-active {
-  background-color: red !important;
-  color: #fff;
-}
-.status-message {
-  margin-bottom: 1em;
-  font-style: italic;
-  color: #555;
-}
-.botones-acciones {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-  margin-top: 10px;
-}
+        .sidebar h2 {
+            margin-bottom: 1em;
+            font-size: 1rem;
+        }
 
-/* ----- TARJETAS (CARDS) ----- */
-.card-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1em;
-  margin-bottom: 1em;
-}
-.card {
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-.card-header {
-  background-color: #f2f2f2;
-  border-bottom: 1px solid #ccc;
-  padding: 0.75em 1em;
-  font-weight: 600;
-  font-size: 0.95rem;
-  color: #333;
-  text-align: center;
-}
-.card-body {
-  padding: 1em;
-  font-size: 0.9rem;
-  line-height: 1.4;
-  min-height: 250px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-}
+        .sidebar ul {
+            list-style: none;
+        }
 
-/* ----- BOTÓN APLICAR SUGERENCIAS ----- */
-.apply-suggestions-btn {
-  background-color: #000;
-  color: #fff;
-  font-size: 0.6rem;
-  font-weight: normal;
-  padding: 0.4em 1.5em;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  display: none;
-  width: 100%;
-  text-align: center;
-  margin-top: 0.5em;
-}
-.apply-suggestions-btn:hover {
-  background-color: #545454;
-}
+        .sidebar li {
+            margin-bottom: 0.5em;
+        }
 
-/* ----- BOTÓN MOSTRAR TRANSCRIPCIÓN ----- */
-.mostrar-transcripcion {
-  display: none;
-  margin-bottom: 1em;
-  padding: 0.5em;
-  background-color: #0077cc;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.8rem;
-}
+        .sidebar button {
+            width: 100%;
+            padding: 0.75em;
+            background-color: transparent;
+            color: #fff;
+            border: 1px solid #ffffff30;
+            border-radius: 5px;
+            text-align: left;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-size: 0.9rem;
+        }
 
-/* ----- MODALES ----- */
-.modal {
-  display: none;
-  position: fixed;
-  z-index: 1000;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0,0,0,0.4);
-}
-.modal-content {
-  position: relative;
-  background-color: #fff;
-  margin: 10% auto;
-  padding: 20px;
-  border: 1px solid #888;
-  width: 80%;
-  max-width: 600px;
-  border-radius: 5px;
-}
-.audio-modal-content {
-  position: relative;
-  background-color: #2c2c2c;
-  color: #fff;
-  border-radius: 8px;
-  padding: 40px 20px 20px; /* Aumentado padding-top para mayor espacio */
-}
+        .sidebar button:hover,
+        .sidebar button.active {
+            background-color: #545454;
+        }
 
-/* ----- BOTÓN DE CERRAR ----- */
-.close-button {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  font-size: 28px;
-  font-weight: normal;
-  cursor: pointer;
-  z-index: 20;
-  color: #000; /* Negro para modales claros */
-}
-.audio-modal-content .close-button {
-  color: #fff; /* Blanco para el modal de audio */
-  font-weight: normal;
-}
+        /* ----- CONTENIDO PRINCIPAL ----- */
+        .main-content {
+            flex: 1;
+            padding: 1em 2em;
+            overflow-y: auto;
+            background-color: #f4f4f4;
+        }
 
-/* ----- CONTENIDO CONSOLIDADO ----- */
-#contenidoConsolidado {
-  font-size: 0.9rem;
-  line-height: 1.4;
-}
+        .main-content>h1 {
+            margin-top: 1em;
+            margin-bottom: 1em;
+            font-size: 1.2rem;
+        }
 
-/* ----- ACCIÓN BUTTONS ----- */
-.action-buttons {
-  display: flex;
-  width: 100%;
-  gap: 8px;
-}
-.action-buttons button {
-  flex: 1;
-  padding: 0.4em 0.6em;
-  background-color: #0077cc;
-  font-size: 0.85rem;
-}
+        /* ----- SECCIONES ----- */
+        .content-section {
+            display: none;
+            margin-bottom: 1em;
+        }
 
-/* ----- BOTÓN INSTRUCCIONES ----- */
-.btn-instrucciones {
-  width: auto;
-  padding: 0.15em 17.9em;
-  font-size: 0.6rem;
-  margin-bottom: 1.5em;
-  border: 1px solid #ffffff30;
-  border-radius: 5px;
-  background-color: black;
-  color: #fff;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
+        .content-section.active {
+            display: block;
+        }
 
-/* ----- FOOTER ----- */
-.footer {
-  display: flex;
-  height: 50px;
-}
-.footer-left {
-  width: 250px;
-  background-color: #000;
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-}
-.footer-left a {
-  color: rgba(255,255,255,0.95);
-  font-weight: bold;
-}
-.footer-left a:hover {
-  text-decoration: none;
-}
-.footer-right {
-  flex: 1;
-  background-color: #f4f4f4;
-}
+        .content-section h2 {
+            margin-bottom: 0.5em;
+            font-size: 1rem;
+            color: #000;
+        }
 
-/* ----- AUDIO REPRODUCTOR Y SPINNER ----- */
-.player-area {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 20px;
-  position: relative;
-}
-.spinner-overlay {
-  display: none; /* Se mostrará via JavaScript cuando se active */
-  position: static;
-  transform: none;
-  z-index: auto;
-}
-.spinner {
-  border: 2px solid rgba(255,255,255,0.2);
-  border-top: 2px solid #ffffff;
-  border-radius: 50%;
-  width: 16px;
-  height: 16px;
-  animation: spin 1s linear infinite;
-  display: inline-block;
-  vertical-align: middle;
-}
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
+        /* ----- FORMULARIOS Y BOTONES ----- */
+        label {
+            display: block;
+            margin: 0.5em 0 0.2em;
+        }
 
-/* ----- LISTA DE FRAGMENTOS ----- */
-.songs-list {
-  margin-top: 20px;
-}
-.song-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background-color: #3b3b3b;
-  border-radius: 8px;
-  margin-bottom: 10px;
-  padding: 10px;
-  cursor: pointer;
-}
-.song-info {
-  flex: 1;
-}
-.song-title {
-  font-weight: 600;
-  margin-bottom: 2px;
-}
-.song-duration {
-  font-size: 0.8rem;
-  color: #bbb;
-}
-.song-options {
-  cursor: pointer;
-  margin-left: auto;
-}
+        input,
+        button,
+        textarea {
+            width: 100%;
+            padding: 0.75em;
+            margin-bottom: 1em;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-family: 'IBM Plex Sans', sans-serif;
+        }
 
+        button {
+            background-color: #000;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #545454;
+        }
+
+        /* ----- ESTILOS PARA GRABACIÓN Y ESTADO ----- */
+        .recording-buttons button {
+            width: auto;
+            padding: 0.5em 1em;
+            font-size: 0.9rem;
+            margin-bottom: 1.5em;
+            line-height: 1.3;
+        }
+
+        .recording-active {
+            background-color: red !important;
+            color: #fff;
+        }
+
+        .status-message {
+            margin-bottom: 1em;
+            font-style: italic;
+            color: #555;
+        }
+
+        .botones-acciones {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        /* ----- TARJETAS (CARDS) ----- */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1em;
+            margin-bottom: 1em;
+        }
+
+        .card {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .card-header {
+            background-color: #f2f2f2;
+            border-bottom: 1px solid #ccc;
+            padding: 0.75em 1em;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #333;
+            text-align: center;
+        }
+
+        .card-body {
+            padding: 1em;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            min-height: 250px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ----- BOTÓN APLICAR SUGERENCIAS ----- */
+        .apply-suggestions-btn {
+            background-color: #000;
+            color: #fff;
+            font-size: 0.6rem;
+            font-weight: normal;
+            padding: 0.4em 1.5em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: none;
+            width: 100%;
+            text-align: center;
+            margin-top: 0.5em;
+        }
+
+        .apply-suggestions-btn:hover {
+            background-color: #545454;
+        }
+
+        /* ----- BOTÓN MOSTRAR TRANSCRIPCIÓN ----- */
+        .mostrar-transcripcion {
+            display: none;
+            margin-bottom: 1em;
+            padding: 0.5em;
+            background-color: #0077cc;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        /* ----- MODALES ----- */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-content {
+            position: relative;
+            background-color: #fff;
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 5px;
+        }
+
+        .audio-modal-content {
+            position: relative;
+            background-color: #2c2c2c;
+            color: #fff;
+            border-radius: 8px;
+            padding: 40px 20px 20px;
+            /* Aumentado padding-top para mayor espacio */
+        }
+
+        /* ----- BOTÓN DE CERRAR ----- */
+        .close-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 28px;
+            font-weight: normal;
+            cursor: pointer;
+            z-index: 20;
+            color: #000;
+            /* Negro para modales claros */
+        }
+
+        .audio-modal-content .close-button {
+            color: #fff;
+            /* Blanco para el modal de audio */
+            font-weight: normal;
+        }
+
+        /* ----- CONTENIDO CONSOLIDADO ----- */
+        #contenidoConsolidado {
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        /* ----- ACCIÓN BUTTONS ----- */
+        .action-buttons {
+            display: flex;
+            width: 100%;
+            gap: 8px;
+        }
+
+        .action-buttons button {
+            flex: 1;
+            padding: 0.4em 0.6em;
+            background-color: #0077cc;
+            font-size: 0.85rem;
+        }
+
+        /* ----- BOTÓN INSTRUCCIONES ----- */
+        .btn-instrucciones {
+            width: auto;
+            padding: 0.15em 17.9em;
+            font-size: 0.6rem;
+            margin-bottom: 1.5em;
+            border: 1px solid #ffffff30;
+            border-radius: 5px;
+            background-color: black;
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        /* ----- FOOTER ----- */
+        .footer {
+            display: flex;
+            height: 50px;
+        }
+
+        .footer-left {
+            width: 250px;
+            background-color: #000;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .footer-left a {
+            color: rgba(255, 255, 255, 0.95);
+            font-weight: bold;
+        }
+
+        .footer-left a:hover {
+            text-decoration: none;
+        }
+
+        .footer-right {
+            flex: 1;
+            background-color: #f4f4f4;
+        }
+
+        /* ----- AUDIO REPRODUCTOR Y SPINNER ----- */
+        .player-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .spinner-overlay {
+            display: none;
+            /* Se mostrará via JavaScript cuando se active */
+            position: static;
+            transform: none;
+            z-index: auto;
+        }
+
+        .spinner {
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-top: 2px solid #ffffff;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ----- LISTA DE FRAGMENTOS ----- */
+        .songs-list {
+            margin-top: 20px;
+        }
+
+        .song-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background-color: #3b3b3b;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .song-info {
+            flex: 1;
+        }
+
+        .song-title {
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .song-duration {
+            font-size: 0.8rem;
+            color: #bbb;
+        }
+
+        .song-options {
+            cursor: pointer;
+            margin-left: auto;
+        }
     </style>
 </head>
 
@@ -1329,8 +1376,13 @@ button:hover {
                     const response = await fetch('/evaluar-escrito', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ section, texto })
+                        body: JSON.stringify({
+                            section,
+                            texto,
+                            usuario: currentUser // 👈 esto es lo que faltaba
+                        })
                     });
+
                     const result = await response.json();
                     if (result.error) {
                         evalCard.innerHTML = "Error: " + result.error;
@@ -1466,8 +1518,10 @@ button:hover {
                         body: JSON.stringify({
                             transcripcion,
                             evaluacion,
-                            seccion: sectionId
+                            seccion: sectionId,
+                            usuario: currentUser // 👈 esto soluciona el error
                         })
+
                     });
                     const result = await resp.json();
                     if (result.error) {
