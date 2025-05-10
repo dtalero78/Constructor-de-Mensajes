@@ -420,6 +420,17 @@
             cursor: pointer;
             margin-left: auto;
         }
+
+        #ideaStatus {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #222;
+            margin-top: 10px;
+            background-color: #fff8dc;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
     </style>
 </head>
 
@@ -1419,11 +1430,13 @@
         const audioChunks = {};
 
         sectionsToRecord.forEach(sectionId => {
-            const startBtn = document.getElementById(`startBtn-${sectionId}`);
-            const stopBtn = document.getElementById(`stopBtn-${sectionId}`);
-            const uploadBtn = document.getElementById(`uploadBtn-${sectionId}`);
-            const audioPlayback = document.getElementById(`audioPlayback-${sectionId}`);
-            const statusMessage = document.getElementById(`status-${sectionId}`);
+            const startBtn = document.getElementById(sectionId === "ideaInput" ? "startRecordingIdea" : `startBtn-${sectionId}`);
+            const stopBtn = document.getElementById(sectionId === "ideaInput" ? "stopRecordingIdea" : `stopBtn-${sectionId}`);
+            const uploadBtn = document.getElementById(sectionId === "ideaInput" ? "uploadRecordingIdea" : `uploadBtn-${sectionId}`);
+
+            const statusMessage = document.getElementById(sectionId === "ideaInput" ? "ideaStatus" : `status-${sectionId}`);
+            const audioPlayback = document.getElementById(sectionId === "ideaInput" ? null : `audioPlayback-${sectionId}`);
+
             const evaluationResult = document.getElementById(`evaluationResult-${sectionId}`);
             const applySuggestionsBtn = document.getElementById(`applySuggestions-${sectionId}`);
             if (!startBtn) return;
