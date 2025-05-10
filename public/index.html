@@ -1512,10 +1512,15 @@
                     } else {
                         statusMessage.textContent = "Transcripción y evaluación listas.";
                         transcripcionesFrontend[sectionId] = data.transcripcion;
-                        evaluationResult.innerHTML = formatOpenAiText(data.evaluacion);
-                        const btnMostrar = document.getElementById(`mostrarTranscripcion-${sectionId}`);
-                        if (btnMostrar) btnMostrar.style.display = "block";
-                        if (applySuggestionsBtn) applySuggestionsBtn.style.display = "block";
+
+                        if (sectionId === "ideaInput") {
+                            document.getElementById('ideaStatus').innerHTML = formatOpenAiText(data.evaluacion);
+                        } else if (evaluationResult) {
+                            evaluationResult.innerHTML = formatOpenAiText(data.evaluacion);
+                            const btnMostrar = document.getElementById(`mostrarTranscripcion-${sectionId}`);
+                            if (btnMostrar) btnMostrar.style.display = "block";
+                            if (applySuggestionsBtn) applySuggestionsBtn.style.display = "block";
+                        }
                     }
                 } catch (error) {
                     console.error("Error al subir el audio:", error);
@@ -1651,7 +1656,7 @@
                 if (data.error) {
                     document.getElementById('ideaStatus').textContent = "Error: " + data.error;
                 } else {
-                    document.getElementById('ideaStatus').textContent = "Clasificación: " + data.clasificacion;
+                    document.getElementById('ideaStatus').innerHTML = formatOpenAiText("Clasificación: " + data.clasificacion);
                 }
             } catch (error) {
                 console.error("Error al procesar la idea:", error);
