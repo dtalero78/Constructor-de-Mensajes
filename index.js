@@ -679,6 +679,12 @@ app.post('/clasificar-idea', async (req, res) => {
       console.error("❌ Error al obtener contexto para clasificar idea:", error);
     }
 
+    // Verificar si el contexto se generó correctamente
+    if (!contexto) {
+      console.warn("⚠️ No se encontró contexto previo para el usuario:", usuario);
+      contexto = "❌ No hay contexto previo disponible.";
+    }
+
     // Construir el prompt para clasificar la idea
     const prompt = `
       Eres un asistente que ayuda a estructurar mensajes basados en 8 pilares fundamentales:
@@ -691,7 +697,7 @@ app.post('/clasificar-idea', async (req, res) => {
       ${tonoLivingRoom}
 
       A continuación, tienes el contexto del mensaje del usuario (si está disponible):
-      ${contexto || "❌ No hay contexto previo disponible."}
+      ${contexto}
 
       Clasifica la siguiente idea en uno de los pilares y explica por qué:
       "${idea}"
