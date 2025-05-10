@@ -112,6 +112,9 @@ async function evaluarTranscripcion(transcripcion, section, usuario) {
     }
   }
 
+  console.log("📋 Mensaje desde la base de datos:", mensajeDesdeDB);
+  console.log("📋 Contexto generado:", contexto);
+
   console.log("🧠 SECCIÓN A EVALUAR:", section.toUpperCase());
   console.log("👤 USUARIO:", usuario);
   console.log("🧩 CONTEXTO UTILIZADO:\n" + contexto || "(Sin contexto previo)");
@@ -153,7 +156,7 @@ async function evaluarTranscripcion(transcripcion, section, usuario) {
   4. Refiere el tono de la comunidad Living Room, que se caracteriza por ser cercano y conversacional, con honestidad y vulnerabilidad, usando imágenes visuales simples y ejemplos cotidianos. El lenguaje debe incluir y conectar con la audiencia. 
   
   ${tonoLivingRoom}
-  `;  
+  `;
 
 
   console.log("📤 PROMPT COMPLETO ENVIADO A OPENAI:\n" + promptFinal);
@@ -395,7 +398,7 @@ app.post("/aplicar-sugerencias", async (req, res) => {
 
   ${tonoLivingRoom}
   `;
-  
+
 
 
   try {
@@ -687,21 +690,23 @@ app.post('/clasificar-idea', async (req, res) => {
 
     // Construir el prompt para clasificar la idea
     const prompt = `
-      Eres un asistente que ayuda a estructurar mensajes basados en 8 pilares fundamentales:
-      TÍTULO, INTRODUCCIÓN, COSTURA, PROBLEMÁTICA, CONECTOR, DESARROLLO, CONCLUSIÓN, MINISTRACIÓN.
-      
-      Cada pilar tiene instrucciones específicas:
-      ${JSON.stringify(promptsCalibracion, null, 2)}
+  Eres un asistente que ayuda a estructurar mensajes basados en 8 pilares fundamentales:
+  TÍTULO, INTRODUCCIÓN, COSTURA, PROBLEMÁTICA, CONECTOR, DESARROLLO, CONCLUSIÓN, MINISTRACIÓN.
+  
+  Cada pilar tiene instrucciones específicas:
+  ${JSON.stringify(promptsCalibracion, null, 2)}
 
-      El tono del mensaje debe ser:
-      ${tonoLivingRoom}
+  El tono del mensaje debe ser:
+  ${tonoLivingRoom}
 
-      A continuación, tienes el contexto del mensaje del usuario (si está disponible):
-      ${contexto}
+  A continuación, tienes el contexto del mensaje del usuario (si está disponible):
+  ${contexto}
 
-      Clasifica la siguiente idea en uno de los pilares y explica por qué:
-      "${idea}"
-    `;
+  Clasifica la siguiente idea en uno de los pilares y explica por qué:
+  "${idea}"
+
+  Además, utiliza el contexto proporcionado para justificar tu clasificación. Explica cómo las secciones previas del mensaje influyen en la decisión de clasificar esta idea en el pilar seleccionado. Si no hay contexto disponible, clasifica la idea de forma aislada. Asegúrate de mencionar explícitamente las secciones relevantes del contexto que respaldan tu decisión.
+`;
 
     // Llamada a OpenAI para clasificar la idea
     const response = await openai.chat.completions.create({
