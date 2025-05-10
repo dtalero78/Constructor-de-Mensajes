@@ -813,8 +813,18 @@
 
             <div id="ttsLoader" class="spinner" style="display:none;"></div>
 
-
-
+            <!-- SECCIÓN: IDEA INPUT -->
+            <div id="ideaInput" class="content-section">
+                <h2>Escribe o graba tus ideas</h2>
+                <textarea id="userIdea" rows="4" placeholder="Escribe tu idea aquí..."></textarea>
+                <div class="recording-buttons">
+                    <button id="startRecordingIdea">Iniciar Grabación</button>
+                    <button id="stopRecordingIdea" disabled>Detener Grabación</button>
+                    <button id="uploadRecordingIdea" disabled>Enviar Audio</button>
+                </div>
+                <button id="processIdea">Procesar Idea</button>
+                <p id="ideaStatus" class="status-message"></p>
+            </div>
 
             <!-- SECCIÓN: CALIBRACIÓN -->
             <div id="calibracion" class="content-section">
@@ -1602,6 +1612,34 @@
             } catch (err) {
                 console.error("Error al actualizar calibración:", err);
                 document.getElementById('resultadoCalibracion').innerText = "Error al actualizar los prompts.";
+            }
+        });
+
+        document.getElementById('processIdea').addEventListener('click', async () => {
+            const idea = document.getElementById('userIdea').value.trim();
+            const usuario = currentUser || "Usuario";
+
+            if (!idea) {
+                alert("Por favor, escribe una idea.");
+                return;
+            }
+
+            document.getElementById('ideaStatus').textContent = "Procesando idea...";
+            try {
+                const response = await fetch('/clasificar-idea', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ idea, usuario })
+                });
+                const data = await response.json();
+                if (data.error) {
+                    document.getElementById('ideaStatus').textContent = "Error: " + data.error;
+                } else {
+                    document.getElementById('ideaStatus').textContent = "Clasificación: " + data.clasificacion;
+                }
+            } catch (error) {
+                console.error("Error al procesar la idea:", error);
+                document.getElementById('ideaStatus').textContent = "Error al procesar la idea.";
             }
         });
     </script>

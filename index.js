@@ -656,3 +656,39 @@ detect(3000).then(freePort => {
   console.error("❌ Error al detectar puerto libre:", err);
 });
 
+app.post('/clasificar-idea', async (req, res) => {
+  const { idea, usuario } = req.body;
+
+  if (!idea || !usuario) {
+    return res.status(400).json({ error: "La idea y el usuario son requeridos." });
+  }
+
+  try {
+    // Construir el prompt para clasificar la idea
+    const prompt = `
+      Eres un asistente que ayuda a estructurar mensajes basados en 8 pilares fundamentales:
+      TÍTULO, INTRODUCCIÓN, COSTURA, PROBLEMÁTICA, CONECTOR, DESARROLLO, CONCLUSIÓN, MINISTRACIÓN.
+      
+      Cada pilar tiene instrucciones específicas:
+      ${JSON.stringify(promptsCalibracion, null, 2)}
+
+      El tono del mensaje debe ser:
+      ${tonoLivingRoom}
+
+      Clasifica la siguiente idea en uno de los pilares y explica por qué:
+      "${idea}"
+    `;
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [{ role: "system", content: prompt }]
+    });
+
+    const clasificacion = response.choices[0].message.content;
+    res.json({ clasificacion });
+  } catch (error) {
+    console.error("Error al clasificar la idea:", error);
+    res.status(500).json({ error: "Error al clasificar la idea." });
+  }
+});
+
