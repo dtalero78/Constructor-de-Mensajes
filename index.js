@@ -664,6 +664,21 @@ app.post('/clasificar-idea', async (req, res) => {
   }
 
   try {
+    // Obtener el contexto desde la base de datos
+    let contexto = "";
+    try {
+      const mensajeDesdeDB = await obtenerMensajeDesdeBase(usuario);
+      if (mensajeDesdeDB) {
+        for (const [clave, valor] of Object.entries(mensajeDesdeDB)) {
+          if (clave !== "usuario" && valor?.trim?.()) {
+            contexto += `🔹 ${clave.toUpperCase()}:\n${valor.trim()}\n\n`;
+          }
+        }
+      }
+    } catch (error) {
+      console.error("❌ Error al obtener contexto para clasificar idea:", error);
+    }
+
     // Construir el prompt para clasificar la idea
     const prompt = `
       Eres un asistente que ayuda a estructurar mensajes basados en 8 pilares fundamentales:
@@ -675,10 +690,14 @@ app.post('/clasificar-idea', async (req, res) => {
       El tono del mensaje debe ser:
       ${tonoLivingRoom}
 
+      A continuación, tienes el contexto del mensaje del usuario (si está disponible):
+      ${contexto || "❌ No hay contexto previo disponible."}
+
       Clasifica la siguiente idea en uno de los pilares y explica por qué:
       "${idea}"
     `;
 
+    // Llamada a OpenAI para clasificar la idea
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [{ role: "system", content: prompt }]
