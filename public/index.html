@@ -452,6 +452,11 @@
                 <li><button class="menu-btn" data-section="mensajeConsolidado">Mensaje Consolidado</button></li>
                 <li><button class="menu-btn" data-section="calibracion">Calibración</button></li>
                 <li><button class="menu-btn" data-section="ideaInput">Ideas</button></li>
+                <li>
+                    <button class="menu-btn" id="btnTutorAlpha" style="background: #ffb300; color: #222; font-weight: bold;">
+                        Tutor Alpha
+                    </button>
+                </li>
             </ul>
         </aside>
 
@@ -1666,6 +1671,10 @@
                 console.error("Error al procesar la idea:", error);
                 document.getElementById('ideaStatus').textContent = "Error al procesar la idea.";
             }
+        });
+
+        document.getElementById('btnTutorAlpha').addEventListener('click', function() {
+            window.open('tutor-alpha.html', '_blank');
         });
     </script>
 </body>
