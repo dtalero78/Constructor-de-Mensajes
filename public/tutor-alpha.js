@@ -6,16 +6,7 @@ const questions = [
 
 let currentStep = 0;
 const answers = {};
-const secciones = [
-  "titulo",
-  "introduccion",
-  "costura",
-  "problematica",
-  "conector",
-  "desarrollo",
-  "conclusion",
-  "ministracion"
-];
+const sugerenciasAcumuladas = {}; // Aquí acumulamos las sugerencias
 
 function showQuestion() {
   document.getElementById('tutorQuestion').innerText = questions[currentStep];
@@ -28,20 +19,25 @@ document.getElementById('tutorNext').addEventListener('click', async () => {
     alert("Por favor, responde la pregunta.");
     return;
   }
-
   answers[currentStep] = answer;
 
   if (currentStep < questions.length - 1) {
     currentStep++;
     showQuestion();
   } else {
-    // Cuando ya tienes las respuestas, empieza a generar sugerencias
-    console.log("📤 Enviando respuestas:", answers);
-    generarSugerenciasUnaPorUna();
+    // Cuando terminan las preguntas, inicia la generación una por una
+    console.log("📤 Iniciando generación por secciones con:", answers);
+    generarSugerenciasPorSeccion();
   }
 });
 
-async function generarSugerenciasUnaPorUna() {
+async function generarSugerenciasPorSeccion() {
+  const secciones = [
+    "titulo", "introduccion", "costura",
+    "problematica", "conector", "desarrollo",
+    "conclusion", "ministracion"
+  ];
+
   const historyDiv = document.getElementById('tutorHistory');
   historyDiv.innerHTML = "<h3>Sugerencias Generadas:</h3>";
 
@@ -52,35 +48,32 @@ async function generarSugerenciasUnaPorUna() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           seccion,
-          respuestas: answers
+          respuestas: answers,
+          contextoPrevio: sugerenciasAcumuladas
         })
       });
 
-      const contentType = response.headers.get("content-type");
-      if (!contentType || !contentType.includes("application/json")) {
-        const errorText = await response.text();
-        console.error("⚠️ Respuesta no es JSON:", errorText);
-        continue;
-      }
-
       const data = await response.json();
-      console.log(`✅ Sugerencia recibida para ${seccion}:`, data);
+      if (data.sugerencia) {
+        sugerenciasAcumuladas[seccion] = data.sugerencia;
 
-      const card = document.createElement('div');
-      card.className = 'suggestion-card';
-      card.innerHTML = `
-        <h4>${seccion.toUpperCase()}</h4>
-        <p>${formatOpenAiText(data.sugerencia)}</p>
-      `;
-      historyDiv.appendChild(card);
-
+        const card = document.createElement('div');
+        card.className = 'suggestion-card';
+        card.innerHTML = `
+          <h4>${seccion.toUpperCase()}</h4>
+          <p>${formatOpenAiText(data.sugerencia)}</p>
+        `;
+        historyDiv.appendChild(card);
+      } else {
+        console.warn(`⚠️ No se recibió sugerencia para ${seccion}`);
+      }
     } catch (error) {
-      console.error(`❌ Error generando sugerencia para ${seccion}:`, error);
+      console.error(`❌ Error generando ${seccion}:`, error);
     }
   }
 }
 
-// Función para formatear texto (negritas y saltos de línea)
+// Formato visual de negritas y saltos de línea
 function formatOpenAiText(text) {
   if (!text) return "";
   let formatted = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');

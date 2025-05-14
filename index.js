@@ -729,13 +729,16 @@ app.post('/clasificar-idea', async (req, res) => {
 
 // Ruta para generar sugerencias basadas en respuestas iniciales
 app.post('/generar-una-sugerencia', async (req, res) => {
-  const { respuestas, seccion } = req.body;
-
-  if (!respuestas || typeof respuestas !== 'object' || !seccion) {
-    return res.status(400).json({ error: "Respuestas y sección son requeridas." });
-  }
+  const { seccion, respuestas, contextoPrevio = {} } = req.body;
 
   const promptBase = promptsCalibracion[seccion] || "";
+
+  let contexto = "";
+  for (const [sec, texto] of Object.entries(contextoPrevio)) {
+    if (sec !== seccion && texto?.trim?.()) {
+      contexto += `🔹 ${sec.toUpperCase()}:\n${texto.trim()}\n\n`;
+    }
+  }
 
   const respuestasClarificadas = `
 🧠 Idea central: ${respuestas[0]}
@@ -756,23 +759,26 @@ ${tonoLivingRoom}
 📋 Información inicial del usuario:
 ${respuestasClarificadas}
 
-Tu tarea es generar una sugerencia para la sección "${seccion.toUpperCase()}" del mensaje. 
-Crea una sugerencia clara y coherente para cada sección teniendo cómo contexto las respuestas iniciales y las instrucciones específicas para cada sección.
-Sugiere cómo la sugerencia que haces de cada sección se conecta con la siguiente y la anterior.
-Solo para la introducción, sugiere 3 versículos bíblicos que podrían ser relevantes para esta sección y explica por qué son apropiados.
+📚 Contexto de secciones anteriores disponibles:
+${contexto || "❌ No hay secciones anteriores aún."}
+
+🎯 Tu tarea:
+1. Sugiere el contenido para la sección "${seccion.toUpperCase()}".
+2. Asegúrate de que conecte con las secciones anteriores (si existen).
+3. Usa el estilo Living Room. Sé claro, visual y cercano.
 `;
 
   try {
-    const response = await openai.chat.completions.create({
+    const completion = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [{ role: "system", content: prompt }]
     });
 
-    const sugerencia = response.choices[0].message.content;
-    res.json({ seccion, sugerencia });
+    const sugerencia = completion.choices[0].message.content;
+    res.json({ sugerencia });
   } catch (error) {
-    console.error("❌ Error al generar sugerencia:", error);
-    res.status(500).json({ error: "No se pudo generar la sugerencia." });
+    console.error("❌ Error en sugerencia:", error);
+    res.status(500).json({ error: "Error al generar la sugerencia." });
   }
 });
 
