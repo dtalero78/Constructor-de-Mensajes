@@ -739,9 +739,8 @@ app.post('/generar-sugerencias', async (req, res) => {
   }
 
 
-  const secciones = ["titulo", "introduccion"]; // solo dos para test
 
-  /*const secciones = [
+  const secciones = [
     "titulo",
     "introduccion",
     "costura",
@@ -750,7 +749,7 @@ app.post('/generar-sugerencias', async (req, res) => {
     "desarrollo",
     "conclusion",
     "ministracion"
-  ];*/
+  ];
 
   const sugerencias = {};
 
