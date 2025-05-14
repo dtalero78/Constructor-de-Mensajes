@@ -725,6 +725,9 @@ app.post('/clasificar-idea', async (req, res) => {
   }
 });
 
+
+
+// Ruta para generar sugerencias basadas en respuestas iniciales
 app.post('/generar-sugerencias', async (req, res) => {
   console.log("📥 Respuestas recibidas:", req.body);
 
@@ -756,7 +759,9 @@ app.post('/generar-sugerencias', async (req, res) => {
       TÍTULO, INTRODUCCIÓN, COSTURA, PROBLEMÁTICA, CONECTOR, DESARROLLO, CONCLUSIÓN, MINISTRACIÓN.
 
       Cada pilar tiene instrucciones específicas:
-      ${JSON.stringify(promptsCalibracion, null, 2)}
+      📌 Instrucciones específicas para la sección "${seccion.toUpperCase()}":
+${promptBase}
+
 
       El tono del mensaje debe ser:
       ${tonoLivingRoom}
