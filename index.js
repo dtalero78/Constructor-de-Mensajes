@@ -751,40 +751,44 @@ app.post('/generar-sugerencias', async (req, res) => {
 
   const sugerencias = {};
 
-  for (const seccion of secciones) {
-    const promptBase = promptsCalibracion[seccion] || "";
+// Procesar cada sección una por una para evitar timeouts
+for (const seccion of secciones) {
+  const promptBase = promptsCalibracion[seccion] || "";
 
-    const prompt = `
-      Eres un asistente que ayuda a estructurar mensajes basados en 8 pilares fundamentales:
-      TÍTULO, INTRODUCCIÓN, COSTURA, PROBLEMÁTICA, CONECTOR, DESARROLLO, CONCLUSIÓN, MINISTRACIÓN.
+  const prompt = `
+    Eres un asistente que ayuda a estructurar mensajes basados en 8 pilares fundamentales:
+    TÍTULO, INTRODUCCIÓN, COSTURA, PROBLEMÁTICA, CONECTOR, DESARROLLO, CONCLUSIÓN, MINISTRACIÓN.
 
-      Cada pilar tiene instrucciones específicas:
-      ${JSON.stringify(promptsCalibracion, null, 2)}
+    Cada pilar tiene instrucciones específicas:
+    ${JSON.stringify(promptsCalibracion, null, 2)}
 
-      El tono del mensaje debe ser:
-      ${tonoLivingRoom}
+    El tono del mensaje debe ser:
+    ${tonoLivingRoom}
 
-      A continuación, tienes las respuestas iniciales del usuario:
-      ${JSON.stringify(respuestas, null, 2)}
+    A continuación, tienes las respuestas iniciales del usuario:
+    ${JSON.stringify(respuestas, null, 2)}
 
-      Tu tarea es generar una sugerencia para la sección "${seccion.toUpperCase()}" del mensaje. 
-      Usa las respuestas iniciales y las instrucciones específicas del pilar para crear una sugerencia clara y coherente.
-      También sugiere cómo esta sección se conecta con las demás partes del mensaje, teniendo en cuenta el contexto general y el tono deseado.
-      También sugiere 3 versículos bíblicos que podrían ser relevantes para esta sección, y explica brevemente por qué son apropiados.
-      `;
+    Tu tarea es generar una sugerencia para la sección "${seccion.toUpperCase()}" del mensaje. 
+    Usa las respuestas iniciales y las instrucciones específicas del pilar para crear una sugerencia clara y coherente.
+    También sugiere cómo esta sección se conecta con las demás partes del mensaje, teniendo en cuenta el contexto general y el tono deseado.
+    También sugiere 3 versículos bíblicos para la sección Introducción, y explica brevemente por qué son apropiados.
+  `;
 
-    try {
-      const response = await openai.chat.completions.create({
-        model: "gpt-4o",
-        messages: [{ role: "system", content: prompt }]
-      });
+  try {
+    console.log(`⌛ Generando sugerencia para sección: ${seccion}`);
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [{ role: "system", content: prompt }]
+    });
 
-      sugerencias[seccion] = response.choices[0].message.content;
-    } catch (error) {
-      console.error(`❌ Error al generar sugerencia para ${seccion}:`, error);
-      sugerencias[seccion] = "Error al generar sugerencia.";
-    }
+    sugerencias[seccion] = response.choices[0].message.content;
+    console.log(`✅ Sugerencia generada para ${seccion}`);
+  } catch (error) {
+    console.error(`❌ Error al generar sugerencia para ${seccion}:`, error);
+    sugerencias[seccion] = "Error al generar sugerencia.";
   }
+}
+
 
   res.json({ sugerencias });
 });
