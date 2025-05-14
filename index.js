@@ -728,43 +728,22 @@ app.post('/clasificar-idea', async (req, res) => {
 
 
 // Ruta para generar sugerencias basadas en respuestas iniciales
-app.post('/generar-sugerencias', async (req, res) => {
-  console.log("📥 Respuestas recibidas:", req.body);
+app.post('/generar-una-sugerencia', async (req, res) => {
+  const { respuestas, seccion } = req.body;
 
-  const { respuestas } = req.body;
-
-  if (!respuestas || typeof respuestas !== 'object') {
-    console.error("❌ Respuestas inválidas:", respuestas);
-    return res.status(400).json({ error: "Las respuestas iniciales son requeridas." });
+  if (!respuestas || typeof respuestas !== 'object' || !seccion) {
+    return res.status(400).json({ error: "Respuestas y sección son requeridas." });
   }
 
+  const promptBase = promptsCalibracion[seccion] || "";
 
-  //const secciones = ["titulo", "introduccion"]; // solo dos para test
-
-  const secciones = [
-    "titulo",
-    "introduccion",
-    "costura",
-    "problematica",
-    "conector",
-    "desarrollo",
-    "conclusion",
-    "ministracion"
-  ];
-
-  const sugerencias = {};
-
-  // Procesar cada sección una por una para evitar timeouts
-  for (const seccion of secciones) {
-    const promptBase = promptsCalibracion[seccion] || "";
-
-const respuestasClarificadas = `
+  const respuestasClarificadas = `
 🧠 Idea central: ${respuestas[0]}
 🎯 Audiencia objetivo: ${respuestas[1]}
 🎁 Propósito del mensaje: ${respuestas[2]}
 `;
 
-const prompt = `
+  const prompt = `
 Eres un asistente que ayuda a estructurar mensajes basados en 8 pilares fundamentales:
 TÍTULO, INTRODUCCIÓN, COSTURA, PROBLEMÁTICA, CONECTOR, DESARROLLO, CONCLUSIÓN, MINISTRACIÓN.
 
@@ -777,30 +756,23 @@ ${tonoLivingRoom}
 📋 Información inicial del usuario:
 ${respuestasClarificadas}
 
-Tu tarea es generar una sugerencia para la sección "${seccion.toUpperCase()}" del mensaje.
-crea una sugerencia clara y coherente para cada sección teniendo cómo contexto las respuestas iniciales y las instrucciones específicas para cada sección, 
+Tu tarea es generar una sugerencia para la sección "${seccion.toUpperCase()}" del mensaje. 
+Crea una sugerencia clara y coherente para cada sección teniendo cómo contexto las respuestas iniciales y las instrucciones específicas para cada sección.
 Sugiere cómo la sugerencia que haces de cada sección se conecta con la siguiente y la anterior.
-Solo para la introducción Sugiere 3 versículos bíblicos que podrían ser relevantes para esta sección, y explica por qué son apropiados.
+Solo para la introducción, sugiere 3 versículos bíblicos que podrían ser relevantes para esta sección y explica por qué son apropiados.
 `;
 
-    console.log("📋 PROMPT ENVIADO A OPENAI:\n" + prompt);
+  try {
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [{ role: "system", content: prompt }]
+    });
 
-    try {
-      console.log(`⌛ Generando sugerencia para sección: ${seccion}`);
-      const response = await openai.chat.completions.create({
-        model: "gpt-4o",
-        messages: [{ role: "system", content: prompt }]
-      });
-
-      sugerencias[seccion] = response.choices[0].message.content;
-      console.log(`✅ Sugerencia generada para ${seccion}`);
-    } catch (error) {
-      console.error(`❌ Error al generar sugerencia para ${seccion}:`, error);
-      sugerencias[seccion] = "Error al generar sugerencia.";
-    }
+    const sugerencia = response.choices[0].message.content;
+    res.json({ seccion, sugerencia });
+  } catch (error) {
+    console.error("❌ Error al generar sugerencia:", error);
+    res.status(500).json({ error: "No se pudo generar la sugerencia." });
   }
-
-
-  res.json({ sugerencias });
 });
 

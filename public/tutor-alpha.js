@@ -6,6 +6,16 @@ const questions = [
 
 let currentStep = 0;
 const answers = {};
+const secciones = [
+  "titulo",
+  "introduccion",
+  "costura",
+  "problematica",
+  "conector",
+  "desarrollo",
+  "conclusion",
+  "ministracion"
+];
 
 function showQuestion() {
   document.getElementById('tutorQuestion').innerText = questions[currentStep];
@@ -18,58 +28,55 @@ document.getElementById('tutorNext').addEventListener('click', async () => {
     alert("Por favor, responde la pregunta.");
     return;
   }
+
   answers[currentStep] = answer;
 
   if (currentStep < questions.length - 1) {
     currentStep++;
     showQuestion();
   } else {
-    // Enviar respuestas al backend para generar sugerencias
-    console.log("📤 Enviando respuestas al backend:", answers);
+    // Cuando ya tienes las respuestas, empieza a generar sugerencias
+    console.log("📤 Enviando respuestas:", answers);
+    generarSugerenciasUnaPorUna();
+  }
+});
 
+async function generarSugerenciasUnaPorUna() {
+  const historyDiv = document.getElementById('tutorHistory');
+  historyDiv.innerHTML = "<h3>Sugerencias Generadas:</h3>";
+
+  for (const seccion of secciones) {
     try {
-      const response = await fetch('/generar-sugerencias', {
+      const response = await fetch('/generar-una-sugerencia', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ respuestas: answers })
+        body: JSON.stringify({
+          seccion,
+          respuestas: answers
+        })
       });
 
       const contentType = response.headers.get("content-type");
       if (!contentType || !contentType.includes("application/json")) {
         const errorText = await response.text();
         console.error("⚠️ Respuesta no es JSON:", errorText);
-        alert("Error inesperado del servidor. Intenta más tarde.");
-        return;
+        continue;
       }
 
       const data = await response.json();
-      console.log("📥 Respuesta del backend:", data);
+      console.log(`✅ Sugerencia recibida para ${seccion}:`, data);
 
+      const card = document.createElement('div');
+      card.className = 'suggestion-card';
+      card.innerHTML = `
+        <h4>${seccion.toUpperCase()}</h4>
+        <p>${formatOpenAiText(data.sugerencia)}</p>
+      `;
+      historyDiv.appendChild(card);
 
-      if (data.sugerencias) {
-        displaySuggestions(data.sugerencias);
-      } else {
-        alert("Error al generar sugerencias.");
-      }
     } catch (error) {
-      console.error("Error al enviar respuestas:", error);
-      alert("Error al generar sugerencias.");
+      console.error(`❌ Error generando sugerencia para ${seccion}:`, error);
     }
-  }
-});
-
-function displaySuggestions(suggestions) {
-  const historyDiv = document.getElementById('tutorHistory');
-  historyDiv.innerHTML = "<h3>Sugerencias Generadas:</h3>";
-
-  for (const [section, suggestion] of Object.entries(suggestions)) {
-    const card = document.createElement('div');
-    card.className = 'suggestion-card';
-    card.innerHTML = `
-      <h4>${section.toUpperCase()}</h4>
-      <p>${formatOpenAiText(suggestion)}</p>
-    `;
-    historyDiv.appendChild(card);
   }
 }
 
