@@ -739,9 +739,9 @@ app.post('/generar-sugerencias', async (req, res) => {
   }
 
 
-  const secciones = ["titulo", "introduccion"]; // solo dos para test
+  //const secciones = ["titulo", "introduccion"]; // solo dos para test
 
-  /*const secciones = [
+  const secciones = [
     "titulo",
     "introduccion",
     "costura",
@@ -750,7 +750,7 @@ app.post('/generar-sugerencias', async (req, res) => {
     "desarrollo",
     "conclusion",
     "ministracion"
-  ];*/
+  ];
 
   const sugerencias = {};
 
@@ -777,10 +777,10 @@ ${tonoLivingRoom}
 📋 Información inicial del usuario:
 ${respuestasClarificadas}
 
-Tu tarea es generar una sugerencia para la sección "${seccion.toUpperCase()}" del mensaje. 
-Usa las respuestas iniciales y las instrucciones específicas del pilar para crear una sugerencia clara y coherente.
-Sugiere cómo esta sección se conecta con las demás partes del mensaje.
-Sugiere 3 versículos bíblicos que podrían ser relevantes para esta sección, y explica por qué son apropiados.
+Tu tarea es generar una sugerencia para la sección "${seccion.toUpperCase()}" del mensaje.
+crea una sugerencia clara y coherente para cada sección teniendo cómo contexto las respuestas iniciales y las instrucciones específicas para cada sección, 
+Sugiere cómo la sugerencia que haces de cada sección se conecta con la siguiente y la anterior.
+Solo para la introducción Sugiere 3 versículos bíblicos que podrían ser relevantes para esta sección, y explica por qué son apropiados.
 `;
 
     console.log("📋 PROMPT ENVIADO A OPENAI:\n" + prompt);
