@@ -738,7 +738,10 @@ app.post('/generar-sugerencias', async (req, res) => {
     return res.status(400).json({ error: "Las respuestas iniciales son requeridas." });
   }
 
-  const secciones = [
+
+  const secciones = ["titulo", "introduccion"]; // solo dos para test
+
+  /*const secciones = [
     "titulo",
     "introduccion",
     "costura",
@@ -747,7 +750,7 @@ app.post('/generar-sugerencias', async (req, res) => {
     "desarrollo",
     "conclusion",
     "ministracion"
-  ];
+  ];*/
 
   const sugerencias = {};
 

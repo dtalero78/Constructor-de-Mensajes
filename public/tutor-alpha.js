@@ -34,8 +34,17 @@ document.getElementById('tutorNext').addEventListener('click', async () => {
         body: JSON.stringify({ respuestas: answers })
       });
 
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        const errorText = await response.text();
+        console.error("⚠️ Respuesta no es JSON:", errorText);
+        alert("Error inesperado del servidor. Intenta más tarde.");
+        return;
+      }
+
       const data = await response.json();
       console.log("📥 Respuesta del backend:", data);
+
 
       if (data.sugerencias) {
         displaySuggestions(data.sugerencias);
