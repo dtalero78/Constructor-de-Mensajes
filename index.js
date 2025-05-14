@@ -725,3 +725,59 @@ app.post('/clasificar-idea', async (req, res) => {
   }
 });
 
+app.post('/generar-sugerencias', async (req, res) => {
+  const { respuestas } = req.body;
+
+  if (!respuestas || typeof respuestas !== 'object') {
+    return res.status(400).json({ error: "Las respuestas iniciales son requeridas." });
+  }
+
+  const secciones = [
+    "titulo",
+    "introduccion",
+    "costura",
+    "problematica",
+    "conector",
+    "desarrollo",
+    "conclusion",
+    "ministracion"
+  ];
+
+  const sugerencias = {};
+
+  for (const seccion of secciones) {
+    const promptBase = promptsCalibracion[seccion] || "";
+
+    const prompt = `
+      Eres un asistente que ayuda a estructurar mensajes basados en 8 pilares fundamentales:
+      TÍTULO, INTRODUCCIÓN, COSTURA, PROBLEMÁTICA, CONECTOR, DESARROLLO, CONCLUSIÓN, MINISTRACIÓN.
+
+      Cada pilar tiene instrucciones específicas:
+      ${JSON.stringify(promptsCalibracion, null, 2)}
+
+      El tono del mensaje debe ser:
+      ${tonoLivingRoom}
+
+      A continuación, tienes las respuestas iniciales del usuario:
+      ${JSON.stringify(respuestas, null, 2)}
+
+      Tu tarea es generar una sugerencia para la sección "${seccion.toUpperCase()}" del mensaje. 
+      Usa las respuestas iniciales y las instrucciones específicas del pilar para crear una sugerencia clara y coherente.
+    `;
+
+    try {
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [{ role: "system", content: prompt }]
+      });
+
+      sugerencias[seccion] = response.choices[0].message.content;
+    } catch (error) {
+      console.error(`❌ Error al generar sugerencia para ${seccion}:`, error);
+      sugerencias[seccion] = "Error al generar sugerencia.";
+    }
+  }
+
+  res.json({ sugerencias });
+});
+
