@@ -25,6 +25,8 @@ document.getElementById('tutorNext').addEventListener('click', async () => {
     showQuestion();
   } else {
     // Enviar respuestas al backend para generar sugerencias
+    console.log("📤 Enviando respuestas al backend:", answers);
+
     try {
       const response = await fetch('/generar-sugerencias', {
         method: 'POST',
@@ -33,6 +35,8 @@ document.getElementById('tutorNext').addEventListener('click', async () => {
       });
 
       const data = await response.json();
+      console.log("📥 Respuesta del backend:", data);
+
       if (data.sugerencias) {
         displaySuggestions(data.sugerencias);
       } else {

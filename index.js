@@ -726,9 +726,12 @@ app.post('/clasificar-idea', async (req, res) => {
 });
 
 app.post('/generar-sugerencias', async (req, res) => {
+  console.log("📥 Respuestas recibidas:", req.body);
+
   const { respuestas } = req.body;
 
   if (!respuestas || typeof respuestas !== 'object') {
+    console.error("❌ Respuestas inválidas:", respuestas);
     return res.status(400).json({ error: "Las respuestas iniciales son requeridas." });
   }
 
