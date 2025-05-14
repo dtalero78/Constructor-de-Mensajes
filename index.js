@@ -728,17 +728,19 @@ app.post('/clasificar-idea', async (req, res) => {
 
 
 // Ruta para generar sugerencias basadas en respuestas iniciales
-app.post('/generar-sugerencias', async (req, res) => {
-  console.log("📥 Respuestas recibidas:", req.body);
+app.get('/generar-sugerencias', async (req, res) => {
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
 
-  const { respuestas } = req.body;
-
-  if (!respuestas || typeof respuestas !== 'object') {
-    console.error("❌ Respuestas inválidas:", respuestas);
-    return res.status(400).json({ error: "Las respuestas iniciales son requeridas." });
+  let respuestas;
+  try {
+    respuestas = JSON.parse(req.query.respuestas);
+  } catch (e) {
+    res.write(`event: error\ndata: ${JSON.stringify({ error: 'Formato de respuestas no es JSON válido' })}\n\n`);
+    res.end();
+    return;
   }
-
-
 
   const secciones = [
     "titulo",
@@ -751,19 +753,15 @@ app.post('/generar-sugerencias', async (req, res) => {
     "ministracion"
   ];
 
-  const sugerencias = {};
-
-  // Procesar cada sección una por una para evitar timeouts
   for (const seccion of secciones) {
     const promptBase = promptsCalibracion[seccion] || "";
-
-const respuestasClarificadas = `
+    const respuestasClarificadas = `
 🧠 Idea central: ${respuestas[0]}
 🎯 Audiencia objetivo: ${respuestas[1]}
 🎁 Propósito del mensaje: ${respuestas[2]}
-`;
+    `;
 
-const prompt = `
+    const prompt = `
 Eres un asistente que ayuda a estructurar mensajes basados en 8 pilares fundamentales:
 TÍTULO, INTRODUCCIÓN, COSTURA, PROBLEMÁTICA, CONECTOR, DESARROLLO, CONCLUSIÓN, MINISTRACIÓN.
 
@@ -782,24 +780,23 @@ Sugiere cómo esta sección se conecta con las demás partes del mensaje.
 Sugiere 3 versículos bíblicos que podrían ser relevantes para esta sección, y explica por qué son apropiados.
 `;
 
-    console.log("📋 PROMPT ENVIADO A OPENAI:\n" + prompt);
-
     try {
-      console.log(`⌛ Generando sugerencia para sección: ${seccion}`);
       const response = await openai.chat.completions.create({
         model: "gpt-4o",
         messages: [{ role: "system", content: prompt }]
       });
+      const sugerencia = response.choices[0].message.content;
 
-      sugerencias[seccion] = response.choices[0].message.content;
-      console.log(`✅ Sugerencia generada para ${seccion}`);
+      res.write(`event: sugerencia\n`);
+      res.write(`data: ${JSON.stringify({ seccion, sugerencia })}\n\n`);
     } catch (error) {
-      console.error(`❌ Error al generar sugerencia para ${seccion}:`, error);
-      sugerencias[seccion] = "Error al generar sugerencia.";
+      res.write(`event: error\n`);
+      res.write(`data: ${JSON.stringify({ seccion, error: error.message })}\n\n`);
     }
   }
 
-
-  res.json({ sugerencias });
+  res.write(`event: done\ndata: {}\n\n`);
+  res.end();
 });
+
 

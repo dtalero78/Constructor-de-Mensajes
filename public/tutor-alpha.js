@@ -12,68 +12,50 @@ function showQuestion() {
   document.getElementById('tutorAnswer').value = answers[currentStep] || "";
 }
 
-document.getElementById('tutorNext').addEventListener('click', async () => {
+document.getElementById('tutorNext').addEventListener('click', () => {
   const answer = document.getElementById('tutorAnswer').value.trim();
   if (!answer) {
     alert("Por favor, responde la pregunta.");
     return;
   }
+
   answers[currentStep] = answer;
 
   if (currentStep < questions.length - 1) {
     currentStep++;
     showQuestion();
   } else {
-    // Enviar respuestas al backend para generar sugerencias
-    console.log("📤 Enviando respuestas al backend:", answers);
+    // Mostrar área de sugerencias
+    const historyDiv = document.getElementById('tutorHistory');
+    historyDiv.innerHTML = "<h3>Sugerencias Generadas:</h3>";
 
-    try {
-      const response = await fetch('/generar-sugerencias', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ respuestas: answers })
-      });
+    // Enviar respuestas por query como JSON string
+    const params = new URLSearchParams({ respuestas: JSON.stringify(answers) });
+    const eventSource = new EventSource(`/generar-sugerencias?${params.toString()}`);
 
-      const contentType = response.headers.get("content-type");
-      if (!contentType || !contentType.includes("application/json")) {
-        const errorText = await response.text();
-        console.error("⚠️ Respuesta no es JSON:", errorText);
-        alert("Error inesperado del servidor. Intenta más tarde.");
-        return;
-      }
+    eventSource.addEventListener('sugerencia', (e) => {
+      const { seccion, sugerencia } = JSON.parse(e.data);
+      const card = document.createElement('div');
+      card.className = 'suggestion-card';
+      card.innerHTML = `
+        <h4>${seccion.toUpperCase()}</h4>
+        <p>${formatOpenAiText(sugerencia)}</p>
+      `;
+      historyDiv.appendChild(card);
+    });
 
-      const data = await response.json();
-      console.log("📥 Respuesta del backend:", data);
+    eventSource.addEventListener('done', () => {
+      eventSource.close();
+    });
 
-
-      if (data.sugerencias) {
-        displaySuggestions(data.sugerencias);
-      } else {
-        alert("Error al generar sugerencias.");
-      }
-    } catch (error) {
-      console.error("Error al enviar respuestas:", error);
-      alert("Error al generar sugerencias.");
-    }
+    eventSource.addEventListener('error', (e) => {
+      console.error("❌ Error de SSE:", e);
+      eventSource.close();
+      alert("Hubo un error al generar sugerencias. Intenta de nuevo.");
+    });
   }
 });
 
-function displaySuggestions(suggestions) {
-  const historyDiv = document.getElementById('tutorHistory');
-  historyDiv.innerHTML = "<h3>Sugerencias Generadas:</h3>";
-
-  for (const [section, suggestion] of Object.entries(suggestions)) {
-    const card = document.createElement('div');
-    card.className = 'suggestion-card';
-    card.innerHTML = `
-      <h4>${section.toUpperCase()}</h4>
-      <p>${formatOpenAiText(suggestion)}</p>
-    `;
-    historyDiv.appendChild(card);
-  }
-}
-
-// Función para formatear texto (negritas y saltos de línea)
 function formatOpenAiText(text) {
   if (!text) return "";
   let formatted = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
