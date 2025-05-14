@@ -766,7 +766,9 @@ app.post('/generar-sugerencias', async (req, res) => {
 
       Tu tarea es generar una sugerencia para la sección "${seccion.toUpperCase()}" del mensaje. 
       Usa las respuestas iniciales y las instrucciones específicas del pilar para crear una sugerencia clara y coherente.
-    `;
+      También sugiere cómo esta sección se conecta con las demás partes del mensaje, teniendo en cuenta el contexto general y el tono deseado.
+      También sugiere 3 versículos bíblicos que podrían ser relevantes para esta sección, y explica brevemente por qué son apropiados.
+      `;
 
     try {
       const response = await openai.chat.completions.create({

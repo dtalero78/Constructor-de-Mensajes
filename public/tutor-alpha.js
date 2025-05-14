@@ -58,10 +58,18 @@ function displaySuggestions(suggestions) {
     card.className = 'suggestion-card';
     card.innerHTML = `
       <h4>${section.toUpperCase()}</h4>
-      <p>${suggestion}</p>
+      <p>${formatOpenAiText(suggestion)}</p>
     `;
     historyDiv.appendChild(card);
   }
+}
+
+// Función para formatear texto (negritas y saltos de línea)
+function formatOpenAiText(text) {
+  if (!text) return "";
+  let formatted = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  formatted = formatted.replace(/\n/g, '<br>');
+  return formatted;
 }
 
 showQuestion();
