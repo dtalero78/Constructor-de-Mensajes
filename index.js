@@ -645,10 +645,13 @@ function obtenerMensajeDesdeBase(usuario) {
 
 
 
-// Servir index.html desde la carpeta public
-app.get('/', (req, res) => {
+// Servir index.html SOLO para rutas que NO son archivos estáticos
+app.get('*', (req, res, next) => {
+  const isStaticAsset = req.path.includes('.') || req.path.startsWith('/api');
+  if (isStaticAsset) return next();
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
+
 
 // Detectar puerto libre y lanzar servidor
 detect(3000).then(freePort => {
