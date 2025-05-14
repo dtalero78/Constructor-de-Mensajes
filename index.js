@@ -729,18 +729,22 @@ app.post('/clasificar-idea', async (req, res) => {
 
 // Ruta para generar sugerencias basadas en respuestas iniciales
 app.get('/generar-sugerencias', async (req, res) => {
-  res.setHeader('Content-Type', 'text/event-stream');
-  res.setHeader('Cache-Control', 'no-cache');
-  res.setHeader('Connection', 'keep-alive');
+  console.log("📥 Query recibida:", req.query.respuestas);
 
   let respuestas;
   try {
     respuestas = JSON.parse(req.query.respuestas);
   } catch (e) {
-    res.write(`event: error\ndata: ${JSON.stringify({ error: 'Formato de respuestas no es JSON válido' })}\n\n`);
-    res.end();
+    // 👇 Estas cabeceras HTML deben evitarse antes de SSE, así que respondemos con un 400 plano y salimos
+    res.writeHead(400, { 'Content-Type': 'text/plain' });
+    res.end("❌ Formato inválido en respuestas (no es JSON)");
     return;
   }
+
+  // ✅ Cabeceras SSE
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
 
   const secciones = [
     "titulo",
@@ -793,8 +797,12 @@ Sugiere 3 versículos bíblicos que podrían ser relevantes para esta sección, 
       res.write(`event: error\n`);
       res.write(`data: ${JSON.stringify({ seccion, error: error.message })}\n\n`);
     }
+
+    // 🔁 Opción: dar un pequeño respiro para que el frontend procese
+    await new Promise(r => setTimeout(r, 500));
   }
 
+  // ✅ Finalizar flujo SSE
   res.write(`event: done\ndata: {}\n\n`);
   res.end();
 });
