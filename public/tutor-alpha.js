@@ -61,25 +61,3 @@ function displaySuggestions(suggestions) {
 }
 
 showQuestion();
-```
-
-<style>
-  .suggestion-card {
-    background: #f9f9f9;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 1em;
-    margin-bottom: 1em;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  .suggestion-card h4 {
-    margin: 0 0 0.5em;
-    font-size: 1.1em;
-    color: #333;
-  }
-  .suggestion-card p {
-    margin: 0;
-    font-size: 0.95em;
-    color: #555;
-  }
-</style>
