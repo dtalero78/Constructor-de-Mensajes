@@ -759,9 +759,7 @@ app.post('/generar-sugerencias', async (req, res) => {
       TÍTULO, INTRODUCCIÓN, COSTURA, PROBLEMÁTICA, CONECTOR, DESARROLLO, CONCLUSIÓN, MINISTRACIÓN.
 
       Cada pilar tiene instrucciones específicas:
-      📌 Instrucciones específicas para la sección "${seccion.toUpperCase()}":
-${promptBase}
-
+      ${JSON.stringify(promptsCalibracion, null, 2)}
 
       El tono del mensaje debe ser:
       ${tonoLivingRoom}
