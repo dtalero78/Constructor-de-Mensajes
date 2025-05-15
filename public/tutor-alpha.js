@@ -88,9 +88,24 @@ async function generarSugerenciasPorSeccion() {
 // Formato visual de negritas y saltos de línea
 function formatOpenAiText(text) {
   if (!text) return "";
+
+  // Negritas estilo **texto**
   let formatted = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+  // Títulos estilo ### Título
+  formatted = formatted.replace(/^### (.*)$/gm, '<h3>$1</h3>');
+
+  // Listas con guiones
+  formatted = formatted.replace(/^- (.*)$/gm, '<li>$1</li>');
+
+  // Agrupar listas en <ul>
+  formatted = formatted.replace(/(<li>[\s\S]*?<\/li>)/g, '<ul>$1</ul>');
+
+  // Saltos de línea
   formatted = formatted.replace(/\n/g, '<br>');
+
   return formatted;
 }
+
 
 showQuestion();
