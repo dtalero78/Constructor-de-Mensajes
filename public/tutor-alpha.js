@@ -6,7 +6,7 @@ const questions = [
 
 let currentStep = 0;
 const answers = {};
-const sugerenciasAcumuladas = {}; // Aquí acumulamos las sugerencias
+const sugerenciasAcumuladas = {};
 
 function showQuestion() {
   document.getElementById('tutorQuestion').innerText = questions[currentStep];
@@ -19,14 +19,15 @@ document.getElementById('tutorNext').addEventListener('click', async () => {
     alert("Por favor, responde la pregunta.");
     return;
   }
+
   answers[currentStep] = answer;
 
   if (currentStep < questions.length - 1) {
     currentStep++;
     showQuestion();
   } else {
-    // Cuando terminan las preguntas, inicia la generación una por una
     console.log("📤 Iniciando generación por secciones con:", answers);
+    document.getElementById('tutorNext').style.display = 'none'; // Oculta el botón al finalizar
     generarSugerenciasPorSeccion();
   }
 });
@@ -54,20 +55,25 @@ async function generarSugerenciasPorSeccion() {
       });
 
       const data = await response.json();
+
       if (data.sugerencia) {
         sugerenciasAcumuladas[seccion] = data.sugerencia;
+
+        const sugerenciaSinConexion = data.sugerencia.split("🔗 Conexión con lo anterior:")[0]?.trim();
+        const conexion = data.sugerencia.includes("🔗 Conexión con lo anterior:")
+          ? data.sugerencia.split("🔗 Conexión con lo anterior:")[1]?.trim()
+          : null;
 
         const card = document.createElement('div');
         card.className = 'suggestion-card';
         card.innerHTML = `
           <h4>${seccion.toUpperCase()}</h4>
-          <p>${formatOpenAiText(data.sugerencia)}</p>
-          <details style="margin-top: 0.5em;">
-            <summary style="cursor: pointer; font-size: 0.9em; color: #007acc;">Ver contexto utilizado</summary>
-            <div style="margin-top: 0.5em; font-size: 0.85em; color: #444; background: #f1f1f1; padding: 0.5em; border-radius: 6px;">
-              ${formatOpenAiText(data.contexto)}
-            </div>
-          </details>
+          <div class="sugerencia-cuerpo">${formatOpenAiText(sugerenciaSinConexion)}</div>
+          ${conexion ? `
+            <div class="sugerencia-conexion">
+              <strong>🔗 Conexión con lo anterior:</strong><br>
+              ${formatOpenAiText(conexion)}
+            </div>` : ""}
         `;
         historyDiv.appendChild(card);
       } else {
@@ -78,7 +84,6 @@ async function generarSugerenciasPorSeccion() {
     }
   }
 }
-
 
 // Formato visual de negritas y saltos de línea
 function formatOpenAiText(text) {

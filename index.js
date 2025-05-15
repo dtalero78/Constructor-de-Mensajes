@@ -729,7 +729,6 @@ app.post('/clasificar-idea', async (req, res) => {
 
 // ✅ Reescritura de `generar-una-sugerencia` sin calificación y con contexto visible
 
-
 const relacionesImportantes = {
   "TITULO": [], // El título usualmente inicia, no depende de un previo en este flujo.
   "INTRODUCCION": ["TITULO"], // La introducción debe reflejar el título.
