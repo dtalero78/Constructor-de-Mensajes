@@ -730,14 +730,14 @@ app.post('/clasificar-idea', async (req, res) => {
 // ✅ Reescritura de `generar-una-sugerencia` sin calificación y con contexto visible
 
 const relacionesImportantes = {
-  "TITULO": [], // El título usualmente inicia, no depende de un previo en este flujo.
-  "INTRODUCCION": ["TITULO"], // La introducción debe reflejar el título.
-  "COSTURA": ["INTRODUCCION"], // La costura sigue naturalmente a la introducción.
-  "PROBLEMATICA": ["INTRODUCCION", "COSTURA"], // El problema se plantea tras la intro y la costura.
-  "CONECTOR": ["PROBLEMATICA"], // El conector vincula el problema con la solución/desarrollo.
-  "DESARROLLO": ["PROBLEMATICA", "CONECTOR"], // El desarrollo aborda el problema y sigue al conector.
-  "CONCLUSION": ["DESARROLLO", "CONECTOR", "INTRODUCCION"], // La conclusión cierra el desarrollo, puede retomar el conector e incluso la idea de la intro.
-  "MINISTRACION": ["CONCLUSION", "DESARROLLO"] // La ministración responde a la conclusión y al mensaje central del desarrollo.
+  "TITULO": { dependsOn: [], weight: 1 },
+  "INTRODUCCION": { dependsOn: ["TITULO"], weight: 2 },
+  "COSTURA": { dependsOn: ["INTRODUCCION"], weight: 2 },
+  "PROBLEMATICA": { dependsOn: ["INTRODUCCION", "COSTURA"], weight: 3 },
+  "CONECTOR": { dependsOn: ["PROBLEMATICA"], weight: 4 },
+  "DESARROLLO": { dependsOn: ["PROBLEMATICA", "CONECTOR"], weight: 5 },
+  "CONCLUSION": { dependsOn: ["DESARROLLO", "CONECTOR", "INTRODUCCION"], weight: 3 },
+  "MINISTRACION": { dependsOn: ["CONCLUSION", "DESARROLLO"], weight: 2 }
 };
 
 app.post('/generar-una-sugerencia', async (req, res) => {
@@ -760,13 +760,20 @@ app.post('/generar-una-sugerencia', async (req, res) => {
     contextoParaPrompt = "❌ No hay contenido de secciones previas disponible aún.";
   }
 
-  // Identificar las conexiones clave para la sección actual
-  const seccionesRelevantesParaConectar = (relacionesImportantes[seccionActual] || [])
-    .filter(s => seccionesPreviasDisponibles.includes(s));
+  // Identificar las conexiones clave para la sección actual, considerando el peso
+  const dependencias = relacionesImportantes[seccionActual]?.dependsOn || [];
+  const conexionesRelevantesConPeso = dependencias
+    .filter(s => seccionesPreviasDisponibles.includes(s))
+    .map(s => ({ seccion: s, peso: relacionesImportantes[seccionActual].weight - relacionesImportantes[s].weight })); // Calculamos una diferencia de peso
+
+  conexionesRelevantesConPeso.sort((a, b) => b.peso - a.peso); // Ordenamos por peso descendente (mayor diferencia = más importante)
+
+  const seccionesRelevantesParaConectar = conexionesRelevantesConPeso.map(c => c.seccion);
 
   let indicacionesDeConexion = "";
   if (seccionesRelevantesParaConectar.length > 0) {
-    indicacionesDeConexion = `\n💡 ENFOQUE DE CONEXIÓN:\nPara esta sección "${seccionActual}", es particularmente importante que tu sugerencia se conecte de manera fluida y lógica con el contenido de: ${seccionesRelevantesParaConectar.join(', ')}. Asegúrate de que tu propuesta construya sobre estas bases.\n`;
+    const listaConPesos = conexionesRelevantesConPeso.map(c => `${c.seccion} (peso: ${c.peso})`).join(', ');
+    indicacionesDeConexion = `\n💡 ENFOQUE DE CONEXIÓN:\nPara esta sección "${seccionActual}", es particularmente importante que tu sugerencia se conecte de manera fluida y lógica con el contenido de: ${listaConPesos}. Asegúrate de que tu propuesta construya sobre estas bases, dando **mayor prioridad** a las conexiones con un peso más alto.\n`;
   }
 
   const respuestasClarificadas = `
@@ -800,7 +807,7 @@ ${indicacionesDeConexion}
 
 🎯 Tu tarea es la siguiente:
 1.  Redacta una sugerencia de contenido detallada y creativa para la sección "${seccionActual}", siguiendo la instrucción específica y el tono "Living Room".
-2.  Después de la sugerencia de contenido, incluye un párrafo OBLIGATORIO titulado "🔗 Conexión con lo anterior:" donde expliques de forma concisa (1-3 frases) cómo esta sugerencia para "${seccionActual}" se vincula y construye sobre las secciones previas. ${seccionesRelevantesParaConectar.length > 0 ? `En tu explicación, enfócate especialmente en la conexión con ${seccionesRelevantesParaConectar.join(' y ')} (si fueron provistas en el contexto).` : 'Si no hay contexto previo relevante o secciones clave identificadas, simplemente indica que es el punto de partida.'}
+2.  Después de la sugerencia de contenido, incluye un párrafo OBLIGATORIO titulado "🔗 Conexión con lo anterior:" donde expliques de forma concisa (1-3 frases) cómo esta sugerencia para "${seccionActual}" se vincula y construye sobre las secciones previas. ${seccionesRelevantesParaConectar.length > 0 ? `En tu explicación, enfócate especialmente en la conexión con ${seccionesRelevantesParaConectar.join(' y ')}, **priorizando las conexiones que se consideran más importantes según el "ENFOQUE DE CONEXIÓN"**.` : 'Si no hay contexto previo relevante o secciones clave identificadas, simplemente indica que es el punto de partida.'}
 3.  Aplica el tono "Living Room" consistentemente. Sé claro, visual, cercano y práctico.
 4.  NO incluyas frases como "Análisis:", "Evaluación:", "Calificación:", "Puntuación:" o similares. Ve directo a la sugerencia y su explicación de conexión.
 5.  Asegúrate de que la sugerencia sea útil y directamente aplicable por el usuario.
@@ -820,7 +827,6 @@ Comienza directamente con la sugerencia para "${seccionActual}".
     res.json({ sugerencia, contextoEnviadoAlPrompt: contextoPrevio });
   } catch (error) {
     console.error("❌ Error generando sugerencia:", error);
-    // Es buena práctica no exponer detalles del error al cliente en producción.
     const errorMessage = error.response ? error.response.data : error.message;
     console.error("Detalle del error de OpenAI:", errorMessage);
     res.status(500).json({ error: "Error al generar la sugerencia. Intenta de nuevo más tarde.", detalle: errorMessage });
