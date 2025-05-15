@@ -59,7 +59,16 @@ async function generarSugerenciasPorSeccion() {
         sugerenciasAcumuladas[seccion] = data.sugerencia;
 
         // Separar sugerencia y conexión
-        const [contenido, conexion] = data.sugerencia.split("🔗 Conexión con lo anterior:");
+        // Buscar sección de conexión con expresión regular
+        let contenido = data.sugerencia;
+        let conexion = "";
+
+        const match = data.sugerencia.match(/🔗?\s*Conexión con lo anterior[:：]?\s*/i);
+        if (match) {
+          const partes = data.sugerencia.split(match[0]);
+          contenido = partes[0].trim();
+          conexion = partes[1]?.trim() || "";
+        }
 
         const card = document.createElement('div');
         card.className = 'suggestion-card';
