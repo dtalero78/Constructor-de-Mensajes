@@ -729,58 +729,101 @@ app.post('/clasificar-idea', async (req, res) => {
 
 // ✅ Reescritura de `generar-una-sugerencia` sin calificación y con contexto visible
 
+
+const relacionesImportantes = {
+  "TITULO": [], // El título usualmente inicia, no depende de un previo en este flujo.
+  "INTRODUCCION": ["TITULO"], // La introducción debe reflejar el título.
+  "COSTURA": ["INTRODUCCION"], // La costura sigue naturalmente a la introducción.
+  "PROBLEMATICA": ["INTRODUCCION", "COSTURA"], // El problema se plantea tras la intro y la costura.
+  "CONECTOR": ["PROBLEMATICA"], // El conector vincula el problema con la solución/desarrollo.
+  "DESARROLLO": ["PROBLEMATICA", "CONECTOR"], // El desarrollo aborda el problema y sigue al conector.
+  "CONCLUSION": ["DESARROLLO", "CONECTOR", "INTRODUCCION"], // La conclusión cierra el desarrollo, puede retomar el conector e incluso la idea de la intro.
+  "MINISTRACION": ["CONCLUSION", "DESARROLLO"] // La ministración responde a la conclusión y al mensaje central del desarrollo.
+};
+
 app.post('/generar-una-sugerencia', async (req, res) => {
   const { seccion, respuestas, contextoPrevio = {} } = req.body;
 
-  const promptBase = promptsCalibracion[seccion] || "";
+  const seccionActual = seccion.toUpperCase(); // Asegurarnos que esté en mayúsculas para la búsqueda
+  const promptBase = promptsCalibracion[seccionActual] || "";
 
-  let contexto = "";
+  // Construcción del contexto previo para el prompt
+  let contextoParaPrompt = "";
+  const seccionesPreviasDisponibles = [];
   for (const [sec, texto] of Object.entries(contextoPrevio)) {
-    if (sec !== seccion && texto?.trim?.()) {
-      contexto += `\n🔹 ${sec.toUpperCase()}:\n${texto.trim()}\n`;
+    const secMayus = sec.toUpperCase();
+    if (secMayus !== seccionActual && texto?.trim?.()) {
+      contextoParaPrompt += `\n🔹 Sección "${secMayus}":\n${texto.trim()}\n`;
+      seccionesPreviasDisponibles.push(secMayus);
     }
+  }
+  if (!contextoParaPrompt) {
+    contextoParaPrompt = "❌ No hay contenido de secciones previas disponible aún.";
+  }
+
+  // Identificar las conexiones clave para la sección actual
+  const seccionesRelevantesParaConectar = (relacionesImportantes[seccionActual] || [])
+    .filter(s => seccionesPreviasDisponibles.includes(s));
+
+  let indicacionesDeConexion = "";
+  if (seccionesRelevantesParaConectar.length > 0) {
+    indicacionesDeConexion = `\n💡 ENFOQUE DE CONEXIÓN:\nPara esta sección "${seccionActual}", es particularmente importante que tu sugerencia se conecte de manera fluida y lógica con el contenido de: ${seccionesRelevantesParaConectar.join(', ')}. Asegúrate de que tu propuesta construya sobre estas bases.\n`;
   }
 
   const respuestasClarificadas = `
-🧠 Idea central: ${respuestas[0]}
-🎯 Audiencia objetivo: ${respuestas[1]}
-🎁 Propósito del mensaje: ${respuestas[2]}
+🧠 Idea central del mensaje: ${respuestas[0]}
+🎯 Audiencia a la que te diriges: ${respuestas[1]}
+🎁 Propósito principal de este mensaje: ${respuestas[2]}
 `;
 
-  const prompt = `
-Eres un asistente que ayuda a estructurar mensajes basados en 8 pilares fundamentales:
-TÍTULO, INTRODUCCIÓN, COSTURA, PROBLEMÁTICA, CONECTOR, DESARROLLO, CONCLUSIÓN, MINISTRACIÓN.
+  const promptFinal = `
+Eres un asistente experto en la creación y estructuración de sermones y mensajes persuasivos. Entiendes que un mensaje se compone de 8 pilares interconectados, donde la transición y coherencia entre ellos es fundamental para el impacto. Los pilares son: TÍTULO, INTRODUCCIÓN, COSTURA, PROBLEMÁTICA, CONECTOR, DESARROLLO, CONCLUSIÓN, MINISTRACIÓN.
 
-📌 Instrucción para la sección "${seccion.toUpperCase()}":
+Tu objetivo es generar el contenido para una sección específica, asegurando que se integre armónicamente con el contexto previo proporcionado, prestando especial atención a las relaciones lógicas y de dependencia entre secciones.
+
+--------------------
+SECCIÓN A DESARROLLAR: "${seccionActual}"
+--------------------
+
+📌 Instrucción específica para la sección "${seccionActual}":
 ${promptBase}
 
-🗣 Tono esperado:
+🗣 Tono esperado (Estilo "Living Room"):
 ${tonoLivingRoom}
 
-📋 Respuestas iniciales:
+📋 Información base proporcionada por el usuario:
 ${respuestasClarificadas}
 
-📚 Contexto previo:
-${contexto || "❌ No hay contexto previo disponible."}
+📚 Contexto de secciones anteriores ya desarrolladas:
+${contextoParaPrompt}
 
-🎯 Tu tarea:
-1. Sugiere el contenido para la sección "${seccion.toUpperCase()}".
-2. Explica brevemente cómo se relaciona con lo anterior (si hay).
-3. Usa el estilo Living Room. Sé claro, visual y cercano.
-4. No des calificaciones ni pongas "análisis". Solo genera la sugerencia con explicación contextual.
+${indicacionesDeConexion}
+
+🎯 Tu tarea es la siguiente:
+1.  Redacta una sugerencia de contenido detallada y creativa para la sección "${seccionActual}", siguiendo la instrucción específica y el tono "Living Room".
+2.  Después de la sugerencia de contenido, incluye un párrafo OBLIGATORIO titulado "🔗 Conexión con lo anterior:" donde expliques de forma concisa (1-3 frases) cómo esta sugerencia para "${seccionActual}" se vincula y construye sobre las secciones previas. ${seccionesRelevantesParaConectar.length > 0 ? `En tu explicación, enfócate especialmente en la conexión con ${seccionesRelevantesParaConectar.join(' y ')} (si fueron provistas en el contexto).` : 'Si no hay contexto previo relevante o secciones clave identificadas, simplemente indica que es el punto de partida.'}
+3.  Aplica el tono "Living Room" consistentemente. Sé claro, visual, cercano y práctico.
+4.  NO incluyas frases como "Análisis:", "Evaluación:", "Calificación:", "Puntuación:" o similares. Ve directo a la sugerencia y su explicación de conexión.
+5.  Asegúrate de que la sugerencia sea útil y directamente aplicable por el usuario.
+
+Comienza directamente con la sugerencia para "${seccionActual}".
 `;
 
   try {
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [{ role: "system", content: prompt }]
+      model: "gpt-4o", // o el modelo que prefieras y tengas acceso
+      messages: [{ role: "system", content: "Eres un experto en estructuración de sermones y redacción persuasiva." }, { role: "user", content: promptFinal }]
     });
 
     const sugerencia = completion.choices[0].message.content;
-    res.json({ sugerencia, contexto });
+    // Devolvemos el contexto que se usó también, por si el frontend lo necesita
+    res.json({ sugerencia, contextoEnviadoAlPrompt: contextoPrevio });
   } catch (error) {
     console.error("❌ Error generando sugerencia:", error);
-    res.status(500).json({ error: "Error al generar la sugerencia." });
+    // Es buena práctica no exponer detalles del error al cliente en producción.
+    const errorMessage = error.response ? error.response.data : error.message;
+    console.error("Detalle del error de OpenAI:", errorMessage);
+    res.status(500).json({ error: "Error al generar la sugerencia. Intenta de nuevo más tarde.", detalle: errorMessage });
   }
 });
 
