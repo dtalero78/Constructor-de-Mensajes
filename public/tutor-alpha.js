@@ -55,25 +55,24 @@ async function generarSugerenciasPorSeccion() {
       });
 
       const data = await response.json();
-
       if (data.sugerencia) {
         sugerenciasAcumuladas[seccion] = data.sugerencia;
 
-        const sugerenciaSinConexion = data.sugerencia.split("🔗 Conexión con lo anterior:")[0]?.trim();
-        const conexion = data.sugerencia.includes("🔗 Conexión con lo anterior:")
-          ? data.sugerencia.split("🔗 Conexión con lo anterior:")[1]?.trim()
-          : null;
+        // Separar sugerencia y conexión
+        const [contenido, conexion] = data.sugerencia.split("🔗 Conexión con lo anterior:");
 
         const card = document.createElement('div');
         card.className = 'suggestion-card';
         card.innerHTML = `
           <h4>${seccion.toUpperCase()}</h4>
-          <div class="sugerencia-cuerpo">${formatOpenAiText(sugerenciaSinConexion)}</div>
+          <p>${formatOpenAiText(contenido.trim())}</p>
           ${conexion ? `
-            <div class="sugerencia-conexion">
-              <strong>🔗 Conexión con lo anterior:</strong><br>
-              ${formatOpenAiText(conexion)}
-            </div>` : ""}
+            <details style="margin-top: 0.8em;">
+              <summary style="cursor: pointer; font-size: 0.9em; color: #007acc;">🔗 Conexión con lo anterior</summary>
+              <div style="margin-top: 0.5em; font-size: 0.88em; color: #333; background: #eef6fc; padding: 0.6em; border-left: 4px solid #007acc; border-radius: 6px;">
+                ${formatOpenAiText(conexion.trim())}
+              </div>
+            </details>` : ""}
         `;
         historyDiv.appendChild(card);
       } else {
@@ -84,6 +83,7 @@ async function generarSugerenciasPorSeccion() {
     }
   }
 }
+
 
 // Formato visual de negritas y saltos de línea
 function formatOpenAiText(text) {

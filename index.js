@@ -804,6 +804,7 @@ ${indicacionesDeConexion}
 3.  Aplica el tono "Living Room" consistentemente. Sé claro, visual, cercano y práctico.
 4.  NO incluyas frases como "Análisis:", "Evaluación:", "Calificación:", "Puntuación:" o similares. Ve directo a la sugerencia y su explicación de conexión.
 5.  Asegúrate de que la sugerencia sea útil y directamente aplicable por el usuario.
+6.  Solo en la sección de INTRODUCCIÓN sugiere 3 versículos centrales que se relacionen con el tema del mensaje.
 
 Comienza directamente con la sugerencia para "${seccionActual}".
 `;
