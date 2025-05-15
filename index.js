@@ -727,7 +727,8 @@ app.post('/clasificar-idea', async (req, res) => {
 
 
 
-// Ruta para generar sugerencias basadas en respuestas iniciales
+// ✅ Reescritura de `generar-una-sugerencia` sin calificación y con contexto visible
+
 app.post('/generar-una-sugerencia', async (req, res) => {
   const { seccion, respuestas, contextoPrevio = {} } = req.body;
 
@@ -736,7 +737,7 @@ app.post('/generar-una-sugerencia', async (req, res) => {
   let contexto = "";
   for (const [sec, texto] of Object.entries(contextoPrevio)) {
     if (sec !== seccion && texto?.trim?.()) {
-      contexto += `🔹 ${sec.toUpperCase()}:\n${texto.trim()}\n\n`;
+      contexto += `\n🔹 ${sec.toUpperCase()}:\n${texto.trim()}\n`;
     }
   }
 
@@ -750,22 +751,23 @@ app.post('/generar-una-sugerencia', async (req, res) => {
 Eres un asistente que ayuda a estructurar mensajes basados en 8 pilares fundamentales:
 TÍTULO, INTRODUCCIÓN, COSTURA, PROBLEMÁTICA, CONECTOR, DESARROLLO, CONCLUSIÓN, MINISTRACIÓN.
 
-📌 Instrucción específica para la sección "${seccion.toUpperCase()}":
+📌 Instrucción para la sección "${seccion.toUpperCase()}":
 ${promptBase}
 
-🗣 Tono del mensaje esperado:
+🗣 Tono esperado:
 ${tonoLivingRoom}
 
-📋 Información inicial del usuario:
+📋 Respuestas iniciales:
 ${respuestasClarificadas}
 
-📚 Contexto de secciones anteriores disponibles:
-${contexto || "❌ No hay secciones anteriores aún."}
+📚 Contexto previo:
+${contexto || "❌ No hay contexto previo disponible."}
 
 🎯 Tu tarea:
 1. Sugiere el contenido para la sección "${seccion.toUpperCase()}".
-2. Asegúrate de que conecte con las secciones anteriores (si existen).
+2. Explica brevemente cómo se relaciona con lo anterior (si hay).
 3. Usa el estilo Living Room. Sé claro, visual y cercano.
+4. No des calificaciones ni pongas "análisis". Solo genera la sugerencia con explicación contextual.
 `;
 
   try {
@@ -775,9 +777,9 @@ ${contexto || "❌ No hay secciones anteriores aún."}
     });
 
     const sugerencia = completion.choices[0].message.content;
-    res.json({ sugerencia });
+    res.json({ sugerencia, contexto });
   } catch (error) {
-    console.error("❌ Error en sugerencia:", error);
+    console.error("❌ Error generando sugerencia:", error);
     res.status(500).json({ error: "Error al generar la sugerencia." });
   }
 });

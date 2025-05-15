@@ -62,6 +62,12 @@ async function generarSugerenciasPorSeccion() {
         card.innerHTML = `
           <h4>${seccion.toUpperCase()}</h4>
           <p>${formatOpenAiText(data.sugerencia)}</p>
+          <details style="margin-top: 0.5em;">
+            <summary style="cursor: pointer; font-size: 0.9em; color: #007acc;">Ver contexto utilizado</summary>
+            <div style="margin-top: 0.5em; font-size: 0.85em; color: #444; background: #f1f1f1; padding: 0.5em; border-radius: 6px;">
+              ${formatOpenAiText(data.contexto)}
+            </div>
+          </details>
         `;
         historyDiv.appendChild(card);
       } else {
@@ -72,6 +78,7 @@ async function generarSugerenciasPorSeccion() {
     }
   }
 }
+
 
 // Formato visual de negritas y saltos de línea
 function formatOpenAiText(text) {
