@@ -171,8 +171,8 @@
           <div class="editable-content" contenteditable="true">${formatOpenAiText(contenido)}</div>
           ${conexion ? `<details><summary>🔗 Conexión con lo anterior</summary><div class="editable-connection">${formatOpenAiText(conexion)}</div></details>` : ""}
           <div class="button-row">
-            <button onclick="guardarSeccion('${seccion}')">💾 Guardar sección</button>
-            <button onclick="regenerar('${seccion}')">🔄 Nueva sugerencia</button>
+            <button onclick="guardarSeccion('${seccion}')">Guardar</button>
+            <button onclick="regenerar('${seccion}')">Nueva sugerencia</button>
           </div>
         `;
 
