@@ -71,20 +71,20 @@ async function generarSugerenciaParaSeccion(seccion) {
   const card = document.createElement('div');
   card.className = 'suggestion-card';
   card.innerHTML = `
-    <h4>${seccion.toUpperCase()}</h4>
-    <textarea id="contenido-${seccion}" rows="8" style="width: 100%; border: 1px solid #ccc; border-radius: 6px; padding: 0.5em; font-size: 0.9em;">${contenido}</textarea>
-    ${conexion ? `
-      <details style="margin-top: 0.8em;">
-        <summary style="cursor: pointer; font-size: 0.9em; color: #007acc;">🔗 Conexión con lo anterior</summary>
-        <div style="margin-top: 0.5em; font-size: 0.88em; color: #333; background: #eef6fc; padding: 0.6em; border-left: 4px solid #007acc; border-radius: 6px;">
-          ${formatOpenAiText(conexion.trim())}
-        </div>
-      </details>` : ""}
-    <div style="margin-top: 10px; display: flex; gap: 10px;">
-      <button onclick="guardarSeccion('${seccion}')">💾 Guardar sección</button>
-      <button onclick="regenerarSugerencia('${seccion}')">🔁 Nueva sugerencia</button>
-    </div>
-  `;
+  <h4>${seccion.toUpperCase()}</h4>
+  <div class="editable-content" contenteditable="true">${formatOpenAiText(contenido)}</div>
+  ${conexion ? `
+    <details>
+      <summary>🔗 Conexión con lo anterior</summary>
+      <div class="editable-connection" contenteditable="false">${formatOpenAiText(conexion)}</div>
+    </details>
+  ` : ""}
+  <div class="button-row">
+    <button onclick="guardarSeccion('${seccion}')">💾 Guardar sección</button>
+    <button onclick="regenerar('${seccion}')">🔄 Nueva sugerencia</button>
+  </div>
+`;
+
 
   document.getElementById('tutorHistory').appendChild(card);
 }
