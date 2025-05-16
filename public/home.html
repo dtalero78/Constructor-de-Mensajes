@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Speakers Livingroom</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: white;
+      font-family: 'Helvetica Neue', sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .logo {
+      max-width: 240px;
+      margin-bottom: 40px;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 20px;
+    }
+
+    .minimal-button {
+      padding: 12px 24px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background-color: transparent;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .minimal-button:hover {
+      background-color: #f0f0f0;
+      border-color: #999;
+    }
+  </style>
+</head>
+<body>
+
+  <img src="/images/logoCompleto.png" alt="Speakers Livingroom" class="logo" />
+
+  <div class="button-group">
+    <button class="minimal-button" onclick="location.href='/tutor-alpha.html'">Crear mensaje</button>
+    <button class="minimal-button" onclick="location.href='/index-anterior.html'">Ver mensajes guardados</button>
+  </div>
+
+</body>
+</html>
