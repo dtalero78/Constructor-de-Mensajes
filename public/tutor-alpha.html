@@ -1,98 +1,108 @@
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;700&display=swap');
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tutor Alpha</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'IBM Plex Sans', sans-serif;
+      margin: 0;
+      padding: 2em;
+      background-color: #f9f9f9;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
 
-  body {
-    font-family: 'IBM Plex Sans', sans-serif;
-    margin: 0;
-    padding: 2em;
-    background-color: #f9f9f9;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
+    #tutorQuestion, #tutorAnswer, #tutorNext, #tutorHistory {
+      max-width: 700px;
+      width: 100%;
+    }
 
-  h3 {
-    font-size: 1.3rem;
-    margin-bottom: 1em;
-  }
+    #tutorAnswer {
+      padding: 0.8em;
+      font-size: 1em;
+      margin-bottom: 1em;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
 
-  #tutorQuestion, #tutorAnswer, #tutorNext {
-    max-width: 700px;
-    width: 100%;
-  }
+    .suggestion-card {
+      background: white;
+      border-radius: 8px;
+      padding: 1em;
+      margin-bottom: 2em;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
 
-  #tutorHistory {
-    max-width: 700px;
-    width: 100%;
-  }
+    .suggestion-card h4 {
+      margin-top: 0;
+      font-size: 1.1rem;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 0.5em;
+    }
 
-  .suggestion-card {
-    background: white;
-    border-radius: 8px;
-    padding: 1em;
-    margin-bottom: 2em;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-  }
+    .editable-content {
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 0.8em;
+      margin-top: 0.5em;
+      background: #fdfdfd;
+      min-height: 120px;
+      font-size: 0.95em;
+    }
 
-  .suggestion-card h4 {
-    margin-top: 0;
-    font-size: 1.1rem;
-    border-bottom: 1px solid #ccc;
-    padding-bottom: 0.5em;
-  }
+    details {
+      margin-top: 1em;
+    }
 
-  .editable-content {
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    padding: 0.8em;
-    margin-top: 0.5em;
-    background: #fdfdfd;
-    min-height: 120px;
-    font-size: 0.95em;
-  }
+    summary {
+      cursor: pointer;
+      font-size: 0.9em;
+      color: #007acc;
+    }
 
-  details {
-    margin-top: 1em;
-  }
+    .editable-connection {
+      background: #eef6fc;
+      border-left: 4px solid #007acc;
+      padding: 0.6em;
+      border-radius: 6px;
+      font-size: 0.88em;
+      color: #333;
+      margin-top: 0.5em;
+    }
 
-  summary {
-    cursor: pointer;
-    font-size: 0.9em;
-    color: #007acc;
-  }
+    .button-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 1em;
+    }
 
-  .editable-connection {
-    background: #eef6fc;
-    border-left: 4px solid #007acc;
-    padding: 0.6em;
-    border-radius: 6px;
-    font-size: 0.88em;
-    color: #333;
-    margin-top: 0.5em;
-  }
+    .button-row button {
+      background-color: transparent;
+      border: 1px solid #ccc;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 0.9em;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
 
-  .button-row {
-    display: flex;
-    gap: 12px;
-    margin-top: 1em;
-  }
+    .button-row button:hover {
+      background-color: #f0f0f0;
+    }
+  </style>
+</head>
+<body>
+  <p id="tutorQuestion"></p>
+  <input type="text" id="tutorAnswer" />
+  <button id="tutorNext">Siguiente</button>
+  <div id="tutorHistory"></div>
 
-  .button-row button {
-    background-color: transparent;
-    border: 1px solid #ccc;
-    padding: 8px 14px;
-    border-radius: 6px;
-    font-family: 'IBM Plex Sans', sans-serif;
-    font-size: 0.9em;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-
-  .button-row button:hover {
-    background-color: #f0f0f0;
-  }
-</style>
-
+  <script>
     const questions = [
       "¿Cuál es la idea principal de tu mensaje?",
       "¿A quién va dirigido este mensaje?",
@@ -137,11 +147,7 @@
         const response = await fetch('/generar-una-sugerencia', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            seccion,
-            respuestas: answers,
-            contextoPrevio: sugerenciasAcumuladas
-          })
+          body: JSON.stringify({ seccion, respuestas: answers, contextoPrevio: sugerenciasAcumuladas })
         });
 
         const data = await response.json();
@@ -151,7 +157,6 @@
 
         let contenido = data.sugerencia;
         let conexion = "";
-
         const match = data.sugerencia.match(/🔗?\s*Conexi[oó]n con lo anterior[:：]?/i);
         if (match) {
           const partes = data.sugerencia.split(match[0]);
@@ -164,10 +169,10 @@
         card.innerHTML = `
           <h4>${seccion.toUpperCase()}</h4>
           <div class="editable-content" contenteditable="true">${formatOpenAiText(contenido)}</div>
-          ${conexion ? `<div class="editable-connection" contenteditable="true">${formatOpenAiText(conexion)}</div>` : ""}
+          ${conexion ? `<details><summary>🔗 Conexión con lo anterior</summary><div class="editable-connection">${formatOpenAiText(conexion)}</div></details>` : ""}
           <div class="button-row">
-            <button class="guardar-btn" onclick="guardarSeccion('${seccion}')">💾 Guardar sección</button>
-            <button class="nueva-btn" onclick="regenerar('${seccion}')">🔄 Nueva sugerencia</button>
+            <button onclick="guardarSeccion('${seccion}')">💾 Guardar sección</button>
+            <button onclick="regenerar('${seccion}')">🔄 Nueva sugerencia</button>
           </div>
         `;
 
@@ -204,10 +209,7 @@
       const usuario = prompt("Confirma tu nombre de usuario para guardar esta sección:");
       if (!usuario || !texto.trim()) return alert("Usuario y contenido requerido.");
 
-      const mensaje = {
-        usuario,
-        [seccion]: texto.trim()
-      };
+      const mensaje = { usuario, [seccion]: texto.trim() };
 
       try {
         const res = await fetch('/guardar-mensaje', {
@@ -216,11 +218,8 @@
           body: JSON.stringify(mensaje)
         });
         const result = await res.json();
-        if (result.success) {
-          alert(`✅ Sección ${seccion.toUpperCase()} guardada correctamente.`);
-        } else {
-          alert("❌ No se pudo guardar la sección.");
-        }
+        if (result.success) alert(`✅ Sección ${seccion.toUpperCase()} guardada correctamente.`);
+        else alert("❌ No se pudo guardar la sección.");
       } catch (err) {
         console.error(err);
         alert("❌ Error al guardar la sección.");
