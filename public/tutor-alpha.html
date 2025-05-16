@@ -2,90 +2,237 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Tutor Alpha - Livingroom</title>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tutor Alpha</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
   <style>
     body {
       font-family: 'IBM Plex Sans', sans-serif;
       margin: 0;
       padding: 2em;
-      background-color: #fafafa;
-      color: #333;
+      background-color: #f9f9f9;
     }
 
-    .centered {
-      max-width: 800px;
-      margin: 0 auto;
-    }
-
-    h1, h3, h4 {
-      text-align: center;
-    }
-
-    textarea {
-      width: 100%;
-      padding: 12px;
-      font-size: 15px;
-      margin-top: 8px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      resize: vertical;
-      min-height: 160px;
-    }
-
-    button {
-      background-color: #000;
-      color: white;
-      border: none;
-      padding: 10px 18px;
-      font-size: 14px;
-      cursor: pointer;
-      margin-top: 8px;
-      border-radius: 6px;
-      font-family: 'IBM Plex Sans', sans-serif;
-    }
-
-    button:hover {
-      background-color: #444;
+    h3 {
+      font-size: 1.3rem;
+      margin-bottom: 1em;
     }
 
     .suggestion-card {
-      background-color: #fff;
-      padding: 1em;
+      background: white;
       border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
-      margin-bottom: 1.5em;
+      padding: 1em;
+      margin-bottom: 2em;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
 
-    details {
+    .suggestion-card h4 {
+      margin-top: 0;
+      font-size: 1.1rem;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 0.5em;
+    }
+
+    .editable-content, .editable-connection {
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 0.8em;
+      margin: 0.5em 0;
+      background: #fdfdfd;
+      min-height: 100px;
+    }
+
+    .editable-connection {
+      background: #eef6fc;
+      border-left: 4px solid #007acc;
+      color: #333;
+      font-size: 0.9em;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 12px;
       margin-top: 1em;
     }
 
-    summary {
+    .button-row button {
+      padding: 10px 18px;
+      font-size: 14px;
+      border-radius: 6px;
+      border: none;
       cursor: pointer;
-      color: #007acc;
     }
 
-    .guardar-btn, .nueva-btn {
-      background-color: #007acc;
-      font-size: 13px;
-      margin-right: 0.5em;
+    .guardar-btn {
+      background-color: #000;
+      color: white;
+    }
+
+    .nueva-btn {
+      background-color: #eee;
+      color: black;
+      border: 1px solid #aaa;
+    }
+
+    #tutorQuestion {
+      font-size: 1.1em;
+      margin-bottom: 0.5em;
+    }
+
+    #tutorAnswer {
+      width: 100%;
+      padding: 0.8em;
+      font-size: 1em;
+      margin-bottom: 1em;
+      border: 1px solid #ccc;
+      border-radius: 4px;
     }
   </style>
 </head>
 <body>
-  <div class="centered">
-    <h1>🧠 Tutor de Mensajes Livingroom</h1>
-
-    <div id="tutorBox">
-      <h3 id="tutorQuestion"></h3>
-      <input id="tutorAnswer" type="text" style="width: 100%; padding: 10px; font-size: 14px; margin-top: 0.5em;" />
-      <button id="tutorNext" style="margin-top: 1em;">Siguiente</button>
-    </div>
-
-    <div id="tutorHistory" style="margin-top: 2em;"></div>
+  <div>
+    <p id="tutorQuestion"></p>
+    <input type="text" id="tutorAnswer" />
+    <button id="tutorNext">Siguiente</button>
   </div>
+  <div id="tutorHistory"></div>
 
-  <script src="tutor-alpha.js"></script>
+  <script>
+    const questions = [
+      "¿Cuál es la idea principal de tu mensaje?",
+      "¿A quién va dirigido este mensaje?",
+      "¿Qué esperas lograr con este mensaje?"
+    ];
+
+    let currentStep = 0;
+    const answers = {};
+    const sugerenciasAcumuladas = {};
+
+    function showQuestion() {
+      document.getElementById('tutorQuestion').innerText = questions[currentStep];
+      document.getElementById('tutorAnswer').value = answers[currentStep] || "";
+    }
+
+    document.getElementById('tutorNext').addEventListener('click', async () => {
+      const answer = document.getElementById('tutorAnswer').value.trim();
+      if (!answer) {
+        alert("Por favor, responde la pregunta.");
+        return;
+      }
+      answers[currentStep] = answer;
+
+      if (currentStep < questions.length - 1) {
+        currentStep++;
+        showQuestion();
+      } else {
+        document.getElementById('tutorNext').style.display = 'none';
+        generarTodasLasSugerencias();
+      }
+    });
+
+    async function generarTodasLasSugerencias() {
+      const secciones = ["titulo", "introduccion", "costura", "problematica", "conector", "desarrollo", "conclusion", "ministracion"];
+      for (const seccion of secciones) {
+        await generarSugerenciaParaSeccion(seccion);
+      }
+    }
+
+    async function generarSugerenciaParaSeccion(seccion) {
+      try {
+        const response = await fetch('/generar-una-sugerencia', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            seccion,
+            respuestas: answers,
+            contextoPrevio: sugerenciasAcumuladas
+          })
+        });
+
+        const data = await response.json();
+        if (!data.sugerencia) return;
+
+        sugerenciasAcumuladas[seccion] = data.sugerencia;
+
+        let contenido = data.sugerencia;
+        let conexion = "";
+
+        const match = data.sugerencia.match(/🔗?\s*Conexi[oó]n con lo anterior[:：]?/i);
+        if (match) {
+          const partes = data.sugerencia.split(match[0]);
+          contenido = partes[0]?.trim() || "";
+          conexion = partes[1]?.trim() || "";
+        }
+
+        const card = document.createElement('div');
+        card.className = 'suggestion-card';
+        card.innerHTML = `
+          <h4>${seccion.toUpperCase()}</h4>
+          <div class="editable-content" contenteditable="true">${formatOpenAiText(contenido)}</div>
+          ${conexion ? `<div class="editable-connection" contenteditable="true">${formatOpenAiText(conexion)}</div>` : ""}
+          <div class="button-row">
+            <button class="guardar-btn" onclick="guardarSeccion('${seccion}')">💾 Guardar sección</button>
+            <button class="nueva-btn" onclick="regenerar('${seccion}')">🔄 Nueva sugerencia</button>
+          </div>
+        `;
+
+        document.getElementById('tutorHistory').appendChild(card);
+      } catch (error) {
+        console.error(`Error generando sugerencia para ${seccion}:`, error);
+      }
+    }
+
+    function formatOpenAiText(text) {
+      if (!text) return "";
+      let formatted = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      formatted = formatted.replace(/^### (.*)$/gm, '<h3>$1</h3>');
+      formatted = formatted.replace(/^- (.*)$/gm, '<li>$1</li>');
+      formatted = formatted.replace(/(<li>[\s\S]*?<\/li>)/g, '<ul>$1</ul>');
+      formatted = formatted.replace(/\n/g, '<br>');
+      return formatted;
+    }
+
+    async function regenerar(seccion) {
+      const cards = document.querySelectorAll('.suggestion-card');
+      cards.forEach(card => {
+        if (card.querySelector('h4').innerText === seccion.toUpperCase()) {
+          card.remove();
+        }
+      });
+      await generarSugerenciaParaSeccion(seccion);
+    }
+
+    async function guardarSeccion(seccion) {
+      const card = [...document.querySelectorAll('.suggestion-card')].find(c => c.querySelector('h4').innerText === seccion.toUpperCase());
+      if (!card) return;
+      const texto = card.querySelector('.editable-content')?.innerText || "";
+      const usuario = prompt("Confirma tu nombre de usuario para guardar esta sección:");
+      if (!usuario || !texto.trim()) return alert("Usuario y contenido requerido.");
+
+      const mensaje = {
+        usuario,
+        [seccion]: texto.trim()
+      };
+
+      try {
+        const res = await fetch('/guardar-mensaje', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(mensaje)
+        });
+        const result = await res.json();
+        if (result.success) {
+          alert(`✅ Sección ${seccion.toUpperCase()} guardada correctamente.`);
+        } else {
+          alert("❌ No se pudo guardar la sección.");
+        }
+      } catch (err) {
+        console.error(err);
+        alert("❌ Error al guardar la sección.");
+      }
+    }
+
+    showQuestion();
+  </script>
 </body>
 </html>
