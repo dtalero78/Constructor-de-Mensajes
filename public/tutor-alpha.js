@@ -1,5 +1,3 @@
-// Actualiza el archivo public/tutor-alpha.js para permitir edición y guardado de sugerencias
-
 const questions = [
   "¿Cuál es la idea principal de tu mensaje?",
   "¿A quién va dirigido este mensaje?",
@@ -9,7 +7,6 @@ const questions = [
 let currentStep = 0;
 const answers = {};
 const sugerenciasAcumuladas = {};
-let currentUser = ""; // se pedirá al cargar la página
 
 function showQuestion() {
   document.getElementById('tutorQuestion').innerText = questions[currentStep];
@@ -29,39 +26,11 @@ document.getElementById('tutorNext').addEventListener('click', async () => {
     currentStep++;
     showQuestion();
   } else {
+    console.log("📤 Iniciando generación por secciones con:", answers);
     document.getElementById('tutorNext').style.display = 'none';
     generarSugerenciasPorSeccion();
   }
 });
-
-async function guardarSeccionEnBD(seccion, contenido) {
-  if (!currentUser) {
-    alert("Usuario no definido");
-    return;
-  }
-
-  const payload = {
-    usuario: currentUser,
-    [seccion]: contenido
-  };
-
-  try {
-    const res = await fetch('/guardar-mensaje', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    const data = await res.json();
-    if (data.success) {
-      alert(`✅ Sección ${seccion} guardada.`);
-    } else {
-      alert("Error al guardar: " + (data.error || "Desconocido"));
-    }
-  } catch (error) {
-    console.error("Error al guardar:", error);
-    alert("Error al guardar en la base de datos");
-  }
-}
 
 async function generarSugerenciasPorSeccion() {
   const secciones = [
@@ -74,56 +43,81 @@ async function generarSugerenciasPorSeccion() {
   historyDiv.innerHTML = "<h3>Sugerencias Generadas:</h3>";
 
   for (const seccion of secciones) {
-    try {
-      const response = await fetch('/generar-una-sugerencia', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          seccion,
-          respuestas: answers,
-          contextoPrevio: sugerenciasAcumuladas
-        })
-      });
-
-      const data = await response.json();
-      if (data.sugerencia) {
-        sugerenciasAcumuladas[seccion] = data.sugerencia;
-
-        // Separar sugerencia y conexión
-        let contenido = data.sugerencia;
-        let conexion = "";
-        const match = data.sugerencia.match(/\u{1F517}?\s*Conexión con lo anterior[:：]?\s*/iu);
-        if (match) {
-          const partes = data.sugerencia.split(match[0]);
-          contenido = partes[0].trim();
-          conexion = partes[1]?.trim() || "";
-        }
-
-        const card = document.createElement('div');
-        card.className = 'suggestion-card';
-        card.innerHTML = `
-          <h4>${seccion.toUpperCase()}</h4>
-          <textarea style="width:100%; height:150px;">${contenido}</textarea>
-          <button onclick="guardarSeccionEnBD('${seccion}', this.previousElementSibling.value)">Guardar sección</button>
-          ${conexion ? `
-            <details style="margin-top: 0.8em;">
-              <summary style="cursor: pointer; font-size: 0.9em; color: #007acc;">🔗 Conexión con lo anterior</summary>
-              <div style="margin-top: 0.5em; font-size: 0.88em; color: #333; background: #eef6fc; padding: 0.6em; border-left: 4px solid #007acc; border-radius: 6px;">
-                ${formatOpenAiText(conexion.trim())}
-              </div>
-            </details>` : ""}
-        `;
-        historyDiv.appendChild(card);
-      } else {
-        console.warn(`⚠️ No se recibió sugerencia para ${seccion}`);
-      }
-    } catch (error) {
-      console.error(`❌ Error generando ${seccion}:`, error);
-    }
+    await generarSugerenciaParaSeccion(seccion);
   }
 }
 
-// Formato visual de negritas y saltos de línea
+async function generarSugerenciaParaSeccion(seccion) {
+  const response = await fetch('/generar-una-sugerencia', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ seccion, respuestas: answers, contextoPrevio: sugerenciasAcumuladas })
+  });
+
+  const data = await response.json();
+  if (!data.sugerencia) return;
+
+  sugerenciasAcumuladas[seccion] = data.sugerencia;
+
+  let contenido = data.sugerencia;
+  let conexion = "";
+  const match = data.sugerencia.match(/🔗?\s*Conexión con lo anterior[:：]?\s*/i);
+  if (match) {
+    const partes = data.sugerencia.split(match[0]);
+    contenido = partes[0].trim();
+    conexion = partes[1]?.trim() || "";
+  }
+
+  const card = document.createElement('div');
+  card.className = 'suggestion-card';
+  card.innerHTML = `
+    <h4>${seccion.toUpperCase()}</h4>
+    <textarea id="contenido-${seccion}" rows="8" style="width: 100%; border: 1px solid #ccc; border-radius: 6px; padding: 0.5em; font-size: 0.9em;">${contenido}</textarea>
+    ${conexion ? `
+      <details style="margin-top: 0.8em;">
+        <summary style="cursor: pointer; font-size: 0.9em; color: #007acc;">🔗 Conexión con lo anterior</summary>
+        <div style="margin-top: 0.5em; font-size: 0.88em; color: #333; background: #eef6fc; padding: 0.6em; border-left: 4px solid #007acc; border-radius: 6px;">
+          ${formatOpenAiText(conexion.trim())}
+        </div>
+      </details>` : ""}
+    <div style="margin-top: 10px; display: flex; gap: 10px;">
+      <button onclick="guardarSeccion('${seccion}')">💾 Guardar sección</button>
+      <button onclick="regenerarSugerencia('${seccion}')">🔁 Nueva sugerencia</button>
+    </div>
+  `;
+
+  document.getElementById('tutorHistory').appendChild(card);
+}
+
+window.guardarSeccion = async function (seccion) {
+  const contenido = document.getElementById(`contenido-${seccion}`).value;
+  const usuario = prompt("Escribe tu nombre de usuario para guardar esta sección:");
+  if (!usuario) return alert("Debes ingresar un nombre.");
+
+  const mensaje = {
+    usuario,
+    titulo: "", introduccion: "", costura: "", problematica: "",
+    conector: "", desarrollo: "", conclusion: "", ministracion: ""
+  };
+  mensaje[seccion] = contenido;
+
+  const response = await fetch('/guardar-mensaje', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(mensaje)
+  });
+
+  const result = await response.json();
+  if (result.success) alert("✅ Sección guardada correctamente.");
+  else alert("❌ Error al guardar sección.");
+};
+
+window.regenerarSugerencia = async function (seccion) {
+  const card = document.querySelector(`#contenido-${seccion}`)?.closest('.suggestion-card');
+  if (card) card.remove();
+  await generarSugerenciaParaSeccion(seccion);
+};
+
 function formatOpenAiText(text) {
   if (!text) return "";
   let formatted = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
@@ -134,8 +128,4 @@ function formatOpenAiText(text) {
   return formatted;
 }
 
-// Preguntar nombre del usuario al cargar la página
-window.addEventListener('DOMContentLoaded', () => {
-  currentUser = prompt("Ingresa tu nombre de usuario:") || "Usuario";
-  showQuestion();
-});
+showQuestion();
