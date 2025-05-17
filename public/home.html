@@ -47,16 +47,24 @@
   }
 
   @media (max-width: 480px) {
-    .logo {
-      width: 60vw;
-      max-width: none;
-    }
-    .minimal-button {
-      width: 100%;
-      max-width: 300px;
-      margin-bottom: 10px;
-    }
+  .logo {
+    width: 60vw;
+    max-width: none;
   }
+
+  .button-group {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .minimal-button {
+    width: auto;
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+}
+
 </style>
 
 </head>
