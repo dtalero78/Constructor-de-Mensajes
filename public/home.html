@@ -5,46 +5,60 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Speakers Livingroom</title>
   <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background: white;
-      font-family: 'Helvetica Neue', sans-serif;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
+  body {
+    margin: 0;
+    padding: 0;
+    background: white;
+    font-family: 'Helvetica Neue', sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+
+  .logo {
+    width: 80vw;
+    max-width: 400px;
+    height: auto;
+    margin-bottom: 40px;
+  }
+
+  .button-group {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .minimal-button {
+    padding: 12px 24px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: transparent;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .minimal-button:hover {
+    background-color: #f0f0f0;
+    border-color: #999;
+  }
+
+  @media (max-width: 480px) {
+    .logo {
+      width: 90vw;
+      max-width: none;
     }
-
-.logo {
-  width: 100%;
-  max-width: 400px;
-  height: auto;
-  margin-bottom: 40px;
-}
-
-
-    .button-group {
-      display: flex;
-      gap: 20px;
-    }
-
     .minimal-button {
-      padding: 12px 24px;
-      font-size: 16px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      background-color: transparent;
-      cursor: pointer;
-      transition: all 0.3s ease;
+      width: 100%;
+      max-width: 300px;
+      margin-bottom: 10px;
     }
+  }
+</style>
 
-    .minimal-button:hover {
-      background-color: #f0f0f0;
-      border-color: #999;
-    }
-  </style>
 </head>
 <body>
 
