@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -16,7 +17,10 @@
       align-items: center;
     }
 
-    #tutorQuestion, #tutorAnswer, #tutorNext, #tutorHistory {
+    #tutorQuestion,
+    #tutorAnswer,
+    #tutorNext,
+    #tutorHistory {
       max-width: 700px;
       width: 100%;
     }
@@ -34,7 +38,7 @@
       border-radius: 8px;
       padding: 1em;
       margin-bottom: 2em;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
     }
 
     .suggestion-card h4 {
@@ -94,13 +98,38 @@
     .button-row button:hover {
       background-color: #f0f0f0;
     }
+
+    #loader {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 9999;
+background-color: transparent;
+padding: 0;
+border-radius: 0;
+      padding: 20px;
+      border-radius: 10px;
+    }
+
+    #loader img {
+      width: 60px;
+      height: 60px;
+    }
+
   </style>
 </head>
+
 <body>
   <p id="tutorQuestion"></p>
   <input type="text" id="tutorAnswer" />
   <button id="tutorNext">Siguiente</button>
   <div id="tutorHistory"></div>
+
+  <div id="loader">
+    <img src="/images/loader.gif" alt="Cargando..." />
+  </div>
 
   <script>
     const questions = [
@@ -112,6 +141,14 @@
     let currentStep = 0;
     const answers = {};
     const sugerenciasAcumuladas = {};
+
+    function mostrarLoader() {
+      document.getElementById("loader").style.display = "block";
+    }
+
+    function ocultarLoader() {
+      document.getElementById("loader").style.display = "none";
+    }
 
     function showQuestion() {
       document.getElementById('tutorQuestion').innerText = questions[currentStep];
@@ -131,7 +168,7 @@
         showQuestion();
       } else {
         document.getElementById('tutorNext').style.display = 'none';
-        generarTodasLasSugerencias();
+        await generarTodasLasSugerencias();
       }
     });
 
@@ -143,6 +180,7 @@
     }
 
     async function generarSugerenciaParaSeccion(seccion) {
+      mostrarLoader();
       try {
         const response = await fetch('/generar-una-sugerencia', {
           method: 'POST',
@@ -157,11 +195,13 @@
 
         let contenido = data.sugerencia;
         let conexion = "";
-        const match = data.sugerencia.match(/🔗?\s*Conexi[oó]n con lo anterior[:：]?/i);
-        if (match) {
-          const partes = data.sugerencia.split(match[0]);
-          contenido = partes[0]?.trim() || "";
-          conexion = partes[1]?.trim() || "";
+        const conexionIndex = data.sugerencia.toLowerCase().indexOf("conexión con lo anterior");
+        if (conexionIndex !== -1) {
+          contenido = data.sugerencia.substring(0, conexionIndex).trim();
+          conexion = data.sugerencia.substring(conexionIndex)
+            .replace(/^.*?:/, '')  // borra el título
+            .replace(/^🔗/, '')    // quita ícono si quedó
+            .trim();
         }
 
         const card = document.createElement('div');
@@ -169,16 +209,21 @@
         card.innerHTML = `
           <h4>${seccion.toUpperCase()}</h4>
           <div class="editable-content" contenteditable="true">${formatOpenAiText(contenido)}</div>
-          ${conexion ? `<details><summary>🔗 Conexión con lo anterior</summary><div class="editable-connection">${formatOpenAiText(conexion)}</div></details>` : ""}
+          ${conexion ? `
+            <details>
+              <summary>🔗 Conexión con lo anterior</summary>
+              <div class="editable-connection">${formatOpenAiText(conexion)}</div>
+            </details>` : ""}
           <div class="button-row">
-            <button onclick="guardarSeccion('${seccion}')">Guardar</button>
+            <button onclick="guardarSeccion('${seccion}')">Guardar sección</button>
             <button onclick="regenerar('${seccion}')">Nueva sugerencia</button>
           </div>
         `;
-
         document.getElementById('tutorHistory').appendChild(card);
       } catch (error) {
         console.error(`Error generando sugerencia para ${seccion}:`, error);
+      } finally {
+        ocultarLoader();
       }
     }
 
@@ -212,6 +257,7 @@
       const mensaje = { usuario, [seccion]: texto.trim() };
 
       try {
+        mostrarLoader();
         const res = await fetch('/guardar-mensaje', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -223,10 +269,13 @@
       } catch (err) {
         console.error(err);
         alert("❌ Error al guardar la sección.");
+      } finally {
+        ocultarLoader();
       }
     }
 
     showQuestion();
   </script>
 </body>
+
 </html>

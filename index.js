@@ -727,7 +727,7 @@ app.post('/clasificar-idea', async (req, res) => {
 
 
 
-// ✅ Reescritura de `generar-una-sugerencia` sin calificación y con contexto visible
+// ✅ PARA ALPHA `generar-una-sugerencia` sin calificación y con contexto visible
 
 const relacionesImportantes = {
   "TITULO": { dependsOn: [], weight: 1 },
