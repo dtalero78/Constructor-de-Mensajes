@@ -125,7 +125,7 @@ async function evaluarTranscripcion(transcripcion, section, usuario) {
   console.log("📝 TRANSCRIPCIÓN ACTUAL:\n" + transcripcion);
 
 
-  
+
 
 
   const promptFinal = `
@@ -723,21 +723,91 @@ app.post('/clasificar-idea', async (req, res) => {
 // ✅ PARA ALPHA `generar-una-sugerencia` sin calificación y con contexto visible
 
 const relacionesImportantes = {
-  "TITULO": { dependsOn: [], weight: 1 },
-  "INTRODUCCION": { dependsOn: ["TITULO"], weight: 2 },
-  "COSTURA": { dependsOn: ["INTRODUCCION"], weight: 2 },
-  "PROBLEMATICA": { dependsOn: ["INTRODUCCION", "COSTURA"], weight: 3 },
-  "CONECTOR": { dependsOn: ["PROBLEMATICA"], weight: 4 },
-  "DESARROLLO": { dependsOn: ["PROBLEMATICA", "CONECTOR"], weight: 5 },
-  "CONCLUSION": { dependsOn: ["DESARROLLO", "CONECTOR", "INTRODUCCION"], weight: 3 },
-  "MINISTRACION": { dependsOn: ["CONCLUSION", "DESARROLLO"], weight: 2 }
+  // 1. TÍTULO (EPÍTOME)
+  "TITULO": {
+    dependsOn: [], // No depende de ninguna sección previa en el flujo lineal.
+    weight: 1, // Peso de la sección en el esquema general
+    purpose: "Una frase breve, atractiva y clara que dé una idea de lo que se va a tratar, creando expectativa y curiosidad."
+  },
+
+  // 2. INTRODUCCIÓN
+  "INTRODUCCION": {
+    dependsOn: [
+      { source: "TITULO", type: "temática", weight: 3 } // La intro debe reflejar el título.
+    ],
+    weight: 2,
+    purpose: "Captar la atención, establecer la relevancia del tema y generar tensión o interés en la audiencia."
+  },
+
+  // 3. COSTURA
+  "COSTURA": {
+    dependsOn: [
+      { source: "INTRODUCCION", type: "tensión", weight: 4 }, // Conecta la tensión de la intro.
+      { source: "PROBLEMATICA", type: "tensión", weight: 4 } // Conecta la tensión de la problemática.
+    ],
+    weight: 2,
+    purpose: "Entrelazar la tensión de la introducción con la tensión de la problemática, sirviendo de puente con una analogía o ejemplo."
+  },
+
+  // 4. PROBLEMÁTICA (TENSIÓN)
+  "PROBLEMATICA": {
+    dependsOn: [
+      { source: "INTRODUCCION", type: "contexto_necesidad", weight: 3 }, // Se basa en la relevancia establecida en la intro.
+      { source: "COSTURA", type: "transición_fluida", weight: 5 } // La costura lleva directamente a la problemática.
+    ],
+    weight: 3,
+    purpose: "Presentar el conflicto central que la Palabra de Dios viene a iluminar o resolver, usando ejemplos cotidianos o bíblicos."
+  },
+
+  // 5. CONECTOR
+  "CONECTOR": {
+    dependsOn: [
+      { source: "PROBLEMATICA", type: "cierre_problema", weight: 5 } // Enlaza directamente la problemática.
+    ],
+    weight: 4,
+    purpose: "Ser la transición breve, memorizable y persuasiva que enlaza la problemática con la solución que se presentará en el desarrollo, anunciando su importancia."
+  },
+
+  // 6. DESARROLLO
+  "DESARROLLO": {
+    dependsOn: [
+      { source: "PROBLEMATICA", type: "resolucion", weight: 5 }, // Resuelve la problemática planteada.
+      { source: "CONECTOR", type: "continuacion_solucion", weight: 5 } // Continúa el anuncio del conector.
+    ],
+    weight: 5,
+    purpose: "Ser la parte central de la prédica donde se presentan los puntos principales con respaldo bíblico, ejemplos claros, coherencia argumentativa, revelación, profundidad, practicidad y simplicidad narrativa en una secuencia lógica."
+  },
+
+  // 7. CONCLUSIÓN
+  "CONCLUSION": {
+    dependsOn: [
+      { source: "DESARROLLO", type: "recapitulacion", weight: 5 }, // Recapitula los puntos del desarrollo.
+      { source: "INTRODUCCION", type: "cierre_circular", weight: 2 }, // Puede volver a la intro (círculo perfecto).
+      { source: "TITULO", type: "cierre_circular", weight: 1 } // Puede volver al título para cerrar.
+    ],
+    weight: 3,
+    purpose: "Retomar la idea principal, reforzar la enseñanza y motivar a la acción, cerrando el círculo del mensaje."
+  },
+
+  // 8. MINISTRACIÓN
+  "MINISTRACION": {
+    dependsOn: [
+      { source: "CONCLUSION", type: "respuesta_final", weight: 4 }, // Es la respuesta a la conclusión y llamado.
+      { source: "DESARROLLO", type: "respuesta_mensaje_central", weight: 3 } // Se basa en la enseñanza general del desarrollo.
+    ],
+    weight: 2,
+    purpose: "Ser el momento de respuesta espiritual al mensaje a través de oración, profecía, llamado específico o un paso de fe concreto."
+  }
 };
 
 app.post('/generar-una-sugerencia', async (req, res) => {
   const { seccion, respuestas, contextoPrevio = {} } = req.body;
 
-  const seccionActual = seccion.toUpperCase(); // Asegurarnos que esté en mayúsculas para la búsqueda
-  const promptBase = promptsCalibracion[seccionActual] || "";
+  const seccionActual = seccion.toUpperCase(); // Asegurarse que esté en mayúsculas para la búsqueda
+  const promptBase = promptsCalibracion[seccionActual] || ""; // Puntos clave y ejemplos para la IA
+
+  // Obtener el propósito de la sección actual
+  const propositoSeccionActual = relacionesImportantes[seccionActual]?.purpose || "Generar contenido relevante para esta sección.";
 
   // Construcción del contexto previo para el prompt
   let contextoParaPrompt = "";
@@ -745,7 +815,7 @@ app.post('/generar-una-sugerencia', async (req, res) => {
   for (const [sec, texto] of Object.entries(contextoPrevio)) {
     const secMayus = sec.toUpperCase();
     if (secMayus !== seccionActual && texto?.trim?.()) {
-      contextoParaPrompt += `\n🔹 Sección "${secMayus}":\n${texto.trim()}\n`;
+      contextoParaPrompt += `\n🔹 Sección "<span class="math-inline">\{secMayus\}"\:\\n</span>{texto.trim()}\n`;
       seccionesPreviasDisponibles.push(secMayus);
     }
   }
@@ -754,19 +824,29 @@ app.post('/generar-una-sugerencia', async (req, res) => {
   }
 
   // Identificar las conexiones clave para la sección actual, considerando el peso
-  const dependencias = relacionesImportantes[seccionActual]?.dependsOn || [];
-  const conexionesRelevantesConPeso = dependencias
-    .filter(s => seccionesPreviasDisponibles.includes(s))
-    .map(s => ({ seccion: s, peso: relacionesImportantes[seccionActual].weight - relacionesImportantes[s].weight })); // Calculamos una diferencia de peso
+  // 'dependsOn' es ahora un array de objetos, así que lo mapeamos correctamente
+  const dependenciasConfig = relacionesImportantes[seccionActual]?.dependsOn || [];
+  const conexionesRelevantesConPeso = dependenciasConfig
+    .filter(dep => seccionesPreviasDisponibles.includes(dep.source)) // Filtrar por secciones disponibles
+    .map(dep => ({
+      seccion: dep.source,
+      peso: dep.weight, // Usamos el peso definido en la dependencia
+      tipo: dep.type    // Y el tipo de relación
+    }));
 
-  conexionesRelevantesConPeso.sort((a, b) => b.peso - a.peso); // Ordenamos por peso descendente (mayor diferencia = más importante)
+  // Ordenamos por peso descendente (mayor peso = más importante)
+  conexionesRelevantesConPeso.sort((a, b) => b.peso - a.peso);
 
   const seccionesRelevantesParaConectar = conexionesRelevantesConPeso.map(c => c.seccion);
 
   let indicacionesDeConexion = "";
   if (seccionesRelevantesParaConectar.length > 0) {
-    const listaConPesos = conexionesRelevantesConPeso.map(c => `${c.seccion} (peso: ${c.peso})`).join(', ');
-    indicacionesDeConexion = `\n💡 ENFOQUE DE CONEXIÓN:\nPara esta sección "${seccionActual}", es particularmente importante que tu sugerencia se conecte de manera fluida y lógica con el contenido de: ${listaConPesos}. Asegúrate de que tu propuesta construya sobre estas bases, dando **mayor prioridad** a las conexiones con un peso más alto.\n`;
+    // Incluimos el tipo de relación en la indicación para la IA
+    const listaConDetalles = conexionesRelevantesConPeso
+      .map(c => `"${c.seccion}" (conexión tipo: ${c.tipo}, peso: ${c.peso})`)
+      .join(', ');
+
+    indicacionesDeConexion = `\n💡 ENFOQUE DE CONEXIÓN:\nTu sugerencia debe conectarse de manera fluida y lógica con el contenido de las siguientes secciones previas, priorizando según su importancia: ${listaConDetalles}. Asegúrate de que tu propuesta construya sobre estas bases y refleje el **tipo de conexión** y el **peso** indicado para cada una.\n`;
   }
 
   const respuestasClarificadas = `
@@ -784,7 +864,8 @@ Tu objetivo es generar el contenido para una sección específica, asegurando qu
 SECCIÓN A DESARROLLAR: "${seccionActual}"
 --------------------
 
-📌 Instrucción específica para la sección "${seccionActual}":
+📌 **Propósito clave de esta sección:** <span class="math-inline">\{propositoSeccionActual\}
+📌 Instrucción específica para la sección "</span>{seccionActual}":
 ${promptBase}
 
 🗣 Tono esperado (Estilo "Living Room"):
@@ -796,11 +877,10 @@ ${respuestasClarificadas}
 📚 Contexto de secciones anteriores ya desarrolladas:
 ${contextoParaPrompt}
 
-${indicacionesDeConexion}
-
-🎯 Tu tarea es la siguiente:
-1.  Redacta una sugerencia de contenido detallada y creativa para la sección "${seccionActual}", siguiendo la instrucción específica y el tono "Living Room".
-2.  Después de la sugerencia de contenido, incluye un párrafo OBLIGATORIO titulado "🔗 Conexión con lo anterior:" donde expliques de forma concisa (1-3 frases) cómo esta sugerencia para "${seccionActual}" se vincula y construye sobre las secciones previas. ${seccionesRelevantesParaConectar.length > 0 ? `En tu explicación, enfócate especialmente en la conexión con ${seccionesRelevantesParaConectar.join(' y ')}, **priorizando las conexiones que se consideran más importantes según el "ENFOQUE DE CONEXIÓN"**.` : 'Si no hay contexto previo relevante o secciones clave identificadas, simplemente indica que es el punto de partida.'}
+<span class="math-inline">\{indicacionesDeConexion\}
+🎯 Tu tarea es la siguiente\:
+1\.  Redacta una sugerencia de contenido detallada y creativa para la sección "</span>{seccionActual}", **ajustándose estrictamente a su propósito clave** y siguiendo la instrucción específica y el tono "Living Room".
+2.  Después de la sugerencia de contenido, incluye un párrafo OBLIGATORIO titulado "🔗 Conexión con lo anterior:" donde expliques de forma concisa (1-3 frases) cómo esta sugerencia para "${seccionActual}" se vincula y construye sobre las secciones previas. ${seccionesRelevantesParaConectar.length > 0 ? `En tu explicación, enfócate especialmente en la conexión con ${seccionesRelevantesParaConectar.join(' y ')}, **priorizando las conexiones que se consideran más importantes según el "ENFOQUE DE CONEXIÓN" provisto**. Menciona explícitamente el **tipo de conexión** (ej., "conexión temática", "transición fluida") para cada sección relevante.` : 'Si no hay contexto previo relevante o secciones clave identificadas, simplemente indica que es el punto de partida.'}
 3.  Aplica el tono "Living Room" consistentemente. Sé claro, visual, cercano y práctico.
 4.  NO incluyas frases como "Análisis:", "Evaluación:", "Calificación:", "Puntuación:" o similares. Ve directo a la sugerencia y su explicación de conexión.
 5.  Asegúrate de que la sugerencia sea útil y directamente aplicable por el usuario.
@@ -808,6 +888,7 @@ ${indicacionesDeConexion}
 
 Comienza directamente con la sugerencia para "${seccionActual}".
 `;
+
 
   try {
     const completion = await openai.chat.completions.create({
