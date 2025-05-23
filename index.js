@@ -813,7 +813,6 @@ app.post('/generar-una-sugerencia', async (req, res) => {
   for (const [sec, texto] of Object.entries(contextoPrevio)) {
     const secMayus = sec.toUpperCase();
     if (secMayus !== seccionActual && texto?.trim?.()) {
-      // ✅ CORRECCIÓN AQUÍ: Usar ${} para interpolación
       contextoParaPrompt += `\n🔹 Sección "${secMayus}":\n${texto.trim()}\n`;
       seccionesPreviasDisponibles.push(secMayus);
     }
@@ -875,6 +874,7 @@ ${contextoParaPrompt}
 ${indicacionesDeConexion}
 🎯 Tu tarea es la siguiente:
 1.  Redacta una sugerencia de contenido detallada y creativa para la sección "${seccionActual}", **ajustándose estrictamente a su propósito clave** y siguiendo la instrucción específica y el tono "Living Room".
+    ${seccionActual === "COSTURA" ? `**IMPORTANTE: Para la sección "COSTURA", la sugerencia DEBE ser una ÚNICA FRASE, muy concisa y directa, sin adornos ni explicaciones adicionales. Ve al grano.**` : ''}
 2.  Después de la sugerencia de contenido, incluye un párrafo OBLIGATORIO titulado "🔗 Conexión con lo anterior:" donde expliques de forma concisa (1-3 frases) cómo esta sugerencia para "${seccionActual}" se vincula y construye sobre las secciones previas. ${seccionesRelevantesParaConectar.length > 0 ? `En tu explicación, enfócate especialmente en la conexión con ${seccionesRelevantesParaConectar.join(' y ')}, **priorizando las conexiones que se consideran más importantes según el "ENFOQUE DE CONEXIÓN" provisto**. Menciona explícitamente el **tipo de conexión** (ej., "conexión temática", "transición fluida") para cada sección relevante.` : 'Si no hay contexto previo relevante o secciones clave identificadas, simplemente indica que es el punto de partida.'}
 3.  Aplica el tono "Living Room" consistentemente. Sé claro, visual, cercano y práctico.
 4.  NO incluyas frases como "Análisis:", "Evaluación:", "Calificación:", "Puntuación:" o similares. Ve directo a la sugerencia y su explicación de conexión.
