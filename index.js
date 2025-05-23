@@ -803,19 +803,18 @@ const relacionesImportantes = {
 app.post('/generar-una-sugerencia', async (req, res) => {
   const { seccion, respuestas, contextoPrevio = {} } = req.body;
 
-  const seccionActual = seccion.toUpperCase(); // Asegurarse que esté en mayúsculas para la búsqueda
-  const promptBase = promptsCalibracion[seccionActual] || ""; // Puntos clave y ejemplos para la IA
+  const seccionActual = seccion.toUpperCase();
+  const promptBase = promptsCalibracion[seccionActual] || "";
 
-  // Obtener el propósito de la sección actual
   const propositoSeccionActual = relacionesImportantes[seccionActual]?.purpose || "Generar contenido relevante para esta sección.";
 
-  // Construcción del contexto previo para el prompt
   let contextoParaPrompt = "";
   const seccionesPreviasDisponibles = [];
   for (const [sec, texto] of Object.entries(contextoPrevio)) {
     const secMayus = sec.toUpperCase();
     if (secMayus !== seccionActual && texto?.trim?.()) {
-      contextoParaPrompt += `\n🔹 Sección "<span class="math-inline">\{secMayus\}"\:\\n</span>{texto.trim()}\n`;
+      // ✅ CORRECCIÓN AQUÍ: Usar ${} para interpolación
+      contextoParaPrompt += `\n🔹 Sección "${secMayus}":\n${texto.trim()}\n`;
       seccionesPreviasDisponibles.push(secMayus);
     }
   }
@@ -823,25 +822,21 @@ app.post('/generar-una-sugerencia', async (req, res) => {
     contextoParaPrompt = "❌ No hay contenido de secciones previas disponible aún.";
   }
 
-  // Identificar las conexiones clave para la sección actual, considerando el peso
-  // 'dependsOn' es ahora un array de objetos, así que lo mapeamos correctamente
   const dependenciasConfig = relacionesImportantes[seccionActual]?.dependsOn || [];
   const conexionesRelevantesConPeso = dependenciasConfig
-    .filter(dep => seccionesPreviasDisponibles.includes(dep.source)) // Filtrar por secciones disponibles
+    .filter(dep => seccionesPreviasDisponibles.includes(dep.source))
     .map(dep => ({
       seccion: dep.source,
-      peso: dep.weight, // Usamos el peso definido en la dependencia
-      tipo: dep.type    // Y el tipo de relación
+      peso: dep.weight,
+      tipo: dep.type
     }));
 
-  // Ordenamos por peso descendente (mayor peso = más importante)
   conexionesRelevantesConPeso.sort((a, b) => b.peso - a.peso);
 
   const seccionesRelevantesParaConectar = conexionesRelevantesConPeso.map(c => c.seccion);
 
   let indicacionesDeConexion = "";
   if (seccionesRelevantesParaConectar.length > 0) {
-    // Incluimos el tipo de relación en la indicación para la IA
     const listaConDetalles = conexionesRelevantesConPeso
       .map(c => `"${c.seccion}" (conexión tipo: ${c.tipo}, peso: ${c.peso})`)
       .join(', ');
@@ -864,8 +859,8 @@ Tu objetivo es generar el contenido para una sección específica, asegurando qu
 SECCIÓN A DESARROLLAR: "${seccionActual}"
 --------------------
 
-📌 **Propósito clave de esta sección:** <span class="math-inline">\{propositoSeccionActual\}
-📌 Instrucción específica para la sección "</span>{seccionActual}":
+📌 **Propósito clave de esta sección:** ${propositoSeccionActual}
+📌 Instrucción específica para la sección "${seccionActual}":
 ${promptBase}
 
 🗣 Tono esperado (Estilo "Living Room"):
@@ -877,9 +872,9 @@ ${respuestasClarificadas}
 📚 Contexto de secciones anteriores ya desarrolladas:
 ${contextoParaPrompt}
 
-<span class="math-inline">\{indicacionesDeConexion\}
-🎯 Tu tarea es la siguiente\:
-1\.  Redacta una sugerencia de contenido detallada y creativa para la sección "</span>{seccionActual}", **ajustándose estrictamente a su propósito clave** y siguiendo la instrucción específica y el tono "Living Room".
+${indicacionesDeConexion}
+🎯 Tu tarea es la siguiente:
+1.  Redacta una sugerencia de contenido detallada y creativa para la sección "${seccionActual}", **ajustándose estrictamente a su propósito clave** y siguiendo la instrucción específica y el tono "Living Room".
 2.  Después de la sugerencia de contenido, incluye un párrafo OBLIGATORIO titulado "🔗 Conexión con lo anterior:" donde expliques de forma concisa (1-3 frases) cómo esta sugerencia para "${seccionActual}" se vincula y construye sobre las secciones previas. ${seccionesRelevantesParaConectar.length > 0 ? `En tu explicación, enfócate especialmente en la conexión con ${seccionesRelevantesParaConectar.join(' y ')}, **priorizando las conexiones que se consideran más importantes según el "ENFOQUE DE CONEXIÓN" provisto**. Menciona explícitamente el **tipo de conexión** (ej., "conexión temática", "transición fluida") para cada sección relevante.` : 'Si no hay contexto previo relevante o secciones clave identificadas, simplemente indica que es el punto de partida.'}
 3.  Aplica el tono "Living Room" consistentemente. Sé claro, visual, cercano y práctico.
 4.  NO incluyas frases como "Análisis:", "Evaluación:", "Calificación:", "Puntuación:" o similares. Ve directo a la sugerencia y su explicación de conexión.
@@ -889,15 +884,13 @@ ${contextoParaPrompt}
 Comienza directamente con la sugerencia para "${seccionActual}".
 `;
 
-
   try {
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o", // o el modelo que prefieras y tengas acceso
-      messages: [{ role: "system", content: "Eres un experto en estructuración de sermones y redacción persuasiva." }, { role: "user", content: promptFinal }]
+      model: "gpt-4o",
+      messages: [{ role: "system", content: promptFinal }]
     });
 
     const sugerencia = completion.choices[0].message.content;
-    // Devolvemos el contexto que se usó también, por si el frontend lo necesita
     res.json({ sugerencia, contextoEnviadoAlPrompt: contextoPrevio });
   } catch (error) {
     console.error("❌ Error generando sugerencia:", error);
