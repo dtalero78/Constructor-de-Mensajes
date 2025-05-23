@@ -736,7 +736,7 @@ const relacionesImportantes = {
       { source: "TITULO", type: "temática", weight: 3 } // La intro debe reflejar el título.
     ],
     weight: 2,
-    purpose: "Captar la atención, establecer la relevancia del tema y generar tensión o interés en la audiencia."
+    purpose: "Captar la atención y establecer la relevancia del tema, generando tensión o interés."
   },
 
   // 3. COSTURA
@@ -746,7 +746,7 @@ const relacionesImportantes = {
       { source: "PROBLEMATICA", type: "tensión", weight: 4 } // Conecta la tensión de la problemática.
     ],
     weight: 2,
-    purpose: "Entrelazar la tensión de la introducción con la tensión de la problemática, sirviendo de puente con una analogía o ejemplo."
+    purpose: "Comunicar la tensión de la introducción con la tensión de la problemática a través de una frase o analogía."
   },
 
   // 4. PROBLEMÁTICA (TENSIÓN)
@@ -756,7 +756,7 @@ const relacionesImportantes = {
       { source: "COSTURA", type: "transición_fluida", weight: 5 } // La costura lleva directamente a la problemática.
     ],
     weight: 3,
-    purpose: "Presentar el conflicto central que la Palabra de Dios viene a iluminar o resolver, usando ejemplos cotidianos o bíblicos."
+    purpose: "Presentar el conflicto central que la Palabra de Dios viene a iluminar o resolver."
   },
 
   // 5. CONECTOR
@@ -765,7 +765,7 @@ const relacionesImportantes = {
       { source: "PROBLEMATICA", type: "cierre_problema", weight: 5 } // Enlaza directamente la problemática.
     ],
     weight: 4,
-    purpose: "Ser la transición breve, memorizable y persuasiva que enlaza la problemática con la solución que se presentará en el desarrollo, anunciando su importancia."
+    purpose: "Ser la transición que enlaza la problemática con la solución en el desarrollo, anunciando su importancia."
   },
 
   // 6. DESARROLLO
@@ -775,7 +775,7 @@ const relacionesImportantes = {
       { source: "CONECTOR", type: "continuacion_solucion", weight: 5 } // Continúa el anuncio del conector.
     ],
     weight: 5,
-    purpose: "Ser la parte central de la prédica donde se presentan los puntos principales con respaldo bíblico, ejemplos claros, coherencia argumentativa, revelación, profundidad, practicidad y simplicidad narrativa en una secuencia lógica."
+    purpose: "Ser la parte central de la prédica donde se presentan los puntos con respaldo bíblico y ejemplos claros, coherentes y profundos."
   },
 
   // 7. CONCLUSIÓN
@@ -786,7 +786,7 @@ const relacionesImportantes = {
       { source: "TITULO", type: "cierre_circular", weight: 1 } // Puede volver al título para cerrar.
     ],
     weight: 3,
-    purpose: "Retomar la idea principal, reforzar la enseñanza y motivar a la acción, cerrando el círculo del mensaje."
+    purpose: "Cerrar el mensaje retomando la idea principal, reforzando la enseñanza y motivando a la acción."
   },
 
   // 8. MINISTRACIÓN
@@ -796,7 +796,7 @@ const relacionesImportantes = {
       { source: "DESARROLLO", type: "respuesta_mensaje_central", weight: 3 } // Se basa en la enseñanza general del desarrollo.
     ],
     weight: 2,
-    purpose: "Ser el momento de respuesta espiritual al mensaje a través de oración, profecía, llamado específico o un paso de fe concreto."
+    purpose: "Ser el momento de respuesta espiritual al mensaje, conectado con la enseñanza y el llamado."
   }
 };
 
