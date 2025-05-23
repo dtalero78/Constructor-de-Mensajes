@@ -27,13 +27,17 @@ const openai = new OpenAI({
 });
 
 const tonoLivingRoom = `
-🎙️ Estilo Living Room:
-- Conversacional, con referencias actuales (TikTok, memes, anécdotas).
-- Cercano, usa ejemplos de vida real.
-- Emocionalmente honesto, sin exageraciones religiosas.
-- Usa humor sutil y tono familiar (“ey”, “¿sabes qué?”, “levanta la mano si…”).
-- Habla como en un grupo de amigos que buscan propósito y espiritualidad con flow.
-`;
+  🎙️ Recuerda que el estilo de este mensaje debe reflejar el tono característico de la comunidad Living Room, que se define así:
+  
+  - Cercano y conversacional, como una charla con un amigo.
+  - Honestidad y vulnerabilidad, compartiendo testimonios reales.
+  - Uso de imágenes visuales simples y ejemplos cotidianos.
+  - Inspirador pero sin exageración ni frases vacías.
+  - Lenguaje que incluya y conecte con la audiencia (“nosotros”, “a ti y a mí”).
+  - Referencias bíblicas contadas como parte de una historia personal.
+  
+  Asegúrate de que esta sección respete y refleje este estilo en su contenido y forma.
+  `;
 
 let transcripciones = {
   titulo: "",
@@ -121,18 +125,7 @@ async function evaluarTranscripcion(transcripcion, section, usuario) {
   console.log("📝 TRANSCRIPCIÓN ACTUAL:\n" + transcripcion);
 
 
-  const tonoLivingRoom = `
-  🎙️ Recuerda que el estilo de este mensaje debe reflejar el tono característico de la comunidad Living Room, que se define así:
   
-  - Cercano y conversacional, como una charla con un amigo.
-  - Honestidad y vulnerabilidad, compartiendo testimonios reales.
-  - Uso de imágenes visuales simples y ejemplos cotidianos.
-  - Inspirador pero sin exageración ni frases vacías.
-  - Lenguaje que incluya y conecte con la audiencia (“nosotros”, “a ti y a mí”).
-  - Referencias bíblicas contadas como parte de una historia personal.
-  
-  Asegúrate de que esta sección respete y refleje este estilo en su contenido y forma.
-  `;
 
 
   const promptFinal = `
