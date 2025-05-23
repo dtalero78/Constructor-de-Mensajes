@@ -884,6 +884,10 @@ ${indicacionesDeConexion}
 Comienza directamente con la sugerencia para "${seccionActual}".
 `;
 
+ console.log("--- PROMPT FINAL ENVIADO A OPENAI PARA GENERAR SUGERENCIA ---");
+  console.log(promptFinal);
+  console.log("--- FIN DEL PROMPT ---");
+
   try {
     const completion = await openai.chat.completions.create({
       model: "gpt-4o",
