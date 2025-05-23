@@ -765,7 +765,7 @@ const relacionesImportantes = {
       { source: "PROBLEMATICA", type: "cierre_problema", weight: 5 } // Enlaza directamente la problemática.
     ],
     weight: 4,
-    purpose: "Ser la transición que enlaza la problemática con la solución en el desarrollo, anunciando su importancia."
+    purpose: "Ser la transición que enlaza la problemática con la solución en el desarrollo, anunciando su importancia CON UNA SOLA FRASE"
   },
 
   // 6. DESARROLLO
