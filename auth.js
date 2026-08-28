@@ -10,7 +10,9 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { OAuth2Client } = require('google-auth-library');
+const crypto = require('crypto');
 const { pool } = require('./database');
+const { enviarRecuperacion, hayCorreo } = require('./correo');
 
 const COOKIE = 'sesion';
 const DIAS = 30;
@@ -186,6 +188,85 @@ function registrarRutas(app) {
     } catch (error) {
       console.error('❌ Error con Google:', error.message);
       return res.status(401).json({ error: 'No pude verificar tu cuenta de Google' });
+    }
+  });
+
+  // ---------- Recuperar contraseña ----------
+  // Se guarda el hash del token; el token en claro solo viaja al correo.
+  const hashDeToken = (t) => crypto.createHash('sha256').update(t).digest('hex');
+
+  app.post('/auth/recuperar', async (req, res) => {
+    const email = normalizarEmail(req.body.email);
+
+    // Respuesta idéntica exista o no la cuenta: si no, esto sería un
+    // detector de correos registrados.
+    const respuesta = { success: true, mensaje: 'Si ese correo tiene cuenta, le llega el enlace.' };
+
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return res.json(respuesta);
+    if (!hayCorreo()) {
+      console.error('❌ Alguien pidió recuperar, pero falta RESEND_API_KEY');
+      return res.status(503).json({ error: 'El envío de correo no está configurado' });
+    }
+
+    try {
+      const { rows } = await pool.query(
+        `SELECT id, email FROM usuarios WHERE lower(email) = $1`, [email]);
+      const u = rows[0];
+
+      if (u) {
+        // Un pedido nuevo invalida los anteriores que sigan vivos.
+        await pool.query(
+          `UPDATE recuperaciones SET usado_en = now()
+           WHERE usuario_id = $1 AND usado_en IS NULL`, [u.id]);
+
+        const token = crypto.randomBytes(32).toString('base64url');
+        await pool.query(
+          `INSERT INTO recuperaciones (usuario_id, token_hash, expira_en)
+           VALUES ($1, $2, now() + interval '1 hour')`,
+          [u.id, hashDeToken(token)]);
+
+        const base = process.env.APP_URL || `${req.protocol}://${req.get('host')}`;
+        await enviarRecuperacion(u.email, `${base}/restablecer.html?token=${token}`);
+      }
+
+      return res.json(respuesta);
+    } catch (error) {
+      console.error('❌ Error al enviar la recuperación:', error.message);
+      // Tampoco aquí revelamos si el correo existe.
+      return res.json(respuesta);
+    }
+  });
+
+  app.post('/auth/restablecer', async (req, res) => {
+    const token = String(req.body.token || '');
+    const clave = String(req.body.clave || '');
+
+    if (clave.length < 8) {
+      return res.status(400).json({ error: 'La contraseña necesita al menos 8 caracteres' });
+    }
+
+    try {
+      const { rows } = await pool.query(
+        `SELECT r.id, r.usuario_id, u.usuario, u.email
+         FROM recuperaciones r JOIN usuarios u ON u.id = r.usuario_id
+         WHERE r.token_hash = $1 AND r.usado_en IS NULL AND r.expira_en > now()`,
+        [hashDeToken(token)]);
+      const pedido = rows[0];
+
+      if (!pedido) {
+        return res.status(400).json({ error: 'Ese enlace ya venció o se usó. Pide uno nuevo.' });
+      }
+
+      await pool.query(`UPDATE usuarios SET clave_hash = $1 WHERE id = $2`,
+        [await bcrypt.hash(clave, 12), pedido.usuario_id]);
+      await pool.query(`UPDATE recuperaciones SET usado_en = now() WHERE id = $1`, [pedido.id]);
+
+      // Entra directo: acaba de demostrar que controla el correo.
+      darCookie(res, { id: pedido.usuario_id });
+      return res.json({ success: true });
+    } catch (error) {
+      console.error('❌ Error al restablecer:', error.message);
+      return res.status(500).json({ error: 'No se pudo cambiar la contraseña' });
     }
   });
 

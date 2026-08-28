@@ -33,3 +33,12 @@ services:
       - key: NODE_ENV
         scope: RUN_TIME
         value: production
+      # Resend, para el correo de recuperar contraseña.
+      - key: RESEND_API_KEY
+        scope: RUN_TIME
+        type: SECRET
+      - key: MAIL_FROM
+        scope: RUN_TIME
+      # Base de los enlaces que van dentro de los correos.
+      - key: APP_URL
+        scope: RUN_TIME

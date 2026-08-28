@@ -178,12 +178,21 @@ que está duplicado en cada página.
 
 ## Despliegue
 
-DigitalOcean App Platform desde [app.yaml](app.yaml) (repo `dtalero78/Constructor-de-Mensajes`, rama `main`,
-build con el Dockerfile). **Hoy no hay ninguna app desplegada para este proyecto.** Cuando se despliegue:
+DigitalOcean App Platform, build con el Dockerfile. La app es **`constructor-de-mensajes`**
+(id `f0ea5d35-2fbd-40a7-8544-069c309e5832`, región nyc) y hoy despliega sola en cada push a la rama
+**`interfaz-nueva-postgres-agente`**, no a `main` — [app.yaml](app.yaml) sigue diciendo `main` y ya no
+refleja el spec real; la fuente de verdad es `doctl apps spec get`.
 
-- Hay que agregar el app-id al firewall del cluster
-  (`doctl databases firewalls append b09c5f55-deb7-439f-a4c6-009006ebe5bc --rule app:<app-id>`), porque
-  hoy solo entra la IP de la VPN.
+- **Dominio: [lvr-speakers.com](https://lvr-speakers.com)** (+ `www`, como ALIAS). El registrador es
+  name.com pero el DNS lo sirve DigitalOcean: los nameservers apuntan a `ns1/2/3.digitalocean.com` y los
+  registros del apex los crea y mantiene sola la App Platform al declarar el bloque `domains:` del spec.
+  **No crear registros a mano en name.com**; se toca el spec y DO reescribe la zona.
+- El app-id ya está en el firewall del cluster
+  (`doctl databases firewalls append b09c5f55-deb7-439f-a4c6-009006ebe5bc --rule app:<app-id>`); sin esa
+  regla el contenedor no ve Postgres, porque por lo demás solo entra la IP de la VPN.
+- El login con Google valida por **origen**, no por redirect_uri (Google Identity Services manda un
+  `credential` a `/auth/google`). Cada dominio nuevo hay que agregarlo a mano como *Authorized JavaScript
+  origin* del cliente OAuth en Google Cloud Console, o el botón revienta con `origin_mismatch`.
 - Los datos ya **no** se pierden en cada deploy: viven en Postgres, fuera del contenedor. `prompts.json`
   y `uploads/` sí siguen dentro del contenedor y se revierten al estado del repo en cada despliegue.
 - `detect-port` ignora `process.env.PORT`: sondea desde el 3000 hacia arriba. Coincide con el `PORT=3000`

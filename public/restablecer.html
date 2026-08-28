@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#22B24C" />
-  <title>Entrar · LivingRoom Speakers</title>
+  <title>Nueva contraseña · LivingRoom Speakers</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
@@ -821,170 +821,65 @@
     </div>
 
     <div>
-      <h1 class="titulo-bloque" id="titulo">Entra a construir</h1>
-      <p class="subtitulo" id="subtitulo">Tus mensajes quedan guardados en tu cuenta.</p>
+      <h1 class="titulo-bloque">Elige tu contraseña nueva</h1>
+      <p class="subtitulo">Al guardarla entras directo: ya demostraste que el correo es tuyo.</p>
     </div>
 
     <div class="error" id="error"></div>
 
-    <form id="formulario" class="campos" autocomplete="on">
-      <div class="campo-simple" id="campoNombre" style="display:none">
-        <label for="nombre">Tu nombre</label>
-        <input id="nombre" type="text" autocomplete="name" placeholder="Como quieres que te llamemos" />
+    <form id="formulario" class="campos">
+      <div class="campo-simple">
+        <label for="clave">Contraseña nueva</label>
+        <input id="clave" type="password" autocomplete="new-password" required placeholder="Mínimo 8 caracteres" />
       </div>
       <div class="campo-simple">
-        <label for="email">Correo</label>
-        <input id="email" type="email" autocomplete="email" required placeholder="tu@correo.com" />
+        <label for="clave2">Repítela</label>
+        <input id="clave2" type="password" autocomplete="new-password" required placeholder="La misma otra vez" />
       </div>
-      <div class="campo-simple">
-        <label for="clave">Contraseña</label>
-        <input id="clave" type="password" autocomplete="current-password" required placeholder="Mínimo 8 caracteres" />
-      </div>
-
-      <button class="btn btn-primario" id="btnEnviar" type="submit">Entrar</button>
+      <button class="btn btn-primario" id="btnGuardar" type="submit">Guardar y entrar</button>
     </form>
 
-    <p class="cambiar" id="olvide">
-      <button type="button" id="btnOlvide">¿Olvidaste tu contraseña?</button>
-    </p>
-
-    <div class="separador" id="separador">o</div>
-    <div id="googleNativo"></div>
-    <button class="btn btn-google" id="btnGoogleRespaldo" style="display:none">
-      <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
-        <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/>
-        <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/>
-        <path fill="#FBBC05" d="M3.964 10.71c-.18-.54-.282-1.117-.282-1.71s.102-1.17.282-1.71V4.958H.957C.347 6.173 0 7.548 0 9s.348 2.827.957 4.042l3.007-2.332z"/>
-        <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/>
-      </svg>
-      Continuar con Google
-    </button>
-
-    <p class="cambiar" id="cambiar">
-      ¿No tienes cuenta? <button type="button" id="btnCambiar">Créala aquí</button>
-    </p>
+    <p class="cambiar"><a href="/login.html" style="font-weight:700;color:var(--brand-700)">← Volver a entrar</a></p>
   </main>
 
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script>
     const $ = (s) => document.querySelector(s);
     const esc = (t = '') => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-
-    let modo = 'entrar';   // 'entrar' | 'registro'
-    const destino = new URLSearchParams(location.search).get('volver') || '/';
-
-    function pintarModo() {
-      const registro = modo === 'registro';
-      $('#titulo').textContent = registro ? 'Crea tu cuenta' : 'Entra a construir';
-      $('#subtitulo').textContent = registro
-        ? 'Con una cuenta, tus mensajes te siguen a cualquier dispositivo.'
-        : 'Tus mensajes quedan guardados en tu cuenta.';
-      $('#campoNombre').style.display = registro ? 'flex' : 'none';
-      $('#btnEnviar').textContent = registro ? 'Crear cuenta' : 'Entrar';
-      $('#clave').autocomplete = registro ? 'new-password' : 'current-password';
-      $('#olvide').style.display = registro ? 'none' : 'block';
-      $('#cambiar').innerHTML = registro
-        ? '¿Ya tienes cuenta? <button type="button" id="btnCambiar">Entra aquí</button>'
-        : '¿No tienes cuenta? <button type="button" id="btnCambiar">Créala aquí</button>';
-      $('#btnCambiar').addEventListener('click', () => {
-        modo = registro ? 'entrar' : 'registro';
-        $('#error').classList.remove('visible');
-        pintarModo();
-      });
-    }
+    const token = new URLSearchParams(location.search).get('token') || '';
 
     function mostrarError(mensaje) {
       $('#error').innerHTML = `<b>${esc(mensaje)}</b>`;
       $('#error').classList.add('visible');
     }
 
-    async function enviar(ruta, cuerpo) {
-      $('#btnEnviar').disabled = true;
+    if (!token) {
+      mostrarError('Este enlace no trae el código. Pide uno nuevo desde la pantalla de entrar.');
+      $('#formulario').style.display = 'none';
+    }
+
+    $('#formulario').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const clave = $('#clave').value;
+      if (clave !== $('#clave2').value) return mostrarError('Las dos contraseñas no coinciden.');
+      if (clave.length < 8) return mostrarError('La contraseña necesita al menos 8 caracteres.');
+
+      $('#btnGuardar').disabled = true;
       $('#error').classList.remove('visible');
       try {
-        const r = await fetch(ruta, {
+        const r = await fetch('/auth/restablecer', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'same-origin',
-          body: JSON.stringify(cuerpo)
+          body: JSON.stringify({ token, clave })
         });
         const data = await r.json();
         if (!r.ok) throw new Error(data.error || `El servidor respondió ${r.status}`);
-        location.replace(destino);
+        location.replace('/');
       } catch (err) {
         mostrarError(err.message);
-      } finally {
-        $('#btnEnviar').disabled = false;
-      }
-    }
-
-    // ---------- Recuperar contraseña ----------
-    $('#btnOlvide').addEventListener('click', async () => {
-      const email = $('#email').value.trim();
-      if (!email) {
-        mostrarError('Escribe tu correo arriba y vuelve a tocar aquí.');
-        $('#email').focus();
-        return;
-      }
-      $('#btnOlvide').disabled = true;
-      $('#btnOlvide').textContent = 'Enviando…';
-      try {
-        const r = await fetch('/auth/recuperar', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email })
-        });
-        const data = await r.json();
-        if (!r.ok) throw new Error(data.error || `El servidor respondió ${r.status}`);
-        $('#olvide').innerHTML =
-          `<span style="color:var(--brand-700);font-weight:700">Revisa tu correo.</span> ` +
-          `Si ${esc(email)} tiene cuenta, le llega el enlace. Vence en una hora.`;
-      } catch (err) {
-        mostrarError(err.message);
-        $('#btnOlvide').disabled = false;
-        $('#btnOlvide').textContent = '¿Olvidaste tu contraseña?';
+        $('#btnGuardar').disabled = false;
       }
     });
-
-    $('#formulario').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const cuerpo = { email: $('#email').value.trim(), clave: $('#clave').value };
-      if (modo === 'registro') {
-        cuerpo.nombre = $('#nombre').value.trim();
-        enviar('/auth/registro', cuerpo);
-      } else {
-        enviar('/auth/entrar', cuerpo);
-      }
-    });
-
-    // ---------- Google Identity Services ----------
-    (async function prepararGoogle() {
-      let clientId = null;
-      try {
-        clientId = (await (await fetch('/auth/config')).json()).googleClientId;
-      } catch (e) { /* sin config, seguimos con correo */ }
-
-      if (!clientId) {
-        // Sin GOOGLE_CLIENT_ID el botón no aparece: mejor eso que un botón que falla.
-        $('#separador').style.display = 'none';   // sin Google, un separador que no separa nada
-        return;
-      }
-
-      const arrancar = () => {
-        if (!window.google?.accounts?.id) return setTimeout(arrancar, 250);
-        google.accounts.id.initialize({
-          client_id: clientId,
-          callback: ({ credential }) => enviar('/auth/google', { credential })
-        });
-        google.accounts.id.renderButton($('#googleNativo'), {
-          theme: 'outline', size: 'large', shape: 'pill',
-          text: 'continue_with', locale: 'es', width: 320
-        });
-      };
-      arrancar();
-    })();
-
-    pintarModo();
   </script>
 </body>
 
