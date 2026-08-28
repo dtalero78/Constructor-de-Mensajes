@@ -1,0 +1,193 @@
+<!-- artifact: https://claude.ai/code/artifact/9dd2ee10-7924-49e9-bb2d-e39d62261e70 -->
+<meta charset="utf-8">
+<title>Agentes de Constructor de Mensajes</title>
+
+<style>
+:root{
+  --bg:#faf9f7; --panel:#fff; --ink:#171614; --ink-2:#4b4843; --ink-3:#8a857c;
+  --line:#e6e2db; --line-2:#d5cfc5; --accent:#8a5a2b; --mono-bg:#f2efe9;
+  --nuevo-bg:#e8f0e6; --nuevo-ink:#3a5c33;
+  --rees-bg:#f4ece0; --rees-ink:#7a5320;
+  --cons-bg:#eceff3; --cons-ink:#455263;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#131211; --panel:#1a1917; --ink:#f2efe9; --ink-2:#c3bdb3; --ink-3:#8b857b;
+    --line:#2a2825; --line-2:#3a3733; --accent:#d9a066; --mono-bg:#221f1c;
+    --nuevo-bg:#1f2c1c; --nuevo-ink:#a8ce9c;
+    --rees-bg:#2e2415; --rees-ink:#e0b477;
+    --cons-bg:#1d2229; --cons-ink:#a8b6c6;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#131211; --panel:#1a1917; --ink:#f2efe9; --ink-2:#c3bdb3; --ink-3:#8b857b;
+  --line:#2a2825; --line-2:#3a3733; --accent:#d9a066; --mono-bg:#221f1c;
+  --nuevo-bg:#1f2c1c; --nuevo-ink:#a8ce9c;
+  --rees-bg:#2e2415; --rees-ink:#e0b477;
+  --cons-bg:#1d2229; --cons-ink:#a8b6c6;
+}
+*{box-sizing:border-box}
+body{
+  background:var(--bg); color:var(--ink); margin:0;
+  font:16px/1.55 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:900px; margin:0 auto; padding:56px 24px 88px}
+code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+
+header{border-bottom:1px solid var(--line); padding-bottom:28px; margin-bottom:40px}
+.kicker{font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-3); margin:0 0 12px}
+h1{font-size:clamp(28px,5vw,42px); line-height:1.1; letter-spacing:-.02em; margin:0 0 14px; font-weight:640}
+h1 .repo{color:var(--accent)}
+.lede{color:var(--ink-2); max-width:60ch; margin:0}
+.meta-top{margin-top:18px; font-size:13px; color:var(--ink-3)}
+
+h2{font-size:13px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-3);
+   margin:48px 0 18px; font-weight:600}
+h2:first-of-type{margin-top:0}
+
+.card{background:var(--panel); border:1px solid var(--line); border-radius:14px;
+      padding:22px 24px; margin-bottom:14px}
+.card-head{display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; margin-bottom:12px}
+.name{font-size:17px; font-weight:600; letter-spacing:-.01em}
+.badge{font-size:11px; letter-spacing:.06em; text-transform:uppercase; font-weight:600;
+       padding:3px 9px; border-radius:999px}
+.b-nuevo{background:var(--nuevo-bg); color:var(--nuevo-ink)}
+.b-reescrito{background:var(--rees-bg); color:var(--rees-ink)}
+.b-conservado{background:var(--cons-bg); color:var(--cons-ink)}
+.para{margin:0 0 10px; color:var(--ink)}
+.row{display:flex; gap:10px; margin:0 0 8px; font-size:14px; color:var(--ink-2)}
+.row .lbl{flex:0 0 96px; color:var(--ink-3); font-size:12px; letter-spacing:.06em;
+          text-transform:uppercase; padding-top:2px}
+.row .val{flex:1; min-width:0}
+.chips{display:flex; flex-wrap:wrap; gap:6px; margin-top:14px; padding-top:14px;
+       border-top:1px solid var(--line)}
+.chip{font-size:12px; background:var(--mono-bg); border:1px solid var(--line);
+      color:var(--ink-2); padding:3px 9px; border-radius:6px}
+.chip b{color:var(--ink-3); font-weight:500}
+
+.desc-card{background:transparent; border:1px dashed var(--line-2); border-radius:14px;
+           padding:16px 20px; margin-bottom:10px}
+.desc-card .name{font-size:15px; color:var(--ink-2)}
+.desc-card p{margin:6px 0 0; font-size:14px; color:var(--ink-3)}
+
+footer{margin-top:56px; padding-top:24px; border-top:1px solid var(--line);
+       font-size:14px; color:var(--ink-3)}
+footer p{margin:0 0 10px}
+footer a{color:var(--accent)}
+kbd{background:var(--mono-bg); border:1px solid var(--line); border-radius:5px;
+    padding:2px 6px; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:13px;
+    color:var(--ink-2)}
+@media (max-width:560px){ .row{flex-direction:column; gap:2px} .row .lbl{flex:none} }
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="kicker">Roster de sub-agentes</p>
+    <h1>Agentes de <span class="repo">Constructor de Mensajes</span></h1>
+    <p class="lede">Cada agente es un Claude aparte: contexto propio, herramientas propias
+      y permisos propios. Trabaja solo y devuelve un resumen — el ruido (logs, filas,
+      archivos) se queda en su contexto, no en el tuyo.</p>
+    <p class="meta-top">Generado el 28 de agosto de 2026 · viven en <code>.claude/agents/</code> · se versionan con el repo</p>
+  </header>
+
+  <h2>Nómina</h2>
+  <div id="agents"></div>
+
+  <h2 id="h-desc">No se crearon (a propósito)</h2>
+  <div id="descartados"></div>
+
+  <footer>
+    <p><b>Cómo se usan:</b> <kbd>@agent-nombre</kbd> para invocarlo con certeza, o
+      nómbralo en lenguaje natural ("usa el agente X para…"). Para toda una sesión:
+      <kbd>claude --agent nombre</kbd>.</p>
+    <p><b>Ojo:</b> un sub-agente no ve la conversación ni los archivos ya leídos. Cuando le
+      delegues, incluye los datos en la petición: arranca en frío.</p>
+    <p>Formato oficial: <a href="https://code.claude.com/docs/en/sub-agents.md">code.claude.com/docs/en/sub-agents</a></p>
+  </footer>
+</div>
+
+<script>
+// ─────────── DATOS — lo único que se reemplaza ───────────
+const REPO = "Constructor de Mensajes";
+const AGENTS = [
+  {
+    name: "lector-bd",
+    estado: "nuevo",
+    para: "Contesta preguntas sobre las prédicas y las cuentas reales consultando Postgres, sin poder tocar un solo dato.",
+    cuando: "\"¿cuántos mensajes tiene cada usuario?\", \"¿por qué al mensaje 42 no le aparece la conclusión?\", \"¿la columna google_sub ya existe en producción?\"",
+    candado: "Hook PreToolUse: bloquea INSERT/UPDATE/DELETE/DROP/ALTER, \\copy y psql -f. Solo SELECT y EXPLAIN. Comprueba la VPN antes de conectar y nunca imprime DATABASE_URL ni hashes.",
+    tools: "Bash, Read, Grep, Glob",
+    model: "inherit",
+    archivo: ".claude/agents/lector-bd.md"
+  },
+  {
+    name: "auditor-sesion",
+    estado: "nuevo",
+    para: "Vigila que nadie pueda leer las prédicas de otra persona: cada ruta con sesión, y la identidad tomada de la cookie y no del navegador.",
+    cuando: "\"revisa si la ruta nueva está protegida\", \"audita las rutas antes del deploy\", \"¿algún endpoint sigue confiando en el usuario que manda el navegador?\"",
+    candado: "Físicamente incapaz de escribir: sin Edit, sin Write, sin Bash. Diagnostica y entrega el parche descrito, nunca aplicado.",
+    tools: "Read, Grep, Glob",
+    model: "haiku",
+    archivo: ".claude/agents/auditor-sesion.md"
+  },
+  {
+    name: "calibrador-prompts",
+    estado: "nuevo",
+    para: "Afina cómo suena el texto que escribe Claude: la calibración de cada pilar, el tono Living Room y cómo se encadenan las secciones. Prueba el cambio generando secciones de verdad.",
+    cuando: "\"los títulos vuelven a salir con ensayo explicativo\", \"la ministración no conecta con la problemática\", \"afina el prompt de INTRODUCCION y muéstrame el antes/después\"",
+    candado: "Hook PreToolUse sobre Edit/Write: solo puede escribir prompts.json. index.js, database.js, auth.js y public/ están fuera de su alcance — lo que necesite tocar ahí lo devuelve como propuesta.",
+    tools: "Read, Grep, Glob, Edit, Bash",
+    model: "inherit",
+    archivo: ".claude/agents/calibrador-prompts.md"
+  },
+  {
+    name: "despliegue-do",
+    estado: "nuevo",
+    para: "Averigua por qué producción no se comporta como local: build caído, spec real contra app.yaml, el contenedor que no ve la base, el login de Google en un dominio nuevo.",
+    cuando: "\"el deploy falló, mira los logs\", \"¿qué rama está desplegando de verdad?\", \"la app no conecta a la base en producción\"",
+    candado: "Hook PreToolUse: nada de doctl create/update/delete, ni firewall, ni DNS — y git push bloqueado, porque un push a interfaz-nueva-postgres-agente dispara un despliegue real.",
+    tools: "Bash, Read, Grep, Glob",
+    model: "inherit",
+    archivo: ".claude/agents/despliegue-do.md"
+  }
+];
+const DESCARTADOS = [
+  { name: "explorador del monolito", por: "Lo cubre el built-in Explore, que además es read-only por diseño. index.js son 1004 líneas: Explore las recorre sin ayuda." },
+  { name: "orquestador / planificador de features", por: "Es exactamente el built-in Plan más el plan mode." },
+  { name: "especialista de backend y especialista de frontend", por: "División por capa. En esta app casi toda tarea cruza las dos: añadir un pilar toca a la vez el enum de Postgres, prompts.json, relacionesImportantes en index.js y los <div> de la SPA. El routing sería una moneda al aire." },
+  { name: "redactor de prédicas", por: "No aísla ruido ni necesita candado propio: es el trabajo del hilo principal con la calibración que ya mantiene calibrador-prompts." },
+  { name: "migrador de datos", por: "La migración desde SQLite ya está hecha y es idempotente (db/migrar-desde-sqlite.js). Un agente con permiso de escritura sobre la base de producción es un riesgo sin un trabajo que lo justifique." }
+];
+// ─────────── fin DATOS ───────────
+
+const esc = s => String(s == null ? "" : s).replace(/[&<>]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+const row = (l, v) => v ? `<div class="row"><div class="lbl">${l}</div><div class="val">${esc(v)}</div></div>` : "";
+
+document.getElementById("agents").innerHTML = AGENTS.map(a => `
+  <article class="card">
+    <div class="card-head">
+      <span class="name mono">${esc(a.name)}</span>
+      <span class="badge b-${esc(a.estado || "nuevo")}">${esc(a.estado || "nuevo")}</span>
+    </div>
+    <p class="para">${esc(a.para)}</p>
+    ${row("Se dispara", a.cuando)}
+    ${row("Candado", a.candado)}
+    <div class="chips">
+      <span class="chip"><b>tools</b> ${esc(a.tools || "hereda todas ⚠")}</span>
+      <span class="chip"><b>model</b> ${esc(a.model || "inherit")}</span>
+      ${a.archivo ? `<span class="chip mono">${esc(a.archivo)}</span>` : ""}
+    </div>
+  </article>`).join("");
+
+const cont = document.getElementById("descartados");
+if (!DESCARTADOS.length) {
+  document.getElementById("h-desc").style.display = "none";
+} else {
+  cont.innerHTML = DESCARTADOS.map(d => `
+    <div class="desc-card">
+      <span class="name mono">${esc(d.name)}</span>
+      <p>${esc(d.por)}</p>
+    </div>`).join("");
+}
+</script>
