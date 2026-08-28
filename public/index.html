@@ -970,6 +970,16 @@
         // Variable global que almacenará la calibración
         let promptsCalibracion = {};
 
+        // Las claves de calibración son canónicamente MAYÚSCULAS; las secciones de la UI
+        // van en minúsculas. Todo acceso pasa por aquí para que la caja no importe.
+        function normalizarSeccion(seccion) {
+            return String(seccion || "").trim().toUpperCase();
+        }
+
+        function obtenerPromptCalibracion(seccion) {
+            return promptsCalibracion[normalizarSeccion(seccion)] || "";
+        }
+
         // Función para cargar la calibración desde el servidor
         async function loadPromptsCalibracion() {
             try {
@@ -1128,13 +1138,20 @@
 
         // Variable global para almacenar el nombre de usuario
         let currentUser = "";
+        // Mensaje que se está editando; se manda al guardar para no escribir en otro.
+        let mensajeAbiertoId = null;
 
         window.addEventListener('load', async function () {
-            currentUser = prompt("Ingresa tu nombre de usuario:");
+            // El home guarda el usuario en localStorage; solo preguntamos si todavía no hay uno
+            currentUser = (localStorage.getItem('currentUser') || "").trim();
+            if (!currentUser) {
+                currentUser = prompt("Ingresa tu nombre de usuario:");
+            }
             if (!currentUser) {
                 alert("El usuario es obligatorio. Se asignará 'Usuario' por defecto.");
                 currentUser = "Usuario";
             }
+            localStorage.setItem('currentUser', currentUser);
 
             // Mostrar el botón de calibración solo si el usuario es FRAITALERO
             if (currentUser === "FRAITALERO") {
@@ -1146,6 +1163,13 @@
 
             // Llamamos a la función para cargar las notas de este usuario
             await loadUserNotes(currentUser);
+
+            // Deep-link desde el home: /index.html#titulo, #ideaInput, etc.
+            const seccionDestino = decodeURIComponent(location.hash.replace('#', ''));
+            if (seccionDestino) {
+                const btnDestino = document.querySelector('.menu-btn[data-section="' + seccionDestino + '"]');
+                if (btnDestino) btnDestino.click();
+            }
         });
 
 
@@ -1156,7 +1180,7 @@
             btn.addEventListener('click', function () {
                 const seccion = this.getAttribute('data-seccion'); // 'titulo', etc.
                 // 1) Tomamos el prompt completo desde promptsCalibracion:
-                const promptCompleto = promptsCalibracion[seccion]
+                const promptCompleto = obtenerPromptCalibracion(seccion)
                     || "No hay instrucciones disponibles para esta sección.";
 
                 // 2) Recortamos el texto con la función extraerInstrucciones:
@@ -1177,10 +1201,16 @@
         // Función que obtiene la última nota guardada para el usuario dado
         async function loadUserNotes(username) {
             try {
-                const response = await fetch(`/obtener-ultimo-mensaje?usuario=${encodeURIComponent(username)}`);
+                // El home enlaza a /index.html?mensaje=<id>; sin ese parámetro se abre el último.
+                const idPedido = new URLSearchParams(location.search).get('mensaje');
+                const ruta = idPedido
+                    ? `/obtener-mensaje?id=${encodeURIComponent(idPedido)}&usuario=${encodeURIComponent(username)}`
+                    : `/obtener-ultimo-mensaje?usuario=${encodeURIComponent(username)}`;
+                const response = await fetch(ruta);
                 const data = await response.json();
 
                 if (data.success && data.mensaje) {
+                    mensajeAbiertoId = data.mensaje.id;
                     // Carga cada sección en su textarea correspondiente
                     document.getElementById('notas-titulo').value = data.mensaje.titulo || "";
                     document.getElementById('notas-introduccion').value = data.mensaje.introduccion || "";
@@ -1284,6 +1314,8 @@
             };
             // Asigna el contenido sólo a la sección actual
             mensaje[section] = contenido;
+            // Escribe en el mensaje que está abierto, no en el último del usuario.
+            if (mensajeAbiertoId) mensaje.mensajeId = mensajeAbiertoId;
             try {
                 const response = await fetch('/guardar-mensaje', {
                     method: 'POST',
@@ -1599,14 +1631,14 @@
                 const response = await fetch('/obtener-calibracion');
                 const data = await response.json();
                 const prompts = data.promptsCalibracion;
-                document.getElementById('prompt-titulo').value = prompts.titulo || "";
-                document.getElementById('prompt-introduccion').value = prompts.introduccion || "";
-                document.getElementById('prompt-costura').value = prompts.costura || "";
-                document.getElementById('prompt-problematica').value = prompts.problematica || "";
-                document.getElementById('prompt-conector').value = prompts.conector || "";
-                document.getElementById('prompt-desarrollo').value = prompts.desarrollo || "";
-                document.getElementById('prompt-conclusion').value = prompts.conclusion || "";
-                document.getElementById('prompt-ministracion').value = prompts.ministracion || "";
+                document.getElementById('prompt-titulo').value = prompts[normalizarSeccion('titulo')] || "";
+                document.getElementById('prompt-introduccion').value = prompts[normalizarSeccion('introduccion')] || "";
+                document.getElementById('prompt-costura').value = prompts[normalizarSeccion('costura')] || "";
+                document.getElementById('prompt-problematica').value = prompts[normalizarSeccion('problematica')] || "";
+                document.getElementById('prompt-conector').value = prompts[normalizarSeccion('conector')] || "";
+                document.getElementById('prompt-desarrollo').value = prompts[normalizarSeccion('desarrollo')] || "";
+                document.getElementById('prompt-conclusion').value = prompts[normalizarSeccion('conclusion')] || "";
+                document.getElementById('prompt-ministracion').value = prompts[normalizarSeccion('ministracion')] || "";
             } catch (err) {
                 console.error("Error al obtener la calibración:", err);
             }
@@ -1616,16 +1648,12 @@
 
         // Guardar cambios en Calibración
         document.getElementById('guardarCalibracion').addEventListener('click', async () => {
-            const nuevosPrompts = {
-                titulo: document.getElementById('prompt-titulo').value,
-                introduccion: document.getElementById('prompt-introduccion').value,
-                costura: document.getElementById('prompt-costura').value,
-                problematica: document.getElementById('prompt-problematica').value,
-                conector: document.getElementById('prompt-conector').value,
-                desarrollo: document.getElementById('prompt-desarrollo').value,
-                conclusion: document.getElementById('prompt-conclusion').value,
-                ministracion: document.getElementById('prompt-ministracion').value
-            };
+            const nuevosPrompts = {};
+            ['titulo', 'introduccion', 'costura', 'problematica',
+             'conector', 'desarrollo', 'conclusion', 'ministracion']
+                .forEach(sec => {
+                    nuevosPrompts[normalizarSeccion(sec)] = document.getElementById(`prompt-${sec}`).value;
+                });
             try {
                 const response = await fetch('/actualizar-calibracion', {
                     method: 'POST',

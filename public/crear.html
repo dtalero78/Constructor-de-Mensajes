@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#22B24C" />
+  <title>Crear mensaje · LivingRoom Speakers</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet" />
+  <style>
+    /* ============================================================
+       CREAR — el agente entrevistador.
+       Una pregunta por pantalla → briefing → los 8 pilares.
+       ============================================================ */
+
+    :root {
+      --brand: #22B24C;
+      --brand-600: #17A34A;
+      --brand-700: #0F8A3C;
+      --brand-soft: #E9F7EE;
+      --page: #EFE8E0;
+      --surface: #FFFFFF;
+      --surface-2: #F7F4F0;
+      --line: #ECE7E1;
+      --ink: #15181D;
+      --ink-2: #4B5159;
+      --muted: #8E949D;
+      --danger: #C0392B;
+      --shadow-sm: 0 2px 6px rgba(24, 20, 16, .05);
+      --shadow-md: 0 6px 18px rgba(24, 20, 16, .07);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      background: var(--page);
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 14px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button {
+      font: inherit;
+      border: 0;
+      background: none;
+      cursor: pointer;
+      color: inherit;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 720px;
+      background: var(--surface);
+      border-radius: 32px;
+      box-shadow: var(--shadow-md);
+      padding: 18px 20px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+
+    /* ---------- Cabecera ---------- */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .volver {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 14px 8px 10px;
+      border-radius: 999px;
+      border: 1.5px solid var(--line);
+      box-shadow: var(--shadow-sm);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink-2);
+      transition: transform .18s ease;
+    }
+
+    .volver:hover {
+      transform: translateX(-2px);
+    }
+
+    .paso {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--brand-700);
+      background: var(--brand-soft);
+      padding: 6px 12px;
+      border-radius: 999px;
+    }
+
+    /* ---------- Pantallas ---------- */
+    .pantalla {
+      display: none;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .pantalla.activa {
+      display: flex;
+      animation: entra .35s cubic-bezier(.22, 1, .36, 1) both;
+    }
+
+    @keyframes entra {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+    }
+
+    /* ---------- Historial de la entrevista ---------- */
+    .historial {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 168px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .historial:empty {
+      display: none;
+    }
+
+    .turno {
+      background: var(--surface-2);
+      border-radius: 14px;
+      padding: 10px 14px;
+      font-size: 12.5px;
+      line-height: 1.45;
+    }
+
+    .turno b {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      margin-bottom: 2px;
+    }
+
+    .turno .editar {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--brand-700);
+      margin-left: 6px;
+    }
+
+    /* ---------- La pregunta ---------- */
+    .pregunta {
+      font-family: 'Archivo', sans-serif;
+      font-weight: 800;
+      letter-spacing: -.03em;
+      line-height: 1.18;
+      font-size: clamp(20px, 3.6vw, 28px);
+    }
+
+    .porque {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 500;
+      line-height: 1.5;
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+    }
+
+    .porque::before {
+      content: "";
+      flex: none;
+      width: 3px;
+      align-self: stretch;
+      border-radius: 999px;
+      background: var(--brand-soft);
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 130px;
+      resize: vertical;
+      font: inherit;
+      font-size: 15px;
+      line-height: 1.55;
+      color: var(--ink);
+      background: var(--surface-2);
+      border: 1.5px solid var(--line);
+      border-radius: 20px;
+      padding: 16px 18px;
+      transition: border-color .18s ease, background .18s ease;
+    }
+
+    textarea:focus {
+      outline: 0;
+      background: var(--surface);
+      border-color: var(--brand);
+    }
+
+    textarea::placeholder {
+      color: #B7BCC3;
+    }
+
+    /* ---------- Botones ---------- */
+    .acciones {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 13px 24px;
+      border-radius: 999px;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -.01em;
+      transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+
+    .btn-primario {
+      background: var(--brand);
+      color: #fff;
+      box-shadow: 0 8px 18px rgba(18, 144, 62, .3);
+    }
+
+    .btn-primario:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px rgba(18, 144, 62, .34);
+    }
+
+    .btn-primario:disabled {
+      background: #C9D3CC;
+      box-shadow: none;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-fantasma {
+      color: var(--ink-2);
+      border: 1.5px solid var(--line);
+      background: var(--surface);
+    }
+
+    .btn-fantasma:hover {
+      background: var(--surface-2);
+    }
+
+    .btn-texto {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--muted);
+      padding: 8px 4px;
+    }
+
+    .btn-texto:hover {
+      color: var(--brand-700);
+    }
+
+    /* ---------- Estados ---------- */
+    .cargando {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 600;
+      padding: 8px 0;
+    }
+
+    .puntos {
+      display: inline-flex;
+      gap: 5px;
+    }
+
+    .puntos i {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--brand);
+      animation: latir 1s infinite ease-in-out;
+    }
+
+    .puntos i:nth-child(2) {
+      animation-delay: .15s;
+    }
+
+    .puntos i:nth-child(3) {
+      animation-delay: .3s;
+    }
+
+    @keyframes latir {
+
+      0%,
+      80%,
+      100% {
+        opacity: .25;
+        transform: scale(.8);
+      }
+
+      40% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .error {
+      background: #FDEDEA;
+      border: 1.5px solid #F5C6BE;
+      color: var(--danger);
+      border-radius: 18px;
+      padding: 14px 16px;
+      font-size: 13.5px;
+      line-height: 1.5;
+      display: none;
+    }
+
+    .error.visible {
+      display: block;
+    }
+
+    .error b {
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    .btn-reintentar {
+      margin-top: 10px;
+      display: inline-block;
+      padding: 7px 16px;
+      border-radius: 999px;
+      background: var(--danger);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    /* ---------- Briefing ---------- */
+    .titulo-bloque {
+      font-family: 'Archivo', sans-serif;
+      font-weight: 800;
+      letter-spacing: -.03em;
+      font-size: clamp(24px, 5.4vw, 34px);
+      line-height: 1.12;
+    }
+
+    .subtitulo {
+      font-size: 14px;
+      color: var(--muted);
+      font-weight: 500;
+      line-height: 1.5;
+      margin-top: 8px;
+    }
+
+    .campos {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .campo {
+      border: 1.5px solid var(--line);
+      border-radius: 20px;
+      padding: 14px 18px;
+      background: var(--surface);
+      transition: border-color .18s ease;
+    }
+
+    .campo:focus-within {
+      border-color: var(--brand);
+    }
+
+    .campo label {
+      display: block;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      color: var(--brand-700);
+      margin-bottom: 6px;
+    }
+
+    .campo textarea {
+      min-height: 0;
+      padding: 0;
+      border: 0;
+      background: none;
+      border-radius: 0;
+      font-size: 15px;
+      field-sizing: content;
+    }
+
+    /* ---------- Tarjetas de las secciones ya hechas ---------- */
+    .hechos {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .hechos:empty {
+      display: none;
+    }
+
+    .hecho {
+      border: 1.5px solid var(--line);
+      border-radius: 20px;
+      background: var(--surface);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      transition: border-color .18s ease;
+    }
+
+    .hecho.sucia {
+      border-color: var(--brand);
+    }
+
+    .hecho-cabecera {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .hecho-cabecera .num {
+      width: 24px;
+      height: 24px;
+      flex: none;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      background: var(--brand-soft);
+      color: var(--brand-700);
+      font-size: 11.5px;
+      font-weight: 800;
+    }
+
+    .hecho-cabecera .nombre {
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: -.01em;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .hecho-cabecera .marca {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .hecho-cabecera .flecha {
+      color: var(--muted);
+      transition: transform .22s ease;
+      flex: none;
+    }
+
+    .hecho.abierta .hecho-cabecera .flecha {
+      transform: rotate(90deg);
+    }
+
+    .hecho-cuerpo {
+      position: relative;
+      padding: 0 16px 14px;
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--ink-2);
+      max-height: 78px;
+      overflow: hidden;
+      outline: 0;
+    }
+
+    .hecho-cuerpo::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 34px;
+      background: linear-gradient(to top, var(--surface), transparent);
+      pointer-events: none;
+    }
+
+    .hecho.abierta .hecho-cuerpo {
+      max-height: none;
+      overflow: visible;
+    }
+
+    .hecho.abierta .hecho-cuerpo::after {
+      display: none;
+    }
+
+    .hecho-pie {
+      display: none;
+      gap: 10px;
+      align-items: center;
+      padding: 0 16px 14px;
+    }
+
+    .hecho.sucia .hecho-pie {
+      display: flex;
+    }
+
+    .btn-mini {
+      padding: 7px 15px;
+      border-radius: 999px;
+      font-size: 12.5px;
+      font-weight: 700;
+      background: var(--brand);
+      color: #fff;
+    }
+
+    .btn-mini.gris {
+      background: var(--surface-2);
+      color: var(--ink-2);
+    }
+
+    .cabecera-mensaje {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .hecho.vacia .hecho-cuerpo {
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    .hecho.vacia .hecho-pie,
+    .hecho.abierta .hecho-pie {
+      display: flex;
+    }
+
+    .hecho.generando .hecho-cuerpo {
+      opacity: .5;
+    }
+
+    .consolidado {
+      background: var(--surface-2);
+      border: 1.5px solid var(--line);
+      border-radius: 22px;
+      padding: 26px 28px;
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    .consolidado h2 {
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--brand-700);
+      margin: 26px 0 8px;
+    }
+
+    .consolidado h2:first-child {
+      margin-top: 0;
+    }
+
+    .consolidado p {
+      margin-bottom: 10px;
+      white-space: pre-wrap;
+    }
+
+    /* ---------- Construcción ---------- */
+    .barra {
+      height: 8px;
+      border-radius: 999px;
+      background: var(--surface-2);
+      overflow: hidden;
+    }
+
+    .barra i {
+      display: block;
+      height: 100%;
+      width: 0;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #35C963, #12903E);
+      transition: width .4s cubic-bezier(.22, 1, .36, 1);
+    }
+
+    .pilar-nombre {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--brand-700);
+    }
+
+    .pilar-nombre span {
+      width: 26px;
+      height: 26px;
+      display: grid;
+      place-items: center;
+      border-radius: 9px;
+      background: var(--brand-soft);
+      letter-spacing: 0;
+    }
+
+    .propuesta {
+      border: 1.5px solid var(--line);
+      border-radius: 22px;
+      padding: 18px 20px;
+      background: var(--surface-2);
+      font-size: 15px;
+      line-height: 1.65;
+      min-height: 120px;
+      transition: border-color .18s ease, background .18s ease;
+    }
+
+    .propuesta:focus {
+      outline: 0;
+      background: var(--surface);
+      border-color: var(--brand);
+    }
+
+    .propuesta strong {
+      font-weight: 700;
+    }
+
+    .propuesta ul {
+      margin: 8px 0 8px 18px;
+    }
+
+    details {
+      border-top: 1.5px solid var(--line);
+      padding-top: 12px;
+    }
+
+    summary {
+      cursor: pointer;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    details p {
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--ink-2);
+      margin-top: 8px;
+    }
+
+    .listo-icono {
+      width: 62px;
+      height: 62px;
+      border-radius: 50%;
+      background: var(--brand);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      box-shadow: 0 12px 24px rgba(18, 144, 62, .32);
+    }
+
+    @media (min-width: 760px) {
+      body {
+        padding: 30px;
+      }
+
+      .app {
+        padding: 26px 34px 36px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+
+      *,
+      *::before,
+      *::after {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="app">
+
+    <header class="topbar">
+      <a class="volver" href="/home.html">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.4"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="m15 18-6-6 6-6" />
+        </svg>
+        Inicio
+      </a>
+      <span class="paso" id="paso">Entrevista</span>
+    </header>
+
+    <div class="error" id="error"></div>
+
+    <!-- ============ 1. ENTREVISTA ============ -->
+    <section class="pantalla activa" id="pEntrevista">
+      <div class="historial" id="historial"></div>
+
+      <div id="bloquePregunta">
+        <h1 class="pregunta" id="pregunta">Un momento…</h1>
+        <p class="porque" id="porque" style="margin-top:12px"></p>
+      </div>
+
+      <div class="cargando" id="cargandoEntrevista">
+        <span class="puntos"><i></i><i></i><i></i></span> Pensando la siguiente pregunta…
+      </div>
+
+      <textarea id="respuesta" placeholder="Escribe tu respuesta… entre más concreto, mejor sale el mensaje."></textarea>
+
+      <div class="acciones">
+        <button class="btn btn-primario" id="btnContinuar">
+          Continuar
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.4"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 12h15m-6-6 6 6-6 6" />
+          </svg>
+        </button>
+        <button class="btn-texto" id="btnCerrar">Ya tengo suficiente, armemos el briefing →</button>
+      </div>
+    </section>
+
+    <!-- ============ 2. BRIEFING ============ -->
+    <section class="pantalla" id="pBriefing">
+      <div>
+        <h1 class="titulo-bloque">Esto entendí de tu mensaje</h1>
+        <p class="subtitulo">Corrígelo si algo no quedó bien. De aquí salen los 8 pilares, así que
+          si el briefing está torcido, el mensaje sale torcido.</p>
+      </div>
+
+      <div class="campos" id="campos"></div>
+
+      <div class="acciones">
+        <button class="btn btn-primario" id="btnConstruir">Construir mi mensaje</button>
+        <button class="btn-texto" id="btnSeguirPreguntando">← Volver a la entrevista</button>
+      </div>
+    </section>
+
+    <!-- ============ 3. EL MENSAJE ============ -->
+    <section class="pantalla" id="pConstruccion">
+      <div class="barra"><i id="barra"></i></div>
+
+      <div class="cabecera-mensaje">
+        <h1 class="titulo-bloque" id="tituloMensaje">Tu mensaje</h1>
+        <div class="acciones">
+          <button class="btn btn-fantasma" id="btnVerCompleto">Ver mensaje completo</button>
+        </div>
+      </div>
+
+      <div class="hechos" id="hechos"></div>
+    </section>
+
+    <!-- ============ 3b. MENSAJE COMPLETO ============ -->
+    <section class="pantalla" id="pCompleto">
+      <div class="cabecera-mensaje">
+        <h1 class="titulo-bloque">Mensaje completo</h1>
+        <div class="acciones">
+          <button class="btn btn-primario" id="btnPdf">Descargar PDF</button>
+          <button class="btn btn-fantasma" id="btnVolverMensaje">← Volver a las secciones</button>
+        </div>
+      </div>
+      <article class="consolidado" id="consolidado"></article>
+    </section>
+
+  </main>
+
+  <script>
+    const $ = (s) => document.querySelector(s);
+
+    const PILARES = [
+      { id: 'titulo', nombre: 'Título' },
+      { id: 'introduccion', nombre: 'Introducción' },
+      { id: 'costura', nombre: 'Costura' },
+      { id: 'problematica', nombre: 'Problemática' },
+      { id: 'conector', nombre: 'Conector' },
+      { id: 'desarrollo', nombre: 'Desarrollo' },
+      { id: 'conclusion', nombre: 'Conclusión' },
+      { id: 'ministracion', nombre: 'Ministración' }
+    ];
+
+    const CAMPOS_BRIEFING = [
+      { id: 'ideaCentral', etiqueta: 'Idea central' },
+      { id: 'audiencia', etiqueta: 'Audiencia' },
+      { id: 'transformacion', etiqueta: 'Transformación buscada' },
+      { id: 'historiaAncla', etiqueta: 'Historia ancla' },
+      { id: 'tension', etiqueta: 'Tensión real' },
+      { id: 'tiempo', etiqueta: 'Tiempo disponible' }
+    ];
+
+    const esc = (t = '') => String(t)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+    // Markdown mínimo, igual que en el resto de la app
+    function formatOpenAiText(texto) {
+      if (!texto) return '';
+      let t = esc(texto);
+      t = t.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      t = t.replace(/^### (.*)$/gm, '<strong>$1</strong>');
+      t = t.replace(/^- (.*)$/gm, '<li>$1</li>');
+      t = t.replace(/(<li>[\s\S]*?<\/li>)/g, '<ul>$1</ul>');
+      return t.replace(/\n/g, '<br>');
+    }
+
+    /* ---------- Estado ---------- */
+    const usuario = (localStorage.getItem('currentUser') || '').trim();
+    const CLAVE = 'crearEstado:' + usuario;
+
+    let estado = {
+      conversacion: [],   // [{rol:'agente'|'usuario', texto}]
+      briefing: null,
+      mensajeId: null,    // el mensaje de esta sesión: cada entrevista crea uno nuevo
+      indicePilar: 0,
+      guardados: {}       // seccion -> texto aceptado (contexto para el siguiente pilar)
+    };
+
+    // Con ?nuevo=1 se empieza en limpio; sin él se retoma lo que quedó a medias.
+    const empezarDeCero = new URLSearchParams(location.search).has('nuevo');
+    if (empezarDeCero) {
+      localStorage.removeItem(CLAVE);
+    } else {
+      try {
+        const guardado = JSON.parse(localStorage.getItem(CLAVE) || 'null');
+        if (guardado) estado = Object.assign(estado, guardado);
+      } catch (e) { /* estado corrupto: se empieza de cero */ }
+    }
+
+    const persistir = () => {
+      try { localStorage.setItem(CLAVE, JSON.stringify(estado)); } catch (e) { }
+    };
+
+    /* ---------- Utilidades de pantalla ---------- */
+    function mostrar(id, etiquetaPaso) {
+      document.querySelectorAll('.pantalla').forEach(p => p.classList.toggle('activa', p.id === id));
+      if (etiquetaPaso) $('#paso').textContent = etiquetaPaso;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function mostrarError(titulo, detalle, reintentar) {
+      $('#error').innerHTML = `<b>${esc(titulo)}</b>${esc(detalle || '')}` +
+        (reintentar ? ` <button class="btn-reintentar" id="btnReintentar">Reintentar</button>` : '');
+      $('#error').classList.add('visible');
+      if (reintentar) $('#btnReintentar').addEventListener('click', () => { limpiarError(); reintentar(); });
+    }
+
+    const limpiarError = () => $('#error').classList.remove('visible');
+
+    async function pedir(url, cuerpo) {
+      const r = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(cuerpo)
+      });
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(data.error || `El servidor respondió ${r.status}`);
+      return data;
+    }
+
+    /* ============ 1. ENTREVISTA ============ */
+    function pintarHistorial() {
+      const turnos = estado.conversacion;
+      $('#historial').innerHTML = turnos.map((t, i) => t.rol === 'usuario'
+        ? `<div class="turno"><b>${esc(turnos[i - 1]?.texto || 'Tu respuesta')}</b>${esc(t.texto)}</div>`
+        : '').join('');
+      $('#historial').scrollTop = $('#historial').scrollHeight;
+    }
+
+    function entrevistaCargando(activo) {
+      $('#cargandoEntrevista').style.display = activo ? 'flex' : 'none';
+      $('#bloquePregunta').style.display = activo ? 'none' : 'block';
+      $('#respuesta').disabled = activo;
+      $('#btnContinuar').disabled = activo;
+    }
+
+    async function siguientePregunta(cerrar = false) {
+      limpiarError();
+      entrevistaCargando(true);
+      try {
+        const data = await pedir('/agente/entrevista', { conversacion: estado.conversacion, cerrar });
+
+        if (data.estado === 'listo') {
+          estado.briefing = data.briefing || {};
+          persistir();
+          pintarBriefing();
+          mostrar('pBriefing', 'Briefing');
+          return;
+        }
+
+        estado.conversacion.push({ rol: 'agente', texto: data.pregunta || '¿Algo más que deba saber?' });
+        persistir();
+
+        $('#pregunta').textContent = data.pregunta || '';
+        $('#porque').textContent = data.porQue || '';
+        $('#porque').style.display = data.porQue ? 'flex' : 'none';
+        $('#paso').textContent = `Pregunta ${estado.conversacion.filter(t => t.rol === 'agente').length}`;
+        $('#respuesta').value = '';
+        $('#btnCerrar').style.display = estado.conversacion.length >= 6 ? 'inline-block' : 'none';
+        $('#respuesta').focus();
+      } catch (err) {
+        mostrarError('No pude hablar con el agente.', err.message, () => siguientePregunta(cerrar));
+        $('#pregunta').textContent = 'Se cayó la conversación';
+        $('#porque').textContent = '';
+      } finally {
+        entrevistaCargando(false);
+        pintarHistorial();
+      }
+    }
+
+    $('#btnContinuar').addEventListener('click', async () => {
+      const texto = $('#respuesta').value.trim();
+      if (!texto) { $('#respuesta').focus(); return; }
+      estado.conversacion.push({ rol: 'usuario', texto });
+      persistir();
+      pintarHistorial();
+      await siguientePregunta();
+    });
+
+    // Enter envía, Shift+Enter hace salto de línea
+    $('#respuesta').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        $('#btnContinuar').click();
+      }
+    });
+
+    $('#btnCerrar').addEventListener('click', () => siguientePregunta(true));
+
+    /* ============ 2. BRIEFING ============ */
+    function pintarBriefing() {
+      const b = estado.briefing || {};
+      $('#campos').innerHTML = CAMPOS_BRIEFING.map(c => `
+        <div class="campo">
+          <label for="b-${c.id}">${c.etiqueta}</label>
+          <textarea id="b-${c.id}" rows="2">${esc(b[c.id] || '')}</textarea>
+        </div>`).join('');
+    }
+
+    function leerBriefing() {
+      const b = {};
+      CAMPOS_BRIEFING.forEach(c => { b[c.id] = ($('#b-' + c.id)?.value || '').trim(); });
+      return b;
+    }
+
+    $('#btnSeguirPreguntando').addEventListener('click', () => {
+      estado.briefing = leerBriefing();
+      persistir();
+      mostrar('pEntrevista', 'Entrevista');
+      siguientePregunta();
+    });
+
+    $('#btnConstruir').addEventListener('click', async () => {
+      estado.briefing = leerBriefing();
+      estado.indicePilar = 0;
+      persistir();
+
+      // Cada entrevista abre un mensaje NUEVO; así se van acumulando en "Mis mensajes".
+      try {
+        const cuerpo = { usuario, briefing: JSON.stringify(estado.briefing) };
+        PILARES.forEach(p => { cuerpo[p.id] = ''; });
+        if (estado.mensajeId) cuerpo.mensajeId = estado.mensajeId;
+        else cuerpo.nuevo = true;
+        const { id } = await pedir('/guardar-mensaje', cuerpo);
+        estado.mensajeId = id;
+        persistir();
+      } catch (err) {
+        mostrarError('No pude crear el mensaje.', err.message);
+        return;
+      }
+
+      mostrar('pConstruccion', 'Mensaje');
+      await cargarSeccionesGuardadas();
+      const primera = siguienteVacia();
+      if (primera) generarEnTarjeta(primera);
+    });
+
+    /* ============ 3. CONSTRUCCIÓN ============ */
+    function guardarEnBase(campos) {
+      const cuerpo = { usuario, mensajeId: estado.mensajeId };
+      PILARES.forEach(p => { cuerpo[p.id] = ''; });
+      Object.assign(cuerpo, campos);
+      return pedir('/guardar-mensaje', cuerpo);
+    }
+
+    /* ============ EL MENSAJE: las 8 secciones como tarjetas ============ */
+    const nombrePilar = (id) => PILARES.find(p => p.id === id)?.nombre || id;
+    const numeroPilar = (id) => PILARES.findIndex(p => p.id === id) + 1;
+    const tarjetaDe = (id) => document.querySelector(`.hecho[data-pilar="${id}"]`);
+
+    function pintarMensaje() {
+      $('#hechos').innerHTML = PILARES.map((p, i) => {
+        const texto = estado.guardados[p.id] || '';
+        const vacia = !texto.trim();
+        return `
+        <article class="hecho ${vacia ? 'vacia' : ''}" data-pilar="${p.id}" id="pilar-${p.id}">
+          <div class="hecho-cabecera">
+            <span class="num">${i + 1}</span>
+            <span class="nombre">${esc(p.nombre)}</span>
+            <span class="marca">${vacia ? 'Vacía' : 'Guardada'}</span>
+            <svg class="flecha" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor"
+              stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+          </div>
+          <div class="hecho-cuerpo" contenteditable="true" spellcheck="false">${
+            vacia ? 'Sin escribir todavía.' : formatOpenAiText(texto)}</div>
+          <div class="hecho-pie">
+            <button class="btn-mini" data-accion="guardar" hidden>Guardar cambios</button>
+            <button class="btn-mini gris" data-accion="descartar" hidden>Descartar</button>
+            <button class="btn-mini ${vacia ? '' : 'gris'}" data-accion="generar">${
+              vacia ? 'Escribir con la IA' : 'Otra propuesta'}</button>
+          </div>
+        </article>`;
+      }).join('');
+      pintarTitulo();
+    }
+
+    function pintarTitulo() {
+      const t = (estado.guardados.titulo || '').trim().split('\n')[0];
+      $('#tituloMensaje').textContent = t || 'Tu mensaje';
+    }
+
+    function marcarSucia(tarjeta, sucia) {
+      tarjeta.classList.toggle('sucia', sucia);
+      tarjeta.querySelector('.marca').textContent = sucia
+        ? 'Sin guardar'
+        : (estado.guardados[tarjeta.dataset.pilar] ? 'Guardada' : 'Vacía');
+      tarjeta.querySelector('[data-accion="guardar"]').hidden = !sucia;
+      tarjeta.querySelector('[data-accion="descartar"]').hidden = !sucia;
+    }
+
+    /** Pide a la IA el contenido de una sección y lo deja listo para revisar. */
+    async function generarEnTarjeta(pilarId, { abrir = true } = {}) {
+      const tarjeta = tarjetaDe(pilarId);
+      if (!tarjeta) return;
+      const cuerpo = tarjeta.querySelector('.hecho-cuerpo');
+      const botones = tarjeta.querySelectorAll('.btn-mini');
+
+      limpiarError();
+      tarjeta.classList.add('generando');
+      if (abrir) tarjeta.classList.add('abierta');
+      botones.forEach(b => b.disabled = true);
+      cuerpo.textContent = 'Escribiendo…';
+
+      try {
+        // Contexto: las secciones ya guardadas, menos la que se está escribiendo.
+        const contexto = {};
+        PILARES.forEach(p => {
+          if (p.id !== pilarId && estado.guardados[p.id]) contexto[p.id] = estado.guardados[p.id];
+        });
+
+        const data = await pedir('/generar-una-sugerencia', {
+          seccion: pilarId, briefing: estado.briefing, contextoPrevio: contexto
+        });
+
+        const sugerencia = data.sugerencia || '';
+        const corte = sugerencia.match(/🔗?\s*Conexi[oó]n con lo anterior[:：]?\s*/i);
+        const contenido = (corte ? sugerencia.split(corte[0])[0] : sugerencia).trim();
+
+        cuerpo.innerHTML = formatOpenAiText(contenido);
+        marcarSucia(tarjeta, true);
+        tarjeta.classList.remove('vacia');
+        tarjeta.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } catch (err) {
+        cuerpo.innerHTML = formatOpenAiText(estado.guardados[pilarId] || 'Sin escribir todavía.');
+        mostrarError(`No pude escribir ${nombrePilar(pilarId)}.`, err.message, () => generarEnTarjeta(pilarId));
+      } finally {
+        tarjeta.classList.remove('generando');
+        botones.forEach(b => b.disabled = false);
+      }
+    }
+
+    async function guardarTarjeta(pilarId) {
+      const tarjeta = tarjetaDe(pilarId);
+      const texto = (tarjeta.querySelector('.hecho-cuerpo').innerText || '').trim();
+      if (!texto || texto === 'Sin escribir todavía.') {
+        mostrarError('La sección está vacía.', 'Escribe algo o pídele a la IA que la escriba.');
+        return false;
+      }
+      try {
+        await guardarEnBase({ [pilarId]: texto });
+        estado.guardados[pilarId] = texto;
+        persistir();
+        marcarSucia(tarjeta, false);
+        tarjeta.classList.remove('vacia');
+        tarjeta.querySelector('[data-accion="generar"]').textContent = 'Otra propuesta';
+        tarjeta.querySelector('[data-accion="generar"]').classList.add('gris');
+        pintarProgreso();
+        pintarTitulo();
+        return true;
+      } catch (err) {
+        mostrarError(`No pude guardar ${nombrePilar(pilarId)}.`, err.message);
+        return false;
+      }
+    }
+
+    /** Tras guardar, sigue con la siguiente sección vacía: el hilo guiado. */
+    function siguienteVacia() {
+      return PILARES.find(p => !(estado.guardados[p.id] || '').trim())?.id || null;
+    }
+
+    $('#hechos').addEventListener('click', async (e) => {
+      const tarjeta = e.target.closest('.hecho');
+      if (!tarjeta) return;
+      const pilarId = tarjeta.dataset.pilar;
+      const accion = e.target.closest('[data-accion]')?.dataset.accion;
+
+      if (accion === 'generar') return generarEnTarjeta(pilarId);
+
+      if (accion === 'descartar') {
+        tarjeta.querySelector('.hecho-cuerpo').innerHTML =
+          formatOpenAiText(estado.guardados[pilarId] || 'Sin escribir todavía.');
+        tarjeta.classList.toggle('vacia', !estado.guardados[pilarId]);
+        marcarSucia(tarjeta, false);
+        return;
+      }
+
+      if (accion === 'guardar') {
+        e.target.disabled = true;
+        const ok = await guardarTarjeta(pilarId);
+        e.target.disabled = false;
+        if (!ok) return;
+        const siguiente = siguienteVacia();
+        if (siguiente) generarEnTarjeta(siguiente);
+        return;
+      }
+
+      if (e.target.closest('.hecho-cabecera')) tarjeta.classList.toggle('abierta');
+    });
+
+    $('#hechos').addEventListener('input', (e) => {
+      const tarjeta = e.target.closest('.hecho');
+      if (!tarjeta || !e.target.classList.contains('hecho-cuerpo')) return;
+      tarjeta.classList.add('abierta');
+      marcarSucia(tarjeta, true);
+    });
+
+    /** Trae del servidor lo que ya esté guardado, para no depender del navegador. */
+    async function cargarSeccionesGuardadas() {
+      try {
+        const ruta = estado.mensajeId
+          ? `/obtener-mensaje?id=${encodeURIComponent(estado.mensajeId)}&usuario=${encodeURIComponent(usuario)}`
+          : `/obtener-ultimo-mensaje?usuario=${encodeURIComponent(usuario)}`;
+        const r = await fetch(ruta);
+        const d = await r.json();
+        if (d?.success && d.mensaje) {
+          estado.mensajeId = d.mensaje.id;
+          if (!estado.briefing && d.mensaje.briefing) {
+            estado.briefing = typeof d.mensaje.briefing === 'string'
+              ? JSON.parse(d.mensaje.briefing) : d.mensaje.briefing;
+          }
+          PILARES.forEach(p => {
+            const texto = (d.mensaje[p.id] || '').trim();
+            if (texto) estado.guardados[p.id] = texto;
+          });
+          persistir();
+        }
+      } catch (err) {
+        console.warn('No pude traer las secciones guardadas:', err.message);
+      }
+      pintarMensaje();
+      pintarProgreso();
+    }
+
+    function pintarProgreso() {
+      const hechos = PILARES.filter(p => (estado.guardados[p.id] || '').trim()).length;
+      $('#barra').style.width = (hechos / PILARES.length * 100) + '%';
+      $('#paso').textContent = `${hechos} de ${PILARES.length}`;
+    }
+
+    function guardarEnBase(campos) {
+      const cuerpo = { usuario, mensajeId: estado.mensajeId };
+      PILARES.forEach(p => { cuerpo[p.id] = ''; });
+      Object.assign(cuerpo, campos);
+      return pedir('/guardar-mensaje', cuerpo);
+    }
+
+    /* ---- Mensaje completo y PDF ---- */
+    function pintarConsolidado() {
+      const partes = PILARES
+        .filter(p => (estado.guardados[p.id] || '').trim())
+        .map(p => `<h2>${esc(p.nombre)}</h2><p>${esc(estado.guardados[p.id].trim())}</p>`);
+      $('#consolidado').innerHTML = partes.length
+        ? partes.join('')
+        : '<p>Todavía no hay ninguna sección guardada.</p>';
+    }
+
+    $('#btnVerCompleto').addEventListener('click', () => {
+      pintarConsolidado();
+      mostrar('pCompleto', 'Completo');
+    });
+
+    $('#btnVolverMensaje').addEventListener('click', () => {
+      pintarMensaje();
+      mostrar('pConstruccion', 'Mensaje');
+      pintarProgreso();
+    });
+
+    $('#btnPdf').addEventListener('click', () => {
+      const titulo = (estado.guardados.titulo || 'mensaje').trim().split('\n')[0].slice(0, 60);
+      if (window.html2pdf) {
+        window.html2pdf().set({
+          margin: 14,
+          filename: `${titulo || 'mensaje'}.pdf`,
+          html2canvas: { scale: 2 },
+          jsPDF: { unit: 'mm', format: 'letter' }
+        }).from($('#consolidado')).save();
+      } else {
+        window.print();   // si el CDN no cargó, el diálogo de impresión guarda en PDF
+      }
+    });
+
+
+
+    /* ---------- Arranque ---------- */
+    (function iniciar() {
+      if (!usuario) {
+        const nombre = prompt('¿Con qué nombre de usuario trabajas?');
+        if (nombre && nombre.trim()) {
+          localStorage.setItem('currentUser', nombre.trim());
+          location.reload();
+          return;
+        }
+        mostrarError('Necesito saber quién eres.', 'Sin usuario no puedo guardar el mensaje. Vuelve al inicio y toca tu nombre.');
+        return;
+      }
+
+      $('#btnCerrar').style.display = 'none';
+
+      // Abrir un mensaje concreto desde el home: sin entrevista, directo a las secciones.
+      const idPedido = new URLSearchParams(location.search).get('mensaje');
+      if (idPedido) {
+        estado.mensajeId = idPedido;
+        estado.guardados = {};
+        persistir();
+        mostrar('pConstruccion', 'Mensaje');
+        cargarSeccionesGuardadas().then(() => {
+          const ancla = location.hash.replace('#', '');
+          if (ancla) document.getElementById(ancla)?.classList.add('abierta');
+          document.getElementById(ancla)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          if (new URLSearchParams(location.search).get('ver') === 'completo') {
+            pintarConsolidado();
+            mostrar('pCompleto', 'Completo');
+          }
+        });
+        return;
+      }
+
+      // Retomar donde quedó
+      if (estado.briefing && Object.keys(estado.guardados).length) {
+        mostrar('pConstruccion', 'Mensaje');
+        cargarSeccionesGuardadas();
+      } else if (estado.briefing) {
+        pintarBriefing();
+        mostrar('pBriefing', 'Briefing');
+      } else {
+        pintarHistorial();
+        siguientePregunta();
+      }
+    })();
+  </script>
+</body>
+
+</html>

@@ -3,6 +3,8 @@
 require('dotenv').config();
 
 const { OpenAI } = require('openai');
+const Anthropic = require('@anthropic-ai/sdk');
+const { jsonSchemaOutputFormat } = require('@anthropic-ai/sdk/helpers/json-schema');
 const fs = require('fs');
 const express = require('express');
 const multer = require('multer');
@@ -10,21 +12,82 @@ const cors = require('cors');
 const detect = require('detect-port').default;
 const { exec } = require("child_process");
 const path = require("path");
-const db = require('./database');
+const { guardarMensaje, ultimoMensaje, obtenerMensaje, todosLosMensajes } = require('./database');
 
 const app = express();
 const upload = multer({ dest: 'uploads/' });
 const DEFAULT_PORT = 3000;
 
 app.use(cors());
+
+// El home rediseñado es la portada; el constructor sigue viviendo en /index.html
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'home.html')));
+
 app.use(express.static('public'));
 app.use(express.json());
 
-console.log("🔍 API Key detectada:", process.env.OPENAI_API_KEY ? "✅ Sí" : "❌ No");
+console.log("🔍 Clave de Anthropic:", process.env.ANTHROPIC_API_KEY ? "✅ Sí" : "❌ No (el texto no va a funcionar)");
+console.log("🔍 Clave de OpenAI:", process.env.OPENAI_API_KEY ? "✅ Sí" : "⚠️  No (audio desactivado: Whisper y TTS)");
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// Todo el texto pasa por Claude.
+const anthropic = new Anthropic();   // lee ANTHROPIC_API_KEY del entorno
+const MODELO = "claude-opus-5";
+
+/**
+ * Un prompt de sistema + un turno de usuario → el texto de la respuesta.
+ * Los prompts de esta app son autocontenidos y venían como un único mensaje
+ * "system"; Claude exige al menos un turno de usuario, así que la instrucción
+ * corta de la tarea va como turno del usuario.
+ */
+async function generarTexto(promptSistema, instruccionUsuario, opciones = {}) {
+  const peticion = {
+    model: MODELO,
+    max_tokens: opciones.maxTokens || 16000,
+    system: promptSistema,
+    messages: [{ role: "user", content: instruccionUsuario }]
+  };
+  if (opciones.effort) peticion.output_config = { effort: opciones.effort };
+
+  const respuesta = await anthropic.messages.create(peticion);
+
+  if (respuesta.stop_reason === "refusal") {
+    throw new Error("Claude declinó la petición" +
+      (respuesta.stop_details?.explanation ? ": " + respuesta.stop_details.explanation : "."));
+  }
+
+  return respuesta.content
+    .filter(bloque => bloque.type === "text")
+    .map(bloque => bloque.text)
+    .join("")
+    .trim();
+}
+
+// OpenAI queda SOLO para audio: Anthropic no tiene transcripción ni TTS.
+// Se construye perezosamente para que la app arranque sin OPENAI_API_KEY.
+let openaiCliente = null;
+function obtenerOpenAI() {
+  if (!process.env.OPENAI_API_KEY) return null;
+  if (!openaiCliente) openaiCliente = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  return openaiCliente;
+}
+/** Convierte un error del SDK en una frase que sirva en pantalla. */
+function mensajeDeError(error) {
+  if (error instanceof Anthropic.AuthenticationError) {
+    return "La clave de Anthropic no es válida (revisa ANTHROPIC_API_KEY en .env).";
+  }
+  if (error instanceof Anthropic.RateLimitError) {
+    return "Claude está limitando las peticiones. Intenta de nuevo en un momento.";
+  }
+  if (error instanceof Anthropic.BadRequestError && /usage limits/i.test(error.message || "")) {
+    return "La cuenta de Anthropic alcanzó su tope de gasto. Súbelo en la consola de Anthropic.";
+  }
+  if (error instanceof Anthropic.APIError) {
+    return `Claude respondió ${error.status}: ${error.message}`;
+  }
+  return error?.message || "Error inesperado al hablar con Claude.";
+}
+
+const SIN_AUDIO = { error: "El audio necesita una clave de OpenAI (OPENAI_API_KEY): Whisper y TTS no existen en Anthropic." };
 
 const tonoLivingRoom = `
   🎙️ Recuerda que el estilo de este mensaje debe reflejar el tono característico de la comunidad Living Room, que se define así:
@@ -53,6 +116,23 @@ let transcripciones = {
 const promptsFile = path.join(__dirname, 'prompts.json');
 let promptsCalibracion = {};
 
+// Las secciones se manejan en minúsculas en el frontend y en las columnas de SQLite,
+// pero las claves de calibración son canónicamente MAYÚSCULAS (igual que relacionesImportantes).
+// Todo acceso a promptsCalibracion pasa por aquí para que la caja nunca importe.
+function normalizarSeccion(seccion) {
+  return String(seccion || "").trim().toUpperCase();
+}
+
+function normalizarClavesPrompts(obj) {
+  return Object.fromEntries(
+    Object.entries(obj || {}).map(([clave, valor]) => [normalizarSeccion(clave), valor])
+  );
+}
+
+function obtenerPromptCalibracion(seccion) {
+  return promptsCalibracion[normalizarSeccion(seccion)] || "";
+}
+
 function savePrompts() {
   const dataToSave = { promptsCalibracion };
   fs.writeFileSync(promptsFile, JSON.stringify(dataToSave, null, 2), "utf8");
@@ -66,7 +146,7 @@ function loadPrompts() {
     if (!jsonData.promptsCalibracion) {
       throw new Error("La propiedad 'promptsCalibracion' no existe en el archivo.");
     }
-    promptsCalibracion = jsonData.promptsCalibracion;
+    promptsCalibracion = normalizarClavesPrompts(jsonData.promptsCalibracion);
     console.log("✅ Prompts de calibración cargados desde prompts.json");
   } catch (error) {
     console.error("❌ Error al leer prompts.json:", error);
@@ -79,6 +159,8 @@ loadPrompts();
 async function transcribeAudioWithRetries(audioFile, maxRetries = 3) {
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
+      const openai = obtenerOpenAI();
+      if (!openai) throw new Error(SIN_AUDIO.error);
       const response = await openai.audio.transcriptions.create({
         file: audioFile,
         model: "whisper-1",
@@ -94,7 +176,7 @@ async function transcribeAudioWithRetries(audioFile, maxRetries = 3) {
 
 // Función para evaluar la transcripción de una sección
 async function evaluarTranscripcion(transcripcion, section, usuario) {
-  const promptBase = promptsCalibracion[section] || "";
+  const promptBase = obtenerPromptCalibracion(section);
 
   let mensajeDesdeDB;
   try {
@@ -111,7 +193,7 @@ async function evaluarTranscripcion(transcripcion, section, usuario) {
   // Construir contexto desde base de datos
   let contexto = "";
   for (const [clave, valor] of Object.entries(mensajeDesdeDB)) {
-    if (clave !== section && clave !== "usuario" && valor?.trim?.()) {
+    if (normalizarSeccion(clave) !== normalizarSeccion(section) && clave !== "usuario" && clave !== "briefing" && valor?.trim?.()) {
       contexto += `🔹 ${clave.toUpperCase()}:\n${valor.trim()}\n\n`;
     }
   }
@@ -152,15 +234,11 @@ async function evaluarTranscripcion(transcripcion, section, usuario) {
   `;
 
 
-  console.log("📤 PROMPT COMPLETO ENVIADO A OPENAI:\n" + promptFinal);
+  console.log("📤 PROMPT COMPLETO ENVIADO A CLAUDE:\n" + promptFinal);
 
 
   try {
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [{ role: "system", content: promptFinal }]
-    });
-    return response.choices[0].message.content;
+    return await generarTexto(promptFinal, "Evalúa la sección siguiendo las instrucciones y entrega tu respuesta.");
   } catch (error) {
     console.error("❌ Error en la evaluación:", error);
     return "Error en la evaluación de la transcripción.";
@@ -195,11 +273,7 @@ async function evaluarHiloPredica() {
   Proporciona una evaluación general con recomendaciones de mejora.
   `;
   try {
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [{ role: "system", content: prompt }]
-    });
-    return response.choices[0].message.content;
+    return await generarTexto(prompt, "Evalúa el hilo completo de la prédica.");
   } catch (error) {
     console.error("❌ Error en la evaluación de la prédica completa:", error);
     return "Error en la evaluación de la prédica completa.";
@@ -353,7 +427,7 @@ app.post("/aplicar-sugerencias", async (req, res) => {
   }
 
   // Obtener el prompt inicial correspondiente a la sección
-  const promptInicial = promptsCalibracion[seccion] || "";
+  const promptInicial = obtenerPromptCalibracion(seccion);
 
   // Obtener contexto desde base de datos (otras secciones del mensaje)
   let contexto = "";
@@ -361,7 +435,7 @@ app.post("/aplicar-sugerencias", async (req, res) => {
     const mensajeDesdeDB = await obtenerMensajeDesdeBase(usuario);
     if (mensajeDesdeDB) {
       for (const [clave, valor] of Object.entries(mensajeDesdeDB)) {
-        if (clave !== seccion && clave !== "usuario" && valor?.trim?.()) {
+        if (normalizarSeccion(clave) !== normalizarSeccion(seccion) && clave !== "usuario" && clave !== "briefing" && valor?.trim?.()) {
           contexto += `🔹 ${clave.toUpperCase()}:\n${valor.trim()}\n\n`;
         }
       }
@@ -395,185 +469,78 @@ app.post("/aplicar-sugerencias", async (req, res) => {
 
 
   try {
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [{ role: "system", content: promptFinal }]
-    });
-    const sugerida = response.choices[0].message.content;
+    const sugerida = await generarTexto(promptFinal, "Reescribe la sección incorporando la evaluación.");
     res.json({ transcripcionSugerida: sugerida });
   } catch (error) {
     console.error("❌ Error al aplicar sugerencias:", error);
-    res.status(500).json({ error: "No se pudo aplicar las sugerencias." });
+    res.status(500).json({ error: mensajeDeError(error) });
   }
 });
 
 
 
 // Ruta para guardar un mensaje completo (usuario, fecha, y secciones)
-app.post('/guardar-mensaje', (req, res) => {
-  const {
-    usuario,
-    titulo,
-    introduccion,
-    costura,
-    problematica,
-    conector,
-    desarrollo,
-    conclusion,
-    ministracion
-  } = req.body;
-
+app.post('/guardar-mensaje', async (req, res) => {
+  const { usuario } = req.body;
   if (!usuario) {
     return res.status(400).json({ error: "El usuario es obligatorio" });
   }
 
-  // 1. Busca el último registro de ese usuario (si existe)
-  const querySelect = `
-      SELECT *
-      FROM mensajes
-      WHERE usuario = ?
-      ORDER BY fecha_mensaje DESC
-      LIMIT 1
-    `;
-
-  db.get(querySelect, [usuario], (err, row) => {
-    if (err) {
-      console.error("Error al buscar mensaje:", err);
-      return res.status(500).json({ error: "Error al buscar mensaje" });
-    }
-
-    // 2. Si no existe registro para ese usuario, hacemos INSERT
-    if (!row) {
-      const queryInsert = `
-          INSERT INTO mensajes (
-            usuario,
-            titulo,
-            introduccion,
-            costura,
-            problematica,
-            conector,
-            desarrollo,
-            conclusion,
-            ministracion
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `;
-      db.run(
-        queryInsert,
-        [
-          usuario,
-          titulo || "",
-          introduccion || "",
-          costura || "",
-          problematica || "",
-          conector || "",
-          desarrollo || "",
-          conclusion || "",
-          ministracion || ""
-        ],
-        function (err2) {
-          if (err2) {
-            console.error("Error al guardar el mensaje:", err2.message);
-            return res.status(500).json({ error: "Error al guardar el mensaje" });
-          }
-          // this.lastID -> ID del nuevo registro
-          return res.json({ success: true, id: this.lastID });
-        }
-      );
-    }
-    // 3. Si sí existe, hacemos un UPDATE parcial
-    else {
-      // Para no perder datos, usamos lo que venga nuevo o mantenemos el que ya estaba
-      const updatedTitulo = titulo || row.titulo;
-      const updatedIntroduccion = introduccion || row.introduccion;
-      const updatedCostura = costura || row.costura;
-      const updatedProblematica = problematica || row.problematica;
-      const updatedConector = conector || row.conector;
-      const updatedDesarrollo = desarrollo || row.desarrollo;
-      const updatedConclusion = conclusion || row.conclusion;
-      const updatedMinistracion = ministracion || row.ministracion;
-
-      const queryUpdate = `
-          UPDATE mensajes
-          SET
-            titulo         = ?,
-            introduccion   = ?,
-            costura        = ?,
-            problematica   = ?,
-            conector       = ?,
-            desarrollo     = ?,
-            conclusion     = ?,
-            ministracion   = ?,
-            fecha_mensaje  = CURRENT_TIMESTAMP
-          WHERE id = ?
-        `;
-      db.run(
-        queryUpdate,
-        [
-          updatedTitulo,
-          updatedIntroduccion,
-          updatedCostura,
-          updatedProblematica,
-          updatedConector,
-          updatedDesarrollo,
-          updatedConclusion,
-          updatedMinistracion,
-          row.id // se actualiza el registro existente
-        ],
-        function (err3) {
-          if (err3) {
-            console.error("Error al actualizar el mensaje:", err3.message);
-            return res.status(500).json({ error: "Error al actualizar el mensaje" });
-          }
-          return res.json({ success: true, id: row.id });
-        }
-      );
-    }
-  });
+  try {
+    const { id } = await guardarMensaje(req.body);
+    return res.json({ success: true, id });
+  } catch (error) {
+    console.error("❌ Error al guardar el mensaje:", error.message);
+    return res.status(500).json({ error: "Error al guardar el mensaje" });
+  }
 });
 
 
 // Ruta para obtener todos los mensajes guardados
-app.get('/obtener-mensajes', (req, res) => {
-  db.all("SELECT * FROM mensajes ORDER BY fecha_mensaje DESC", [], (err, rows) => {
-    if (err) {
-      console.error("❌ Error al obtener mensajes:", err.message);
-      return res.status(500).json({ error: "Error al obtener mensajes" });
-    }
-    res.json(rows);
-  });
+app.get('/obtener-mensajes', async (req, res) => {
+  try {
+    // Con ?usuario= devuelve solo los de esa persona, que es lo que pide el home.
+    res.json(await todosLosMensajes(req.query.usuario || null));
+  } catch (error) {
+    console.error("❌ Error al obtener mensajes:", error.message);
+    res.status(500).json({ error: "Error al obtener mensajes" });
+  }
 });
 
 // Ruta para obtener la última nota guardada de un usuario
-app.get('/obtener-ultimo-mensaje', (req, res) => {
+app.get('/obtener-ultimo-mensaje', async (req, res) => {
   const { usuario } = req.query;
-
   if (!usuario) {
     return res.status(400).json({ error: "El parámetro 'usuario' es obligatorio" });
   }
 
-  // Traemos la última nota guardada de ese usuario
-  const query = `
-      SELECT *
-      FROM mensajes
-      WHERE usuario = ?
-      ORDER BY fecha_mensaje DESC
-      LIMIT 1
-    `;
-
-  db.get(query, [usuario], (err, row) => {
-    if (err) {
-      console.error("Error al obtener último mensaje:", err);
-      return res.status(500).json({ error: "Error al obtener mensaje" });
-    }
-
-    if (!row) {
-      // Si no se encontró ninguna nota
+  try {
+    const mensaje = await ultimoMensaje(usuario);
+    if (!mensaje) {
       return res.json({ success: false, message: "No se encontraron notas para este usuario." });
     }
+    return res.json({ success: true, mensaje });
+  } catch (error) {
+    console.error("❌ Error al obtener último mensaje:", error.message);
+    return res.status(500).json({ error: "Error al obtener mensaje" });
+  }
+});
 
-    // Devolvemos el registro
-    return res.json({ success: true, mensaje: row });
-  });
+
+// Un mensaje concreto del usuario (el home enlaza a /index.html?mensaje=<id>)
+app.get('/obtener-mensaje', async (req, res) => {
+  const { id, usuario } = req.query;
+  if (!id || !usuario) {
+    return res.status(400).json({ error: "Faltan 'id' y 'usuario'" });
+  }
+  try {
+    const mensaje = await obtenerMensaje(id, usuario);
+    if (!mensaje) return res.status(404).json({ success: false, error: "Mensaje no encontrado" });
+    return res.json({ success: true, mensaje });
+  } catch (error) {
+    console.error("❌ Error al obtener el mensaje:", error.message);
+    return res.status(500).json({ error: "Error al obtener el mensaje" });
+  }
 });
 
 
@@ -583,7 +550,7 @@ app.post("/actualizar-calibracion", (req, res) => {
   if (typeof nuevosPrompts !== "object") {
     return res.status(400).json({ error: "Formato inválido." });
   }
-  promptsCalibracion = { ...promptsCalibracion, ...nuevosPrompts };
+  promptsCalibracion = { ...promptsCalibracion, ...normalizarClavesPrompts(nuevosPrompts) };
   savePrompts();
   console.log("✅ Prompts de calibración actualizados:", promptsCalibracion);
   res.json({ success: true, promptsCalibracion });
@@ -593,6 +560,8 @@ app.post("/actualizar-calibracion", (req, res) => {
 app.post('/api/tts', async (req, res) => {
   try {
     const { model, input } = req.body;
+    const openai = obtenerOpenAI();
+    if (!openai) return res.status(503).json(SIN_AUDIO);
     // Se define la voz "ash" para que suene menos gringa
     const voice = "ash";
     // Llamada a la API de OpenAI para generar el audio
@@ -621,19 +590,7 @@ app.get("/obtener-calibracion", (req, res) => {
 
 
 function obtenerMensajeDesdeBase(usuario) {
-  return new Promise((resolve, reject) => {
-    const query = `
-      SELECT *
-      FROM mensajes
-      WHERE usuario = ?
-      ORDER BY fecha_mensaje DESC
-      LIMIT 1
-    `;
-    db.get(query, [usuario], (err, row) => {
-      if (err) reject(err);
-      else resolve(row);
-    });
-  });
+  return ultimoMensaje(usuario);
 }
 
 
@@ -655,6 +612,143 @@ detect(3000).then(freePort => {
   console.error("❌ Error al detectar puerto libre:", err);
 });
 
+// ============================================================
+// AGENTE ENTREVISTADOR — una pregunta a la vez, hasta tener briefing
+// ============================================================
+
+// Tope duro: red de seguridad contra una entrevista que nunca cierra
+const MAX_PREGUNTAS = 12;
+
+// El esquema obliga la forma de la respuesta: el front nunca parsea prosa.
+const texto = { type: "string" };
+const ESQUEMA_ENTREVISTA = {
+  type: "object",
+  properties: {
+    estado: { type: "string", enum: ["preguntando", "listo"] },
+    pregunta: texto,
+    porQue: texto,
+    briefing: {
+      type: "object",
+      properties: {
+        ideaCentral: texto,
+        audiencia: texto,
+        transformacion: texto,
+        historiaAncla: texto,
+        tension: texto,
+        tiempo: texto
+      },
+      required: ["ideaCentral", "audiencia", "transformacion", "historiaAncla", "tension", "tiempo"],
+      additionalProperties: false
+    }
+  },
+  required: ["estado", "pregunta", "porQue", "briefing"],
+  additionalProperties: false
+};
+
+const promptEntrevistador = `
+Eres el entrevistador de Living Room Speakers. Tu trabajo NO es escribir la prédica:
+es sacarle al predicador el material crudo que hace falta para construirla.
+
+Un mensaje Living Room se compone de 8 pilares: TÍTULO, INTRODUCCIÓN, COSTURA,
+PROBLEMÁTICA, CONECTOR, DESARROLLO, CONCLUSIÓN y MINISTRACIÓN. Cada pregunta que
+haces existe porque alimenta uno de ellos:
+
+- Idea central y texto base → TÍTULO y COSTURA
+- Audiencia concreta → INTRODUCCIÓN y PROBLEMÁTICA
+- Transformación buscada (qué hace distinto el lunes) → CONCLUSIÓN y MINISTRACIÓN
+- Historia propia del predicador → INTRODUCCIÓN
+- Tensión u objeción real de esa audiencia → PROBLEMÁTICA y CONECTOR
+- Tiempo disponible → extensión del DESARROLLO
+
+REGLAS:
+1. Haz UNA sola pregunta por turno. Corta, en segunda persona, sin preámbulos.
+2. Si la respuesta es vaga, genérica o abstracta ("hablar de la fe", "para todos",
+   "que crezcan espiritualmente"), REPREGUNTA pidiendo algo concreto: un nombre, una
+   escena, una fecha, un ejemplo real. No te conformes.
+3. Nunca preguntes algo que ya te respondieron. Construye sobre lo dicho.
+4. No propongas contenido de la prédica ni redactes secciones. Solo preguntas.
+5. Cierra cuando tengas material real en los seis campos del briefing. Nunca antes de
+   5 preguntas; si llegas a ${MAX_PREGUNTAS}, cierra con lo que tengas.
+
+TONO:
+${tonoLivingRoom}
+
+FORMATO: la respuesta se valida contra un esquema fijo, así que rellena todos los campos.
+- Con estado "preguntando": escribe "pregunta" y "porQue" (media línea diciendo para qué
+  sirve esa pregunta), y en "briefing" pon lo que ya sepas, con "" en lo que aún no.
+- Con estado "listo": deja "pregunta" y "porQue" en "", y entrega el briefing completo,
+  redactado en frases claras y en las palabras del predicador, no en las tuyas.
+`;
+
+app.post('/agente/entrevista', async (req, res) => {
+  const { conversacion = [], cerrar = false } = req.body;
+
+  if (!Array.isArray(conversacion)) {
+    return res.status(400).json({ error: "conversacion debe ser un arreglo" });
+  }
+
+  const preguntasHechas = conversacion.filter(t => t.rol === "agente").length;
+
+  // El primer turno siempre es del usuario: la API lo exige y así la
+  // alternancia queda pareja con las preguntas del agente.
+  const messages = [{ role: "user", content: "Empecemos. Hazme la primera pregunta." }];
+  for (const turno of conversacion) {
+    messages.push({
+      role: turno.rol === "agente" ? "assistant" : "user",
+      content: String(turno.texto || "")
+    });
+  }
+
+  if (conversacion.length && (cerrar || preguntasHechas >= MAX_PREGUNTAS)) {
+    messages.push({
+      role: "user",
+      content: "Ya no quiero más preguntas. Cierra ahora con estado \"listo\" y arma el briefing con lo que tengas."
+    });
+  }
+
+  // effort "low" no es por ahorrar: con el esfuerzo alto (el default) la API
+  // rechaza esta combinación de salida estructurada + pensamiento adaptativo con
+  // un 400 intermitente. Medido: low 8/8, medium 7/8, high 2/8. Además responde
+  // en la mitad de tiempo, que para una pregunta corta es lo que se quiere.
+  const peticion = {
+    model: MODELO,
+    max_tokens: 4000,
+    system: promptEntrevistador,
+    messages,
+    output_config: { format: jsonSchemaOutputFormat(ESQUEMA_ENTREVISTA), effort: "low" }
+  };
+
+  try {
+    let respuesta;
+    try {
+      respuesta = await anthropic.messages.parse(peticion);
+    } catch (primerIntento) {
+      // El SDK no reintenta los 400. Este en concreto es intermitente, así que
+      // vale un segundo intento antes de darle un error al predicador.
+      if (!(primerIntento instanceof Anthropic.BadRequestError)) throw primerIntento;
+      console.warn("⚠️  400 en la entrevista; reintentando una vez.");
+      respuesta = await anthropic.messages.parse(peticion);
+    }
+
+    if (respuesta.stop_reason === "refusal") {
+      console.error("❌ El entrevistador declinó:", respuesta.stop_details);
+      return res.status(502).json({ error: "El agente declinó responder." });
+    }
+
+    const data = respuesta.parsed_output;
+    if (!data) {
+      console.error("❌ El entrevistador no devolvió una respuesta con la forma esperada.");
+      return res.status(502).json({ error: "El agente devolvió una respuesta ilegible." });
+    }
+
+    data.preguntasHechas = preguntasHechas;
+    return res.json(data);
+  } catch (error) {
+    console.error("❌ Error en la entrevista:", error);
+    return res.status(500).json({ error: mensajeDeError(error) });
+  }
+});
+
 app.post('/clasificar-idea', async (req, res) => {
   const { idea, usuario } = req.body;
 
@@ -669,7 +763,7 @@ app.post('/clasificar-idea', async (req, res) => {
       const mensajeDesdeDB = await obtenerMensajeDesdeBase(usuario);
       if (mensajeDesdeDB) {
         for (const [clave, valor] of Object.entries(mensajeDesdeDB)) {
-          if (clave !== "usuario" && valor?.trim?.()) {
+          if (clave !== "usuario" && clave !== "briefing" && valor?.trim?.()) {
             contexto += `🔹 ${clave.toUpperCase()}:\n${valor.trim()}\n\n`;
           }
         }
@@ -705,16 +799,11 @@ app.post('/clasificar-idea', async (req, res) => {
 `;
 
     // Llamada a OpenAI para clasificar la idea
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [{ role: "system", content: prompt }]
-    });
-
-    const clasificacion = response.choices[0].message.content;
+    const clasificacion = await generarTexto(prompt, "Clasifica la idea en uno de los 8 pilares y justifica.");
     res.json({ clasificacion });
   } catch (error) {
     console.error("Error al clasificar la idea:", error);
-    res.status(500).json({ error: "Error al clasificar la idea." });
+    res.status(500).json({ error: mensajeDeError(error) });
   }
 });
 
@@ -801,10 +890,10 @@ const relacionesImportantes = {
 };
 
 app.post('/generar-una-sugerencia', async (req, res) => {
-  const { seccion, respuestas, contextoPrevio = {} } = req.body;
+  const { seccion, respuestas, contextoPrevio = {}, briefing = null } = req.body;
 
   const seccionActual = seccion.toUpperCase();
-  const promptBase = promptsCalibracion[seccionActual] || "";
+  const promptBase = obtenerPromptCalibracion(seccionActual);
 
   const propositoSeccionActual = relacionesImportantes[seccionActual]?.purpose || "Generar contenido relevante para esta sección.";
 
@@ -843,10 +932,18 @@ app.post('/generar-una-sugerencia', async (req, res) => {
     indicacionesDeConexion = `\n💡 ENFOQUE DE CONEXIÓN:\nTu sugerencia debe conectarse de manera fluida y lógica con el contenido de las siguientes secciones previas, priorizando según su importancia: ${listaConDetalles}. Asegúrate de que tu propuesta construya sobre estas bases y refleje el **tipo de conexión** y el **peso** indicado para cada una.\n`;
   }
 
-  const respuestasClarificadas = `
-🧠 Idea central del mensaje: ${respuestas[0]}
-🎯 Audiencia a la que te diriges: ${respuestas[1]}
-🎁 Propósito principal de este mensaje: ${respuestas[2]}
+  // El agente entrevistador manda un briefing completo; el tutor viejo manda 3 respuestas sueltas
+  const respuestasClarificadas = briefing ? `
+🧠 Idea central del mensaje: ${briefing.ideaCentral || ""}
+🎯 Audiencia a la que te diriges: ${briefing.audiencia || ""}
+🎁 Transformación que se busca: ${briefing.transformacion || ""}
+📖 Historia ancla del predicador: ${briefing.historiaAncla || ""}
+⚡ Tensión / objeción real de la audiencia: ${briefing.tension || ""}
+⏱ Tiempo disponible: ${briefing.tiempo || ""}
+` : `
+🧠 Idea central del mensaje: ${respuestas?.[0] || ""}
+🎯 Audiencia a la que te diriges: ${respuestas?.[1] || ""}
+🎁 Propósito principal de este mensaje: ${respuestas?.[2] || ""}
 `;
 
   const promptFinal = `
@@ -872,35 +969,38 @@ ${respuestasClarificadas}
 ${contextoParaPrompt}
 
 ${indicacionesDeConexion}
-🎯 Tu tarea es la siguiente:
-1.  Redacta una sugerencia de contenido detallada y creativa para la sección "${seccionActual}", **ajustándose estrictamente a su propósito clave** y siguiendo la instrucción específica y el tono "Living Room".
-    ${seccionActual === "COSTURA" ? `**IMPORTANTE: Para la sección "COSTURA", la sugerencia DEBE ser una ÚNICA FRASE, muy concisa y directa, sin adornos ni explicaciones adicionales. Ve al grano.**` : ''}
-2.  Después de la sugerencia de contenido, incluye un párrafo OBLIGATORIO titulado "🔗 Conexión con lo anterior:" donde expliques de forma concisa (1-3 frases) cómo esta sugerencia para "${seccionActual}" se vincula y construye sobre las secciones previas. ${seccionesRelevantesParaConectar.length > 0 ? `En tu explicación, enfócate especialmente en la conexión con ${seccionesRelevantesParaConectar.join(' y ')}, **priorizando las conexiones que se consideran más importantes según el "ENFOQUE DE CONEXIÓN" provisto**. Menciona explícitamente el **tipo de conexión** (ej., "conexión temática", "transición fluida") para cada sección relevante.` : 'Si no hay contexto previo relevante o secciones clave identificadas, simplemente indica que es el punto de partida.'}
-3.  Aplica el tono "Living Room" consistentemente. Sé claro, visual, cercano y práctico.
-4.  NO incluyas frases como "Análisis:", "Evaluación:", "Calificación:", "Puntuación:" o similares. Ve directo a la sugerencia y su explicación de conexión.
-5.  Asegúrate de que la sugerencia sea útil y directamente aplicable por el usuario.
-6.  Solo en la sección de INTRODUCCIÓN sugiere 3 versículos centrales que se relacionen con el tema del mensaje.
+🎯 Tu tarea:
+1.  Escribe el CONTENIDO de la sección "${seccionActual}", tal como iría en la prédica.
+    Lo que devuelvas SE GUARDA como esa sección del mensaje: es el texto en sí, no una
+    propuesta sobre el texto. Escríbelo listo para leerse o decirse.
+    ${seccionActual === "COSTURA" ? `**Para "COSTURA": una ÚNICA FRASE, concisa y directa, sin adornos.**` : ''}
+    ${seccionActual === "TITULO" ? `**Para "TÍTULO": UNA SOLA LÍNEA. Solo el título, sin comillas, sin subtítulo, sin alternativas y sin explicación. Nada más que la línea.**` : ''}
+2.  PROHIBIDO todo meta-comentario. No escribas encabezados como "## Sugerencia de ${seccionActual}",
+    "Título principal recomendado", "Por qué este título funciona", "Análisis:", "Evaluación:",
+    ni notas sobre tus decisiones, ni versiones alternativas, ni indicaciones de duración.
+    El predicador quiere el texto, no la explicación de cómo lo escribiste.
+3.  Al final, y solo al final, agrega el párrafo "🔗 Conexión con lo anterior:" donde expliques
+    en 1 a 3 frases cómo esta sección se apoya en las anteriores. ${seccionesRelevantesParaConectar.length > 0 ? `Enfócate en la conexión con ${seccionesRelevantesParaConectar.join(' y ')}, priorizando según el "ENFOQUE DE CONEXIÓN", y nombra el **tipo de conexión** (por ejemplo "conexión temática" o "transición fluida").` : 'Si no hay secciones previas, di simplemente que es el punto de partida.'}
+    Ese párrafo es lo ÚNICO que puede hablar sobre el mensaje en vez de ser el mensaje.
+4.  Aplica el tono "Living Room": claro, visual, cercano y práctico.
+5.  Solo en la sección INTRODUCCIÓN, cierra el contenido con 3 versículos centrales relacionados
+    con el tema, listados al final de la sección.
 
-Comienza directamente con la sugerencia para "${seccionActual}".
+Empieza directamente con el contenido de "${seccionActual}". Sin preámbulos.
 `;
 
- console.log("--- PROMPT FINAL ENVIADO A OPENAI PARA GENERAR SUGERENCIA ---");
+  console.log("--- PROMPT FINAL ENVIADO A CLAUDE PARA GENERAR SUGERENCIA ---");
   console.log(promptFinal);
   console.log("--- FIN DEL PROMPT ---");
 
   try {
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [{ role: "system", content: promptFinal }]
-    });
-
-    const sugerencia = completion.choices[0].message.content;
+    const sugerencia = await generarTexto(promptFinal, `Escribe la sugerencia para la sección ${seccionActual}.`);
     res.json({ sugerencia, contextoEnviadoAlPrompt: contextoPrevio });
   } catch (error) {
     console.error("❌ Error generando sugerencia:", error);
     const errorMessage = error.response ? error.response.data : error.message;
-    console.error("Detalle del error de OpenAI:", errorMessage);
-    res.status(500).json({ error: "Error al generar la sugerencia. Intenta de nuevo más tarde.", detalle: errorMessage });
+    console.error("Detalle del error de Claude:", errorMessage);
+    res.status(500).json({ error: mensajeDeError(error) });
   }
 });
 

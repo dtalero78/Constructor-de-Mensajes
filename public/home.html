@@ -1,81 +1,1258 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Speakers Livingroom</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#22B24C" />
+  <title>LivingRoom Speakers</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet" />
   <style>
-  body {
-    margin: 0;
-    padding: 0;
-    background: white;
-    font-family: 'Helvetica Neue', sans-serif;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-  }
+    /* ============================================================
+       LIVINGROOM SPEAKERS — HOME
+       Un solo archivo: HTML + CSS + JS. Sin build, sin framework.
+       ============================================================ */
 
-  .logo {
-    width: 80vw;
-    max-width: 400px;
-    height: auto;
-    margin-bottom: 40px;
-  }
+    :root {
+      /* Marca */
+      --brand: #22B24C;
+      --brand-600: #17A34A;
+      --brand-700: #0F8A3C;
+      --brand-soft: #E9F7EE;
 
-  .button-group {
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
+      /* Superficies */
+      --page: #EFE8E0;
+      --surface: #FFFFFF;
+      --surface-2: #F7F4F0;
+      --line: #ECE7E1;
 
-  .minimal-button {
-    padding: 12px 24px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    background-color: transparent;
-    cursor: pointer;
-    transition: all 0.3s ease;
-  }
+      /* Tinta */
+      --ink: #15181D;
+      --ink-2: #4B5159;
+      --muted: #8E949D;
 
-  .minimal-button:hover {
-    background-color: #f0f0f0;
-    border-color: #999;
-  }
+      /* Forma y sombra: la base del look "redondeado gordito" */
+      --r-sm: 14px;
+      --r-md: 20px;
+      --r-lg: 26px;
+      --r-xl: 32px;
+      --shadow-sm: 0 2px 6px rgba(24, 20, 16, .05);
+      --shadow-md: 0 6px 18px rgba(24, 20, 16, .07);
+      --shadow-lg: 0 16px 40px rgba(24, 20, 16, .12);
 
-  @media (max-width: 480px) {
-  .logo {
-    width: 60vw;
-    max-width: none;
-  }
+      --gutter: 18px;
+    }
 
-  .button-group {
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 12px;
-  }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-  .minimal-button {
-    width: auto;
-    padding: 10px 16px;
-    font-size: 14px;
-  }
-}
+    html {
+      -webkit-text-size-adjust: 100%;
+    }
 
-</style>
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+      background: var(--page);
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 14px 14px 0;
+      -webkit-font-smoothing: antialiased;
+    }
 
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    button {
+      font: inherit;
+      color: inherit;
+      border: 0;
+      background: none;
+      cursor: pointer;
+    }
+
+    /* ---------- Lienzo principal (la "pantalla" blanca) ---------- */
+    .app {
+      width: 100%;
+      max-width: 430px;
+      background: var(--surface);
+      border-radius: var(--r-xl);
+      padding: 16px var(--gutter) 140px;
+      box-shadow: var(--shadow-md);
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+      animation: rise .5s cubic-bezier(.22, 1, .36, 1) both;
+    }
+
+    @keyframes rise {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+    }
+
+    /* ---------- Header ---------- */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .user-pill {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 16px 6px 6px;
+      background: var(--surface);
+      border: 1.5px solid var(--line);
+      border-radius: 999px;
+      box-shadow: var(--shadow-sm);
+      transition: transform .18s ease, box-shadow .18s ease;
+      min-width: 0;
+    }
+
+    .user-pill:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .user-pill:active {
+      transform: scale(.985);
+    }
+
+    .avatar {
+      width: 38px;
+      height: 38px;
+      flex: none;
+      border-radius: 50%;
+      background: linear-gradient(140deg, #2FC85C, #12903E);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      font-size: 14px;
+      letter-spacing: .02em;
+    }
+
+    .user-meta {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.25;
+      min-width: 0;
+    }
+
+    .user-meta strong {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--brand-700);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 40vw;
+    }
+
+    .user-meta small {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .icon-btn {
+      position: relative;
+      width: 44px;
+      height: 44px;
+      flex: none;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--surface);
+      border: 1.5px solid var(--line);
+      box-shadow: var(--shadow-sm);
+      color: var(--ink);
+      transition: transform .18s ease, box-shadow .18s ease;
+    }
+
+    .icon-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .icon-btn svg {
+      width: 20px;
+      height: 20px;
+      color: var(--ink-2);
+    }
+
+    .icon-btn .badge {
+      position: absolute;
+      top: 9px;
+      right: 10px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #FF5A5F;
+      border: 2px solid #fff;
+    }
+
+    /* ---------- Hero ---------- */
+    .hero {
+      position: relative;
+      overflow: hidden;
+      /* No es un rectángulo: esquinas muy abiertas, casi cápsula */
+      border-radius: 58px;
+      background:
+        radial-gradient(120% 130% at 85% 15%, rgba(255, 255, 255, .28) 0%, rgba(255, 255, 255, 0) 55%),
+        linear-gradient(135deg, #35C963 0%, #22B24C 46%, #12903E 100%);
+      color: #fff;
+      padding: 26px 30px;
+      min-height: 158px;
+      display: flex;
+      align-items: center;
+      box-shadow: 0 12px 26px rgba(18, 144, 62, .28);
+    }
+
+    .hero::after {
+      /* aro decorativo, como el brillo del banner de referencia */
+      content: "";
+      position: absolute;
+      right: -70px;
+      bottom: -90px;
+      width: 240px;
+      height: 240px;
+      border-radius: 50%;
+      border: 26px solid rgba(255, 255, 255, .08);
+    }
+
+    .hero-copy {
+      position: relative;
+      z-index: 2;
+      max-width: 74%;
+    }
+
+    .eyebrow {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .01em;
+      color: rgba(255, 255, 255, .88);
+      margin-bottom: 6px;
+    }
+
+    .wordmark {
+      font-family: 'Archivo', 'Plus Jakarta Sans', sans-serif;
+      font-weight: 800;
+      letter-spacing: -.035em;
+      line-height: .94;
+      font-size: clamp(30px, 9.6vw, 42px);
+    }
+
+    .wordmark span {
+      display: block;
+    }
+
+    .wordmark .reg {
+      font-size: .3em;
+      vertical-align: super;
+      font-weight: 700;
+      letter-spacing: 0;
+      margin-left: .12em;
+    }
+
+    .hero-mark {
+      position: absolute;
+      z-index: 1;
+      right: -16px;
+      top: 50%;
+      width: 126px;
+      height: 126px;
+      color: rgba(255, 255, 255, .34);
+      transform: translateY(-50%) rotate(-8deg);
+    }
+
+    .hero-mark svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ---------- Accesos rápidos (4 botones) ---------- */
+    .quick-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    .quick {
+      display: block;
+    }
+
+    .quick-tile {
+      position: relative;
+      display: block;
+      width: 100%;
+      aspect-ratio: 3 / 4;
+      overflow: hidden;
+      background: var(--surface);
+      border: 1.5px solid var(--line);
+      border-radius: 22px;
+      box-shadow: var(--shadow-sm);
+      transition: transform .2s cubic-bezier(.22, 1, .36, 1), box-shadow .2s ease, border-color .2s ease;
+    }
+
+    .quick:hover .quick-tile {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-md);
+      border-color: #E2DCD4;
+    }
+
+    .quick:active .quick-tile {
+      transform: scale(.96);
+    }
+
+    /* La foto va a sangre por abajo, recortada por la baldosa */
+    .quick-img {
+      position: absolute;
+      left: 50%;
+      bottom: 0;
+      transform: translateX(-50%);
+      height: auto;
+      width: auto;
+      /* max-* nunca amplía: si la baldosa es mayor que el PNG, se queda en su tamaño real */
+      max-height: 88%;
+      max-width: 104%;
+      object-fit: contain;
+      object-position: bottom;
+      transition: transform .3s cubic-bezier(.22, 1, .36, 1);
+    }
+
+    .quick:hover .quick-img {
+      transform: translateX(-50%) scale(1.06);
+    }
+
+    /* Desvanecido blanco: la foto se disuelve donde entra el título */
+    .quick-fade {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 52%;
+      background: linear-gradient(to top,
+          #fff 26%,
+          rgba(255, 255, 255, .92) 46%,
+          rgba(255, 255, 255, .55) 70%,
+          rgba(255, 255, 255, 0) 100%);
+    }
+
+    /* Título encima de la imagen, dentro del óvalo trazado a mano */
+    .quick-label {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 7%;
+      width: max-content;
+      max-width: 96%;
+      padding: 0 2px 4px;
+      border-bottom: 2.5px solid var(--brand);
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      font-weight: 800;
+      font-size: clamp(9.5px, 2.7vw, 15px);
+      letter-spacing: -.01em;
+      line-height: 1.15;
+      color: var(--ink);
+      text-align: center;
+      transition: transform .25s ease;
+    }
+
+    .quick:hover .quick-label {
+      transform: translateX(-50%) translateY(-2px);
+    }
+
+    /* Fotos de escena (no recortes): la máscara disuelve el rectángulo en el blanco */
+    /* Fotos de escena (no recortes): llenan la baldosa y se difuminan por los cuatro lados */
+    .quick-img--foto {
+      inset: 0;
+      left: 0;
+      transform: none;
+      width: 100%;
+      height: 100%;
+      max-width: none;
+      max-height: none;
+      object-fit: cover;
+      object-position: center 40%;
+      -webkit-mask-image:
+        linear-gradient(to right, transparent 0%, #000 24%, #000 76%, transparent 100%),
+        linear-gradient(to bottom, transparent 0%, #000 22%, #000 70%, transparent 100%);
+      -webkit-mask-composite: source-in;
+      mask-image:
+        linear-gradient(to right, transparent 0%, #000 24%, #000 76%, transparent 100%),
+        linear-gradient(to bottom, transparent 0%, #000 22%, #000 70%, transparent 100%);
+      mask-composite: intersect;
+    }
+
+    .quick:hover .quick-img--foto {
+      transform: scale(1.06);
+    }
+
+    /* Hueco a la espera de su imagen */
+    .quick-ph {
+      position: absolute;
+      left: 18%;
+      right: 18%;
+      top: 12%;
+      bottom: 34%;
+      border-radius: 12px;
+      background: var(--surface-2);
+      border: 1.5px dashed #DFD9D2;
+    }
+
+    /* ---------- Bloques ---------- */
+    .block {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .block-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .block-head h2 {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -.02em;
+    }
+
+    .block-head .count {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    .chev {
+      width: 26px;
+      height: 26px;
+      flex: none;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      border: 1.5px solid #D9E6FB;
+      color: #2F63DA;
+      transition: background .18s ease, transform .18s ease;
+    }
+
+    .chev:hover {
+      background: #E9F0FE;
+      transform: translateX(2px);
+    }
+
+    /* ---------- Tarjetas de mensajes ---------- */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1.5px solid var(--line);
+      border-radius: var(--r-md);
+      padding: 8px 8px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: var(--shadow-sm);
+      transition: transform .2s cubic-bezier(.22, 1, .36, 1), box-shadow .2s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .card-cover {
+      position: relative;
+      aspect-ratio: 4 / 3;
+      border-radius: var(--r-sm);
+      overflow: hidden;
+      background: linear-gradient(140deg, #2FC85C, #0F8A3C);
+      display: grid;
+      place-items: center;
+      color: #fff;
+      padding: 32px 12px 12px;
+    }
+
+    .card-cover::after {
+      content: "";
+      position: absolute;
+      right: -28px;
+      top: -34px;
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .12);
+    }
+
+    .card-cover p {
+      position: relative;
+      z-index: 2;
+      font-size: 11px;
+      font-weight: 600;
+      line-height: 1.35;
+      text-align: center;
+      display: -webkit-box;
+      -webkit-line-clamp: 4;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      opacity: .95;
+    }
+
+    .card-cover .chip {
+      position: absolute;
+      z-index: 3;
+      left: 8px;
+      top: 8px;
+      background: rgba(255, 255, 255, .92);
+      color: var(--brand-700);
+      font-size: 10px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 999px;
+    }
+
+    /* Con .card-cover delante para ganarle en especificidad a .card-cover .chip,
+       que fija left:8px y dejaba el distintivo estirado de lado a lado. */
+    .card-cover .chip-curso {
+      left: auto;
+      right: 8px;
+      background: var(--brand);
+      color: #fff;
+      box-shadow: 0 2px 6px rgba(9, 74, 32, .25);
+    }
+
+    .card-body {
+      padding: 0 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .card-title {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: -.01em;
+      line-height: 1.25;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .card-meta {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .card-meta small {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .card-meta b {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--brand-700);
+      white-space: nowrap;
+    }
+
+    .bar {
+      height: 5px;
+      border-radius: 999px;
+      background: var(--surface-2);
+      overflow: hidden;
+    }
+
+    .bar i {
+      display: block;
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #35C963, #12903E);
+    }
+
+    /* Tarjeta "nuevo" punteada */
+    .card-new {
+      border: 1.5px dashed #D8D2CA;
+      background: var(--surface-2);
+      border-radius: var(--r-md);
+      min-height: 150px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      text-align: center;
+      padding: 18px 14px;
+      color: var(--ink-2);
+      transition: transform .2s ease, border-color .2s ease, background .2s ease;
+    }
+
+    .card-new:hover {
+      transform: translateY(-3px);
+      border-color: var(--brand);
+      background: var(--brand-soft);
+    }
+
+    .card-new .plus {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: var(--brand);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      box-shadow: 0 8px 16px rgba(18, 144, 62, .3);
+    }
+
+    .card-new strong {
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .card-new small {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+
+    /* Si la última tarjeta queda sola en la fila (grid de 2), que ocupe todo el ancho */
+    .cards> :last-child:nth-child(odd) {
+      grid-column: 1 / -1;
+      min-height: 132px;
+    }
+
+    .skeleton {
+      border-radius: var(--r-md);
+      min-height: 190px;
+      background: linear-gradient(100deg, #F3F0EC 30%, #FAF8F6 50%, #F3F0EC 70%);
+      background-size: 220% 100%;
+      animation: shimmer 1.2s infinite linear;
+    }
+
+    @keyframes shimmer {
+      to {
+        background-position: -220% 0;
+      }
+    }
+
+    /* ---------- Riel de pilares ---------- */
+    .rail {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding: 2px var(--gutter) 6px;
+      margin: 0 calc(var(--gutter) * -1);
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+    }
+
+    .rail::-webkit-scrollbar {
+      display: none;
+    }
+
+    .pilar {
+      flex: none;
+      scroll-snap-align: start;
+      width: 128px;
+      padding: 12px;
+      border-radius: var(--r-md);
+      background: var(--surface);
+      border: 1.5px solid var(--line);
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: transform .2s ease, box-shadow .2s ease;
+    }
+
+    .pilar:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .pilar .num {
+      width: 26px;
+      height: 26px;
+      border-radius: 9px;
+      background: var(--brand-soft);
+      color: var(--brand-700);
+      font-size: 12px;
+      font-weight: 800;
+      display: grid;
+      place-items: center;
+    }
+
+    .pilar strong {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: -.01em;
+    }
+
+    .pilar small {
+      font-size: 10.5px;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+
+    /* ---------- Dock inferior ---------- */
+    .dock-wrap {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      justify-content: center;
+      padding: 0 14px calc(14px + env(safe-area-inset-bottom));
+      pointer-events: none;
+      z-index: 30;
+    }
+
+    .dock {
+      pointer-events: auto;
+      position: relative;
+      width: 100%;
+      max-width: 402px;
+      height: 64px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .88);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1.5px solid var(--line);
+      box-shadow: var(--shadow-lg);
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      align-items: center;
+      justify-items: center;
+    }
+
+    .dock a {
+      width: 44px;
+      height: 44px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: #A9AEB6;
+      transition: color .18s ease, background .18s ease, transform .18s ease;
+    }
+
+    .dock a:hover {
+      color: var(--brand-700);
+      background: var(--brand-soft);
+    }
+
+    .dock a.active {
+      color: var(--brand-700);
+      background: var(--brand-soft);
+    }
+
+    .dock a svg {
+      width: 22px;
+      height: 22px;
+    }
+
+    .fab {
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      background: linear-gradient(140deg, #35C963, #12903E);
+      color: #fff !important;
+      display: grid;
+      place-items: center;
+      transform: translateY(-16px);
+      box-shadow: 0 12px 24px rgba(18, 144, 62, .4);
+      border: 4px solid #fff;
+    }
+
+    .fab:hover {
+      background: linear-gradient(140deg, #35C963, #12903E) !important;
+      transform: translateY(-19px);
+    }
+
+    .fab svg {
+      width: 26px;
+      height: 26px;
+    }
+
+    /* ============================================================
+       WEB / TABLET — el mismo lenguaje, más aire
+       ============================================================ */
+    @media (min-width: 760px) {
+      :root {
+        --gutter: 30px;
+      }
+
+      body {
+        padding: 26px 26px 0;
+      }
+
+      .app {
+        max-width: 1060px;
+        padding: 26px var(--gutter) 150px;
+        gap: 30px;
+      }
+
+      .user-meta strong {
+        max-width: none;
+        font-size: 15px;
+      }
+
+      .hero {
+        border-radius: 96px;
+        min-height: 230px;
+        padding: 44px 60px;
+      }
+
+      .hero-copy {
+        max-width: 60%;
+      }
+
+      .wordmark {
+        font-size: 72px;
+      }
+
+      .eyebrow {
+        font-size: 14px;
+      }
+
+      .hero-mark {
+        width: 200px;
+        height: 200px;
+        right: 64px;
+        bottom: auto;
+        color: rgba(255, 255, 255, .4);
+      }
+
+      .hero::after {
+        right: 0;
+        bottom: -170px;
+        width: 380px;
+        height: 380px;
+      }
+
+      .quick-grid {
+        gap: 20px;
+      }
+
+      .quick-tile {
+        max-width: 210px;
+        margin-inline: auto;
+        border-radius: 30px;
+      }
+
+      .quick-label {
+        font-size: 17px;
+        padding: 0 3px 6px;
+        bottom: 8%;
+      }
+
+      .block-head h2 {
+        font-size: 22px;
+      }
+
+      .cards {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 18px;
+      }
+
+      .cards> :last-child:nth-child(odd) {
+        grid-column: auto;
+        min-height: 0;
+      }
+
+      .card-cover {
+        aspect-ratio: 16 / 10;
+      }
+
+      .card-title {
+        font-size: 16px;
+      }
+
+      /* En web el riel deja de ser scroll horizontal y se abre en rejilla */
+      .rail {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        overflow: visible;
+        margin: 0;
+        padding: 0;
+      }
+
+      .pilar {
+        width: auto;
+        padding: 16px;
+      }
+
+      .pilar strong {
+        font-size: 14px;
+      }
+
+      .pilar small {
+        font-size: 11.5px;
+      }
+    }
+
+    @media (min-width: 1180px) {
+      .app {
+        max-width: 1180px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+
+      *,
+      *::before,
+      *::after {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+  </style>
 </head>
+
 <body>
+  <main class="app">
 
-  <img src="/images/logoCompleto.png" alt="Speakers Livingroom" class="logo" />
+    <!-- ================= HEADER ================= -->
+    <header class="topbar">
+      <button class="user-pill" id="userPill" title="Cambiar de usuario">
+        <span class="avatar" id="avatar">LR</span>
+        <span class="user-meta">
+          <strong id="userName">Invitado</strong>
+          <small id="userRole">Toca para identificarte</small>
+        </span>
+      </button>
 
-  <div class="button-group">
-    <button class="minimal-button" onclick="location.href='/tutor-alpha.html'">Nuevo Mensaje</button>
-    <button class="minimal-button" onclick="location.href='/index-anterior.html'">Editar Mensaje</button>
-  </div>
+      <a class="icon-btn" href="#novedades" aria-label="Novedades">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+          stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+          <path d="M13.7 21a2 2 0 0 1-3.4 0" />
+        </svg>
+        <span class="badge"></span>
+      </a>
+    </header>
 
+    <!-- ================= HERO ================= -->
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">Construye tu mensaje</p>
+        <h1 class="wordmark">
+          <span>LivingRoom</span>
+          <span>Speakers<sup class="reg">®</sup></span>
+        </h1>
+      </div>
+
+      <!-- Marca: el sofá dentro del globo de diálogo -->
+      <div class="hero-mark" aria-hidden="true">
+        <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"
+          stroke-linejoin="round">
+          <path d="M32 7c14 0 25 8.9 25 20s-11 20-25 20a29 29 0 0 1-7.6-1l-13.6 6.6 3.4-9.7C8.7 39.2 7 33.4 7 27 7 15.9 18 7 32 7Z" />
+          <path d="M20.5 30.5v-4.2a3 3 0 0 1 3-3h17a3 3 0 0 1 3 3v4.2" />
+          <path d="M18.5 30.5a3 3 0 0 1 3 3v4h21v-4a3 3 0 0 1 3-3" />
+          <path d="M21.5 37.5v2.6M42.5 37.5v2.6" />
+        </svg>
+      </div>
+    </section>
+
+    <!-- ================= 4 ACCESOS ================= -->
+    <nav class="quick-grid">
+      <a class="quick" href="/crear.html?nuevo=1">
+        <span class="quick-tile">
+          <img class="quick-img" src="/images/sebas.png" alt="" />
+          <span class="quick-fade"></span>
+          <span class="quick-label">
+            <span>Crear</span>
+          </span>
+        </span>
+      </a>
+
+      <a class="quick" href="/ideas.html">
+        <span class="quick-tile">
+          <img class="quick-img quick-img--foto" src="/images/ideas.png" alt="" />
+          <span class="quick-fade"></span>
+          <span class="quick-label">
+            <span>Ideas</span>
+          </span>
+        </span>
+      </a>
+
+      <a class="quick" href="/tutor-alpha.html">
+        <span class="quick-tile">
+          <img class="quick-img" src="/images/carlos.png" alt="" />
+          <span class="quick-fade"></span>
+          <span class="quick-label">
+            <span>Tutorial</span>
+          </span>
+        </span>
+      </a>
+
+      <a class="quick" href="#novedades">
+        <span class="quick-tile">
+          <span class="quick-ph"></span>
+          <span class="quick-fade"></span>
+          <span class="quick-label">
+            <span>Novedades</span>
+          </span>
+        </span>
+      </a>
+    </nav>
+
+    <!-- ================= MIS MENSAJES ================= -->
+    <section class="block" id="mensajes">
+      <div class="block-head">
+        <h2>Mis mensajes</h2>
+        <span class="count" id="contadorMensajes"></span>
+        <a class="chev" href="/crear.html?nuevo=1" aria-label="Nuevo mensaje">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="m9 18 6-6-6-6" />
+          </svg>
+        </a>
+      </div>
+      <div class="cards" id="cardsMensajes">
+        <div class="skeleton"></div>
+        <div class="skeleton"></div>
+      </div>
+    </section>
+
+    <!-- ================= LOS 8 PILARES ================= -->
+    <section class="block" id="pilares">
+      <div class="block-head">
+        <h2>Los 8 pilares</h2>
+        <span class="count">Toca uno para editarlo</span>
+      </div>
+      <div class="rail" id="railPilares"></div>
+    </section>
+  </main>
+
+  <!-- ================= DOCK ================= -->
+  <nav class="dock-wrap">
+    <div class="dock">
+      <a href="/home.html" class="active" aria-label="Inicio">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"
+          stroke-linejoin="round">
+          <path d="M3.5 10.5 12 3.5l8.5 7" />
+          <path d="M5.5 9.6V20h13V9.6" />
+          <path d="M9.8 20v-5.2h4.4V20" />
+        </svg>
+      </a>
+      <a href="#mensajes" aria-label="Mis mensajes">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"
+          stroke-linejoin="round">
+          <path d="M4 5.5h16v13H8.5L4 21.5v-16Z" />
+          <path d="M8 10.5h8M8 14h5" />
+        </svg>
+      </a>
+      <a class="fab" href="/crear.html?nuevo=1" aria-label="Crear mensaje">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+          <path d="M12 5.5v13M5.5 12h13" />
+        </svg>
+      </a>
+      <a href="/ideas.html" aria-label="Ideas">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"
+          stroke-linejoin="round">
+          <path d="M9 18h6M10 21.5h4" />
+          <path d="M12 2.5a6.5 6.5 0 0 0-4 11.6c.6.5 1 1.2 1 2v.4h6v-.4c0-.8.4-1.5 1-2A6.5 6.5 0 0 0 12 2.5Z" />
+        </svg>
+      </a>
+      <a href="#" id="dockUser" aria-label="Perfil">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"
+          stroke-linejoin="round">
+          <circle cx="12" cy="8.5" r="3.8" />
+          <path d="M4.5 20.5c1.3-3.7 4.1-5.6 7.5-5.6s6.2 1.9 7.5 5.6" />
+        </svg>
+      </a>
+    </div>
+  </nav>
+
+  <script>
+    /* ============================================================
+       Estado de usuario — el SPA lo lee de localStorage.currentUser
+       ============================================================ */
+    const PILARES = [
+      { id: 'titulo', nombre: 'Título', desc: 'La promesa en una línea' },
+      { id: 'introduccion', nombre: 'Introducción', desc: 'Gancho y contexto' },
+      { id: 'costura', nombre: 'Costura', desc: 'Hilo que une todo' },
+      { id: 'problematica', nombre: 'Problemática', desc: 'La tensión real' },
+      { id: 'conector', nombre: 'Conector', desc: 'Puente al desarrollo' },
+      { id: 'desarrollo', nombre: 'Desarrollo', desc: 'El cuerpo del mensaje' },
+      { id: 'conclusion', nombre: 'Conclusión', desc: 'El cierre que aterriza' },
+      { id: 'ministracion', nombre: 'Ministración', desc: 'El paso a la acción' }
+    ];
+
+    const $ = (sel) => document.querySelector(sel);
+
+
+    const esc = (str = '') => String(str)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+    function getUser() {
+      return (localStorage.getItem('currentUser') || '').trim();
+    }
+
+    function iniciales(nombre) {
+      const partes = nombre.trim().split(/\s+/).filter(Boolean);
+      if (!partes.length) return 'LR';
+      return (partes[0][0] + (partes[1] ? partes[1][0] : partes[0][1] || '')).toUpperCase();
+    }
+
+    function pintarUsuario() {
+      const user = getUser();
+      $('#userName').textContent = user || 'Invitado';
+      $('#userRole').textContent = user ? 'Speakers · Living Room' : 'Toca para identificarte';
+      $('#avatar').textContent = iniciales(user);
+    }
+
+    function pedirUsuario() {
+      const actual = getUser();
+      const nombre = prompt('¿Con qué nombre de usuario trabajas?', actual);
+      if (nombre === null) return;
+      const limpio = nombre.trim();
+      if (!limpio) return;
+      localStorage.setItem('currentUser', limpio);
+      pintarUsuario();
+      cargarMensajes();
+    }
+
+    $('#userPill').addEventListener('click', pedirUsuario);
+    $('#dockUser').addEventListener('click', (e) => { e.preventDefault(); pedirUsuario(); });
+
+    /* ---------- Riel de pilares ---------- */
+    $('#railPilares').innerHTML = PILARES.map((p, i) => `
+      <a class="pilar" href="/crear.html#pilar-${p.id}">
+        <span class="num">${i + 1}</span>
+        <strong>${p.nombre}</strong>
+        <small>${p.desc}</small>
+      </a>`).join('');
+
+    /* ---------- Mis mensajes ---------- */
+    const tarjetaNueva = (texto = 'Nuevo mensaje') => `
+      <a class="card-new" href="/crear.html?nuevo=1">
+        <span class="plus">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
+            stroke-width="2.4" stroke-linecap="round"><path d="M12 5.5v13M5.5 12h13"/></svg>
+        </span>
+        <strong>${esc(texto)}</strong>
+        <small>Empieza por el título y sigue los 8 pilares</small>
+      </a>`;
+
+    function formatearFecha(valor) {
+      if (!valor) return '';
+      const d = new Date(String(valor).replace(' ', 'T'));
+      if (isNaN(d)) return '';
+      const mes = d.toLocaleDateString('es-CO', { month: 'short' }).replace('.', '');
+      return `${d.getDate()} ${mes} ${d.getFullYear()}`;
+    }
+
+    const tarjetaConsolidado = (id) => `
+      <a class="card-new" href="/crear.html?mensaje=${encodeURIComponent(id)}&ver=completo">
+        <span class="plus">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 3.5h8l4 4v13H6z"/><path d="M14 3.5v4h4"/><path d="M9 12.5h6M9 16h4"/>
+          </svg>
+        </span>
+        <strong>Mensaje consolidado</strong>
+        <small>Léelo completo y descárgalo en PDF</small>
+      </a>`;
+
+    function tarjetaMensaje(m, enCurso = false) {
+      const llenas = PILARES.filter(p => (m[p.id] || '').trim()).length;
+      const titulo = (m.titulo || '').trim().split('\n')[0] || 'Mensaje sin título';
+      const primera = PILARES.find(p => p.id !== 'titulo' && (m[p.id] || '').trim());
+      const extracto = primera ? m[primera.id].trim().slice(0, 150) : 'Aún no has escrito ninguna sección.';
+      const pct = Math.round(llenas / PILARES.length * 100);
+
+      return `
+        <a class="card" href="/crear.html?mensaje=${encodeURIComponent(m.id)}">
+          <span class="card-cover">
+            <span class="chip">${llenas}/${PILARES.length}</span>
+            ${enCurso ? '<span class="chip chip-curso">En curso</span>' : ''}
+            <p>${esc(extracto)}</p>
+          </span>
+          <span class="card-body">
+            <span class="card-title">${esc(titulo.slice(0, 90))}</span>
+            <span class="bar"><i style="width:${pct}%"></i></span>
+            <span class="card-meta">
+              <small>${esc(formatearFecha(m.fecha_mensaje)) || 'En curso'}</small>
+              <b>${pct}%</b>
+            </span>
+          </span>
+        </a>`;
+    }
+
+    async function cargarMensajes() {
+      const cont = $('#cardsMensajes');
+      const user = getUser();
+
+      if (!user) {
+        cont.innerHTML = `
+          <a class="card-new" id="identificarme" href="#">
+            <span class="plus">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20.5c1.3-3.7 4.1-5.6 7.5-5.6s6.2 1.9 7.5 5.6"/>
+              </svg>
+            </span>
+            <strong>Identifícate</strong>
+            <small>Escribe tu usuario para ver tus mensajes guardados</small>
+          </a>` + tarjetaNueva();
+        const btn = $('#identificarme');
+        btn && btn.addEventListener('click', (e) => { e.preventDefault(); pedirUsuario(); });
+        return;
+      }
+
+      try {
+        const r = await fetch('/obtener-mensajes?usuario=' + encodeURIComponent(user));
+        const mensajes = await r.json();
+
+        if (!Array.isArray(mensajes) || !mensajes.length) {
+          cont.innerHTML = tarjetaNueva('Tu primer mensaje');
+          $('#contadorMensajes').textContent = '';
+          return;
+        }
+
+        // El más reciente primero; el último es el que se está trabajando.
+        cont.innerHTML = tarjetaNueva('Nuevo mensaje') +
+          mensajes.map((m, i) => tarjetaMensaje(m, i === 0)).join('') +
+          tarjetaConsolidado(mensajes[0].id);
+
+        $('#contadorMensajes').textContent =
+          mensajes.length === 1 ? '1 mensaje' : `${mensajes.length} mensajes`;
+      } catch (err) {
+        console.error('No se pudieron cargar los mensajes:', err);
+        cont.innerHTML = tarjetaNueva('Crear mensaje');
+      }
+    }
+
+    pintarUsuario();
+    cargarMensajes();
+  </script>
 </body>
+
 </html>

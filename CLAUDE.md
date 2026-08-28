@@ -1,0 +1,190 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Qué es esto
+
+"Constructor de Mensajes" (Speakers Living Room): app Express monolítica que ayuda a construir prédicas
+sección por sección. Un agente entrevista al predicador, arma un briefing y a partir de ahí escribe los
+8 pilares del mensaje, encadenando cada uno con los anteriores. Todo el texto lo genera **Claude**
+(`claude-opus-5`) contra un prompt de calibración por sección.
+
+Todo el dominio está en español y los nombres de secciones son literales del código, no traducciones.
+
+## Comandos
+
+```bash
+npm install --ignore-scripts && npm rebuild sqlite3   # ver "Instalación" abajo: npm install pelado falla
+node index.js            # no hay script "start"; arranca en :3000 (o el siguiente libre vía detect-port)
+node testOpenAi.js       # smoke test viejo de OpenAI; solo aplica al audio
+docker build -t constructor . && docker run -p 3000:3000 --env-file .env constructor
+```
+
+- Requiere `.env` con:
+  - `ANTHROPIC_API_KEY` — todo el texto pasa por Claude.
+  - `DATABASE_URL` — Postgres (cluster `bslpostgres` en DigitalOcean, base `speakers`).
+  - `OPENAI_API_KEY` — **opcional**, solo para audio (Whisper y TTS, que Anthropic no tiene). Sin ella la
+    app arranca igual y `/transcribir` y `/api/tts` responden 503 con un mensaje explícito.
+- **La base exige VPN**: el firewall del cluster solo deja pasar `174.138.59.209`. Sin el túnel
+  `wg-bsl-vpn` activo, el arranque avisa que no pudo conectar.
+- ffmpeg en el PATH solo hace falta para `/transcribir`.
+- **No hay tests ni linter.** `npm test` falla a propósito.
+
+### Instalación: `npm install` falla en Node moderno
+
+Dos escollos encadenados, ambos verificados en Node 24 / macOS arm64:
+
+1. **`better-sqlite3` no compila** y aborta el install entero. Es una **dependencia muerta**: ningún archivo
+   la importa ([database.js](database.js) usa `sqlite3`). Se puede saltar sin consecuencias, o borrarla de
+   `package.json`, que es el arreglo de verdad.
+2. El `node-gyp@8.4.1` que viene vendorizado importa `distutils`, **eliminado en Python ≥3.12**. Afecta a
+   `sqlite3`, que sí hace falta. Si `npm rebuild sqlite3` falla por `ModuleNotFoundError: No module named
+   'distutils'`, dale un Python con el shim y reintenta:
+
+   ```bash
+   python3 -m venv /tmp/gypvenv && /tmp/gypvenv/bin/pip install -q "setuptools<81"
+   PYTHON=/tmp/gypvenv/bin/python npm rebuild sqlite3
+   ```
+
+Ojo con `--ignore-scripts`: también salta el `node-pre-gyp` de `sqlite3` y deja el paquete **sin binding**
+(`Could not locate the bindings file`), de ahí el `npm rebuild sqlite3` obligatorio a continuación.
+
+## Arquitectura
+
+Tres archivos hacen todo el trabajo:
+
+- [index.js](index.js) — servidor Express completo: rutas, prompts, llamadas a Claude. Sin capas.
+- [database.js](database.js) — pool de Postgres (`pg`) y las consultas del dominio. Hacia afuera devuelve la
+  fila "plana" con los 8 pilares como columnas, que es lo que espera el front; por dentro está normalizado.
+- [public/home.html](public/home.html) — la portada: accesos, "Mis mensajes" y los 8 pilares.
+- [public/crear.html](public/crear.html) — el agente entrevistador y el mensaje: entrevista → briefing →
+  las 8 secciones como tarjetas editables → consolidado con PDF.
+- [public/ideas.html](public/ideas.html) — clasifica una idea suelta en uno de los 8 pilares.
+
+**[public/index.html](public/index.html) es el constructor viejo y está retirado**: ningún enlace apunta ahí.
+Solo sigue en el repo porque contiene el panel de Calibración de `prompts.json`, que aún no tiene reemplazo.
+Lo mismo con `tutor-alpha.html`, sustituido por el agente.
+
+### Los 8 pilares
+
+Toda la app gira alrededor de 8 secciones fijas, en este orden:
+`titulo, introduccion, costura, problematica, conector, desarrollo, conclusion, ministracion`.
+
+Aparecen replicadas en cuatro sitios, y **hay que tocarlos todos al añadir o renombrar una sección**:
+las columnas de la tabla `mensajes`, las claves de [prompts.json](prompts.json), el grafo
+`relacionesImportantes` en [index.js](index.js) y los bloques `<div id="<seccion>">` de la SPA.
+
+### Modelo de datos
+
+Postgres, normalizado (el esquema vive en [db/schema.sql](db/schema.sql)):
+
+```
+usuarios  (id, usuario UNIQUE, nombre, creado_en)
+mensajes  (id, usuario_id → usuarios, titulo, briefing jsonb, estado, creado_en, actualizado_en)
+secciones (id, mensaje_id → mensajes, pilar (enum de los 8), contenido, UNIQUE(mensaje_id, pilar))
+```
+
+- Un usuario puede tener **varios mensajes**. `guardarMensaje` decide destino así: `mensajeId` (validando que
+  sea de esa persona) → `nuevo: true` (crea uno) → por defecto, el último que tocó.
+- Las secciones que llegan vacías **se dejan como estaban**: el front manda los 8 pilares y solo llena el que
+  se editó. Vaciar una sección a propósito requiere ir por SQL.
+- `mensajes.titulo` es un espejo del pilar `titulo`, para poder listar sin join. La fuente de verdad es
+  `secciones`.
+- No hay autenticación: el usuario es el nombre que se escribe al entrar, guardado en `localStorage`.
+  `/obtener-mensajes` sin `?usuario=` devuelve los mensajes de **todo el mundo**.
+- `database.sqlite` es la base vieja, ya sin uso. La migración de sus datos está en
+  [db/migrar-desde-sqlite.js](db/migrar-desde-sqlite.js) y es idempotente por (usuario, fecha).
+
+### Prompts y contexto
+
+[prompts.json](prompts.json) guarda la instrucción de calibración por sección y se lee **en memoria al
+arrancar** (`loadPrompts()`); `/actualizar-calibracion` mergea y reescribe el archivo en disco.
+
+El patrón que se repite en todos los endpoints de IA: se levanta la fila del usuario con
+`obtenerMensajeDesdeBase()`, se serializan las **otras** secciones como contexto, y se concatena
+`promptBase + contexto + tonoLivingRoom + tarea` en un solo mensaje `role: "system"` a `gpt-4o`.
+
+`tonoLivingRoom` es la constante de estilo de la comunidad y debe ir en cualquier prompt nuevo que genere
+o reescriba texto de una prédica.
+
+`relacionesImportantes` (final de [index.js](index.js)) es un grafo de dependencias entre pilares
+(`dependsOn` + `type` + `weight`) que solo usa `/generar-una-sugerencia` para decirle al modelo con qué
+secciones previas conectar y en qué orden de prioridad.
+
+### Caja de las claves de calibración
+
+`prompts.json` usa claves canónicas en **MAYÚSCULAS** (`"TITULO"`), pero las secciones viajan en minúsculas
+por todo lo demás: los `data-pilar` de las tarjetas y el enum `pilar` de Postgres.
+
+La conversión está centralizada en un único accesor por lado; **usarlo siempre en vez de indexar directo**:
+
+- Backend — `normalizarSeccion()`, `normalizarClavesPrompts()` y `obtenerPromptCalibracion()` en
+  [index.js](index.js). `loadPrompts()` normaliza al leer y `/actualizar-calibracion` normaliza lo que
+  entra, así que el archivo no puede acabar con claves duplicadas en minúsculas.
+- Frontend — `normalizarSeccion()` y `obtenerPromptCalibracion()` en [public/index.html](public/index.html).
+
+Ojo con el doble uso de la variable `section` en `evaluarTranscripcion()` y `/aplicar-sugerencias`: además
+del lookup de calibración sirve para **excluir la sección actual** del contexto que se arma iterando las
+columnas de la fila. Esa comparación también se normaliza; si se toca, mantener ambos lados normalizados o
+la sección que se está evaluando se cuela en su propio contexto.
+
+Un detalle heredado del mismo bucle: `fecha_mensaje` entra al contexto como si fuera una sección
+(solo se excluyen `usuario` y la sección actual; `id` se cae solo porque es número y no tiene `.trim`).
+
+## Estado global compartido
+
+`transcripciones` y `preguntasIniciales` son objetos a nivel de módulo, compartidos por **todos** los
+usuarios del proceso. `/transcribir` escribe en `transcripciones` y llama a `evaluarTranscripcion` sin el
+argumento `usuario`, así que evalúa sin contexto de BD. `/ver-preguntas` devuelve siempre un objeto vacío.
+El flujo real y mantenido es el de texto (`/evaluar-escrito`, `/aplicar-sugerencias`), no el de audio.
+
+## Rutas
+
+| Ruta | Qué hace |
+|---|---|
+| `POST /transcribir` | multipart `audio` + `section` → ffmpeg → Whisper → evalúa (flujo legacy) |
+| `POST /evaluar-escrito` | `{section, texto, usuario}` → crítica de la sección con contexto de BD |
+| `POST /aplicar-sugerencias` | reescribe el texto incorporando la evaluación |
+| `POST /generar-una-sugerencia` | genera una sección desde cero usando `relacionesImportantes` |
+| `POST /clasificar-idea` | clasifica una idea suelta en uno de los 8 pilares |
+| `POST /agente/entrevista` | el entrevistador. Devuelve **JSON validado por esquema**, no prosa |
+| `POST /guardar-mensaje` | upsert por pilar. Acepta `mensajeId` o `nuevo: true` |
+| `GET /obtener-mensajes` | con `?usuario=` filtra; **sin él devuelve los de todos** |
+| `GET /obtener-ultimo-mensaje`, `GET /obtener-mensaje?id=&usuario=` | el mensaje en curso, o uno concreto |
+| `GET /obtener-calibracion`, `POST /actualizar-calibracion` | leer/escribir `prompts.json` |
+| `POST /api/tts` | OpenAI TTS, voz fija `"ash"`, devuelve `audio/mpeg` |
+| `GET *` | catch-all → `public/index.html` salvo que la ruta tenga `.` o empiece por `/api` |
+
+## Frontend
+
+Sin bundler: se edita el `<script>` inline de cada página. Dependencia externa: `html2pdf` por CDN.
+
+- `/` → [home.html](public/home.html). El usuario sale de `localStorage.currentUser`.
+- `/crear.html` → el agente. `?nuevo=1` empieza en limpio; `?mensaje=<id>` abre ese mensaje sin entrevista;
+  `&ver=completo` cae directo en el consolidado. El avance se guarda en `localStorage` **y** en la base.
+- `/ideas.html` → clasificar una idea.
+
+Las respuestas del modelo llegan en Markdown y se renderizan con `formatOpenAiText()` (regex a HTML),
+que está duplicado en cada página.
+
+### Dos cosas medidas que conviene no romper
+
+1. **`effort: "low"` en `/agente/entrevista` no es por ahorrar.** Salida estructurada + pensamiento
+   adaptativo con el esfuerzo por defecto (`high`) devuelve **400 intermitentes**. Medido con la misma
+   petición: low 8/8, medium 7/8, high 2/8. Hay además un reintento ante 400, que el SDK no hace solo.
+2. **Lo que devuelve `/generar-una-sugerencia` se guarda tal cual como la sección.** Por eso el prompt
+   prohíbe el meta-comentario ("## Sugerencia de TÍTULO", "Por qué funciona"). Antes, un título ocupaba
+   2282 caracteres de ensayo; ahora, 30.
+
+## Despliegue
+
+DigitalOcean App Platform desde [app.yaml](app.yaml) (repo `dtalero78/Constructor-de-Mensajes`, rama `main`,
+build con el Dockerfile). **Hoy no hay ninguna app desplegada para este proyecto.** Cuando se despliegue:
+
+- Hay que agregar el app-id al firewall del cluster
+  (`doctl databases firewalls append b09c5f55-deb7-439f-a4c6-009006ebe5bc --rule app:<app-id>`), porque
+  hoy solo entra la IP de la VPN.
+- Los datos ya **no** se pierden en cada deploy: viven en Postgres, fuera del contenedor. `prompts.json`
+  y `uploads/` sí siguen dentro del contenedor y se revierten al estado del repo en cada despliegue.
+- `detect-port` ignora `process.env.PORT`: sondea desde el 3000 hacia arriba. Coincide con el `PORT=3000`
+  de la config, pero no lo respeta de verdad.
