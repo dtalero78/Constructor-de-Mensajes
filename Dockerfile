@@ -8,8 +8,9 @@ WORKDIR /app
 # Copiamos solo package.json / package-lock.json primero
 COPY package*.json ./
 
-# Install de dependencias en el contenedor
-RUN npm install
+# Solo dependencias de producción: sqlite3 quedó en devDependencies (script de
+# migración) y compilarlo aquí no aporta nada.
+RUN npm install --omit=dev
 
 # Luego copiamos el resto del proyecto
 COPY . .

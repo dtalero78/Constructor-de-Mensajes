@@ -11,7 +11,6 @@
   "description": "",
   "dependencies": {
     "@anthropic-ai/sdk": "^0.122.0",
-    "better-sqlite3": "^11.8.1",
     "child_process": "^1.0.2",
     "cors": "^2.8.5",
     "detect-port": "^2.1.0",
@@ -22,7 +21,9 @@
     "openai": "^4.84.1",
     "path": "^0.12.7",
     "pdf-parse": "^1.1.1",
-    "pg": "^8.23.0",
+    "pg": "^8.23.0"
+  },
+  "devDependencies": {
     "sqlite3": "^5.1.7"
   }
 }
