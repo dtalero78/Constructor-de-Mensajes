@@ -9,6 +9,7 @@ const fs = require('fs');
 const express = require('express');
 const multer = require('multer');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 const detect = require('detect-port').default;
 const { exec } = require("child_process");
 const path = require("path");
@@ -19,12 +20,17 @@ const upload = multer({ dest: 'uploads/' });
 const DEFAULT_PORT = 3000;
 
 app.use(cors());
+app.use(cookieParser());
 
 // El home rediseñado es la portada; el constructor sigue viviendo en /index.html
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'home.html')));
 
 app.use(express.static('public'));
 app.use(express.json());
+
+// Autenticación: registra /auth/* y expone los middlewares de sesión.
+const { registrarRutas: registrarAuth, requiereSesion } = require('./auth');
+registrarAuth(app);
 
 console.log("🔍 Clave de Anthropic:", process.env.ANTHROPIC_API_KEY ? "✅ Sí" : "❌ No (el texto no va a funcionar)");
 console.log("🔍 Clave de OpenAI:", process.env.OPENAI_API_KEY ? "✅ Sí" : "⚠️  No (audio desactivado: Whisper y TTS)");
@@ -384,8 +390,9 @@ app.post("/limpiar-preguntas", (req, res) => {
 });
 
 // Ruta para evaluar el texto escrito de un bloc de notas
-app.post('/evaluar-escrito', async (req, res) => {
-  const { section, texto, usuario } = req.body;
+app.post('/evaluar-escrito', requiereSesion, async (req, res) => {
+  const { section, texto } = req.body;
+  const usuario = req.usuario.usuario;
 
   if (!texto || !usuario) {
     return res.status(400).json({ error: "El texto y el usuario son requeridos." });
@@ -418,8 +425,9 @@ app.get("/evaluacion", async (req, res) => {
 });
 
 // Ruta para aplicar sugerencias y generar una nueva versión del texto
-app.post("/aplicar-sugerencias", async (req, res) => {
-  const { transcripcion, evaluacion, seccion, usuario } = req.body;
+app.post("/aplicar-sugerencias", requiereSesion, async (req, res) => {
+  const { transcripcion, evaluacion, seccion } = req.body;
+  const usuario = req.usuario.usuario;
   if (!transcripcion || !evaluacion || !seccion || !usuario) {
     return res
       .status(400)
@@ -480,14 +488,10 @@ app.post("/aplicar-sugerencias", async (req, res) => {
 
 
 // Ruta para guardar un mensaje completo (usuario, fecha, y secciones)
-app.post('/guardar-mensaje', async (req, res) => {
-  const { usuario } = req.body;
-  if (!usuario) {
-    return res.status(400).json({ error: "El usuario es obligatorio" });
-  }
-
+app.post('/guardar-mensaje', requiereSesion, async (req, res) => {
   try {
-    const { id } = await guardarMensaje(req.body);
+    // La identidad viene de la cookie: el cliente ya no elige de quién escribe.
+    const { id } = await guardarMensaje({ ...req.body, usuario: req.usuario.usuario });
     return res.json({ success: true, id });
   } catch (error) {
     console.error("❌ Error al guardar el mensaje:", error.message);
@@ -497,10 +501,10 @@ app.post('/guardar-mensaje', async (req, res) => {
 
 
 // Ruta para obtener todos los mensajes guardados
-app.get('/obtener-mensajes', async (req, res) => {
+app.get('/obtener-mensajes', requiereSesion, async (req, res) => {
   try {
-    // Con ?usuario= devuelve solo los de esa persona, que es lo que pide el home.
-    res.json(await todosLosMensajes(req.query.usuario || null));
+    // Siempre los del dueño de la sesión. Antes, sin ?usuario=, devolvía los de todos.
+    res.json(await todosLosMensajes(req.usuario.usuario));
   } catch (error) {
     console.error("❌ Error al obtener mensajes:", error.message);
     res.status(500).json({ error: "Error al obtener mensajes" });
@@ -508,14 +512,9 @@ app.get('/obtener-mensajes', async (req, res) => {
 });
 
 // Ruta para obtener la última nota guardada de un usuario
-app.get('/obtener-ultimo-mensaje', async (req, res) => {
-  const { usuario } = req.query;
-  if (!usuario) {
-    return res.status(400).json({ error: "El parámetro 'usuario' es obligatorio" });
-  }
-
+app.get('/obtener-ultimo-mensaje', requiereSesion, async (req, res) => {
   try {
-    const mensaje = await ultimoMensaje(usuario);
+    const mensaje = await ultimoMensaje(req.usuario.usuario);
     if (!mensaje) {
       return res.json({ success: false, message: "No se encontraron notas para este usuario." });
     }
@@ -528,13 +527,11 @@ app.get('/obtener-ultimo-mensaje', async (req, res) => {
 
 
 // Un mensaje concreto del usuario (el home enlaza a /index.html?mensaje=<id>)
-app.get('/obtener-mensaje', async (req, res) => {
-  const { id, usuario } = req.query;
-  if (!id || !usuario) {
-    return res.status(400).json({ error: "Faltan 'id' y 'usuario'" });
-  }
+app.get('/obtener-mensaje', requiereSesion, async (req, res) => {
+  const { id } = req.query;
+  if (!id) return res.status(400).json({ error: "Falta 'id'" });
   try {
-    const mensaje = await obtenerMensaje(id, usuario);
+    const mensaje = await obtenerMensaje(id, req.usuario.usuario);
     if (!mensaje) return res.status(404).json({ success: false, error: "Mensaje no encontrado" });
     return res.json({ success: true, mensaje });
   } catch (error) {
@@ -599,7 +596,7 @@ function obtenerMensajeDesdeBase(usuario) {
 app.get('*', (req, res, next) => {
   const isStaticAsset = req.path.includes('.') || req.path.startsWith('/api');
   if (isStaticAsset) return next();
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(__dirname, 'public', 'home.html'));
 });
 
 
@@ -680,7 +677,7 @@ FORMATO: la respuesta se valida contra un esquema fijo, así que rellena todos l
   redactado en frases claras y en las palabras del predicador, no en las tuyas.
 `;
 
-app.post('/agente/entrevista', async (req, res) => {
+app.post('/agente/entrevista', requiereSesion, async (req, res) => {
   const { conversacion = [], cerrar = false } = req.body;
 
   if (!Array.isArray(conversacion)) {
@@ -749,8 +746,9 @@ app.post('/agente/entrevista', async (req, res) => {
   }
 });
 
-app.post('/clasificar-idea', async (req, res) => {
-  const { idea, usuario } = req.body;
+app.post('/clasificar-idea', requiereSesion, async (req, res) => {
+  const { idea } = req.body;
+  const usuario = req.usuario.usuario;
 
   if (!idea || !usuario) {
     return res.status(400).json({ error: "La idea y el usuario son requeridos." });
@@ -889,7 +887,7 @@ const relacionesImportantes = {
   }
 };
 
-app.post('/generar-una-sugerencia', async (req, res) => {
+app.post('/generar-una-sugerencia', requiereSesion, async (req, res) => {
   const { seccion, respuestas, contextoPrevio = {}, briefing = null } = req.body;
 
   const seccionActual = seccion.toUpperCase();

@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#22B24C" />
-  <title>Ideas · LivingRoom Speakers</title>
+  <title>Entrar · LivingRoom Speakers</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
@@ -701,97 +701,258 @@
       }
     }
   </style>
+  <style>
+    .app { max-width: 460px; }
+
+    .marca {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 4px;
+    }
+
+    .marca-icono {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: linear-gradient(140deg, #35C963, #12903E);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      flex: none;
+    }
+
+    .marca strong {
+      font-family: 'Archivo', sans-serif;
+      font-weight: 800;
+      letter-spacing: -.03em;
+      font-size: 20px;
+    }
+
+    .campo-simple {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .campo-simple label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--ink-2);
+    }
+
+    .campo-simple input {
+      font: inherit;
+      font-size: 15px;
+      padding: 13px 16px;
+      border-radius: 16px;
+      border: 1.5px solid var(--line);
+      background: var(--surface-2);
+      color: var(--ink);
+      transition: border-color .18s ease, background .18s ease;
+    }
+
+    .campo-simple input:focus {
+      outline: 0;
+      background: var(--surface);
+      border-color: var(--brand);
+    }
+
+    .separador {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .separador::before,
+    .separador::after {
+      content: "";
+      flex: 1;
+      height: 1.5px;
+      background: var(--line);
+    }
+
+    .btn-google {
+      width: 100%;
+      justify-content: center;
+      border: 1.5px solid var(--line);
+      background: var(--surface);
+      color: var(--ink);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-google:hover {
+      background: var(--surface-2);
+    }
+
+    #googleNativo {
+      display: flex;
+      justify-content: center;
+    }
+
+    .cambiar {
+      font-size: 13.5px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .cambiar button {
+      font-weight: 700;
+      color: var(--brand-700);
+    }
+  </style>
 </head>
 
 <body>
   <main class="app">
-    <header class="topbar">
-      <a class="volver" href="/home.html">
-        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.4"
+    <div class="marca">
+      <span class="marca-icono">
+        <svg viewBox="0 0 64 64" width="26" height="26" fill="none" stroke="currentColor" stroke-width="3.4"
           stroke-linecap="round" stroke-linejoin="round">
-          <path d="m15 18-6-6 6-6" />
+          <path d="M32 7c14 0 25 8.9 25 20s-11 20-25 20a29 29 0 0 1-7.6-1l-13.6 6.6 3.4-9.7C8.7 39.2 7 33.4 7 27 7 15.9 18 7 32 7Z" />
+          <path d="M20.5 30.5v-4.2a3 3 0 0 1 3-3h17a3 3 0 0 1 3 3v4.2" />
+          <path d="M18.5 30.5a3 3 0 0 1 3 3v4h21v-4a3 3 0 0 1 3-3" />
         </svg>
-        Inicio
-      </a>
-      <span class="paso">Ideas</span>
-    </header>
+      </span>
+      <strong>LivingRoom Speakers</strong>
+    </div>
+
+    <div>
+      <h1 class="titulo-bloque" id="titulo">Entra a construir</h1>
+      <p class="subtitulo" id="subtitulo">Tus mensajes quedan guardados en tu cuenta.</p>
+    </div>
 
     <div class="error" id="error"></div>
 
-    <section class="pantalla activa">
-      <div>
-        <h1 class="titulo-bloque">¿Qué se te ocurrió?</h1>
-        <p class="subtitulo">Suelta la idea como venga. Te digo a cuál de los 8 pilares pertenece,
-          para que no se pierda mientras armas el mensaje.</p>
+    <div id="googleNativo"></div>
+    <button class="btn btn-google" id="btnGoogleRespaldo" style="display:none">
+      <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+        <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/>
+        <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/>
+        <path fill="#FBBC05" d="M3.964 10.71c-.18-.54-.282-1.117-.282-1.71s.102-1.17.282-1.71V4.958H.957C.347 6.173 0 7.548 0 9s.348 2.827.957 4.042l3.007-2.332z"/>
+        <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/>
+      </svg>
+      Continuar con Google
+    </button>
+
+    <div class="separador" id="separador">o con tu correo</div>
+
+    <form id="formulario" class="campos" autocomplete="on">
+      <div class="campo-simple" id="campoNombre" style="display:none">
+        <label for="nombre">Tu nombre</label>
+        <input id="nombre" type="text" autocomplete="name" placeholder="Como quieres que te llamemos" />
+      </div>
+      <div class="campo-simple">
+        <label for="email">Correo</label>
+        <input id="email" type="email" autocomplete="email" required placeholder="tu@correo.com" />
+      </div>
+      <div class="campo-simple">
+        <label for="clave">Contraseña</label>
+        <input id="clave" type="password" autocomplete="current-password" required placeholder="Mínimo 8 caracteres" />
       </div>
 
-      <textarea id="idea" placeholder="Una historia, una frase, una imagen, una pregunta…"></textarea>
+      <button class="btn btn-primario" id="btnEnviar" type="submit">Entrar</button>
+    </form>
 
-      <div class="acciones">
-        <button class="btn btn-primario" id="btnClasificar">¿Dónde va esta idea?</button>
-      </div>
-
-      <div class="cargando" id="cargando" style="display:none">
-        <span class="puntos"><i></i><i></i><i></i></span> Ubicando la idea…
-      </div>
-
-      <article class="consolidado" id="resultado" style="display:none"></article>
-    </section>
+    <p class="cambiar" id="cambiar">
+      ¿No tienes cuenta? <button type="button" id="btnCambiar">Créala aquí</button>
+    </p>
   </main>
 
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script>
     const $ = (s) => document.querySelector(s);
-    const esc = (t = '') => String(t)
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    const esc = (t = '') => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-    function formatOpenAiText(texto) {
-      if (!texto) return '';
-      let t = esc(texto);
-      t = t.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-      t = t.replace(/^### (.*)$/gm, '<strong>$1</strong>');
-      t = t.replace(/^- (.*)$/gm, '<li>$1</li>');
-      t = t.replace(/(<li>[\s\S]*?<\/li>)/g, '<ul>$1</ul>');
-      return t.replace(/\n/g, '<br>');
+    let modo = 'entrar';   // 'entrar' | 'registro'
+    const destino = new URLSearchParams(location.search).get('volver') || '/';
+
+    function pintarModo() {
+      const registro = modo === 'registro';
+      $('#titulo').textContent = registro ? 'Crea tu cuenta' : 'Entra a construir';
+      $('#subtitulo').textContent = registro
+        ? 'Con una cuenta, tus mensajes te siguen a cualquier dispositivo.'
+        : 'Tus mensajes quedan guardados en tu cuenta.';
+      $('#campoNombre').style.display = registro ? 'flex' : 'none';
+      $('#btnEnviar').textContent = registro ? 'Crear cuenta' : 'Entrar';
+      $('#clave').autocomplete = registro ? 'new-password' : 'current-password';
+      $('#cambiar').innerHTML = registro
+        ? '¿Ya tienes cuenta? <button type="button" id="btnCambiar">Entra aquí</button>'
+        : '¿No tienes cuenta? <button type="button" id="btnCambiar">Créala aquí</button>';
+      $('#btnCambiar').addEventListener('click', () => {
+        modo = registro ? 'entrar' : 'registro';
+        $('#error').classList.remove('visible');
+        pintarModo();
+      });
     }
 
-    (async function comprobarSesion() {
-      const r = await fetch('/auth/yo', { credentials: 'same-origin' });
-      if (!r.ok) location.replace('/login.html?volver=' + encodeURIComponent(location.pathname));
-    })();
+    function mostrarError(mensaje) {
+      $('#error').innerHTML = `<b>${esc(mensaje)}</b>`;
+      $('#error').classList.add('visible');
+    }
 
-    $('#btnClasificar').addEventListener('click', async () => {
-      const idea = $('#idea').value.trim();
-      if (!idea) { $('#idea').focus(); return; }
-
+    async function enviar(ruta, cuerpo) {
+      $('#btnEnviar').disabled = true;
       $('#error').classList.remove('visible');
-      $('#resultado').style.display = 'none';
-      $('#cargando').style.display = 'flex';
-      $('#btnClasificar').disabled = true;
-
       try {
-        const r = await fetch('/clasificar-idea', {
+        const r = await fetch(ruta, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'same-origin',
-          body: JSON.stringify({ idea })
+          body: JSON.stringify(cuerpo)
         });
         const data = await r.json();
         if (!r.ok) throw new Error(data.error || `El servidor respondió ${r.status}`);
-        $('#resultado').innerHTML = formatOpenAiText(data.clasificacion || '');
-        $('#resultado').style.display = 'block';
+        location.replace(destino);
       } catch (err) {
-        $('#error').innerHTML = `<b>No pude clasificar la idea.</b>${esc(err.message)}`;
-        $('#error').classList.add('visible');
+        mostrarError(err.message);
       } finally {
-        $('#cargando').style.display = 'none';
-        $('#btnClasificar').disabled = false;
+        $('#btnEnviar').disabled = false;
+      }
+    }
+
+    $('#formulario').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const cuerpo = { email: $('#email').value.trim(), clave: $('#clave').value };
+      if (modo === 'registro') {
+        cuerpo.nombre = $('#nombre').value.trim();
+        enviar('/auth/registro', cuerpo);
+      } else {
+        enviar('/auth/entrar', cuerpo);
       }
     });
 
-    $('#idea').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) $('#btnClasificar').click();
-    });
+    // ---------- Google Identity Services ----------
+    (async function prepararGoogle() {
+      let clientId = null;
+      try {
+        clientId = (await (await fetch('/auth/config')).json()).googleClientId;
+      } catch (e) { /* sin config, seguimos con correo */ }
+
+      if (!clientId) {
+        // Sin GOOGLE_CLIENT_ID el botón no aparece: mejor eso que un botón que falla.
+        $('#separador').textContent = 'Entra con tu correo';
+        return;
+      }
+
+      const arrancar = () => {
+        if (!window.google?.accounts?.id) return setTimeout(arrancar, 250);
+        google.accounts.id.initialize({
+          client_id: clientId,
+          callback: ({ credential }) => enviar('/auth/google', { credential })
+        });
+        google.accounts.id.renderButton($('#googleNativo'), {
+          theme: 'outline', size: 'large', shape: 'pill',
+          text: 'continue_with', locale: 'es', width: 320
+        });
+      };
+      arrancar();
+    })();
+
+    pintarModo();
   </script>
 </body>
 

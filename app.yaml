@@ -23,3 +23,13 @@ services:
       - key: DATABASE_URL
         scope: RUN_TIME
         type: SECRET
+      - key: SESSION_SECRET
+        scope: RUN_TIME
+        type: SECRET
+      # Client ID de Google Identity Services. Sin él, el login por correo
+      # funciona igual y el botón de Google simplemente no se muestra.
+      - key: GOOGLE_CLIENT_ID
+        scope: RUN_TIME
+      - key: NODE_ENV
+        scope: RUN_TIME
+        value: production

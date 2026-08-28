@@ -830,8 +830,10 @@
     }
 
     /* ---------- Estado ---------- */
-    const usuario = (localStorage.getItem('currentUser') || '').trim();
-    const CLAVE = 'crearEstado:' + usuario;
+    // La sesión llega del servidor; el borrador local se indexa por ella.
+    let sesion = null;
+    let usuario = '';
+    let CLAVE = 'crearEstado:anonimo';
 
     let estado = {
       conversacion: [],   // [{rol:'agente'|'usuario', texto}]
@@ -841,11 +843,12 @@
       guardados: {}       // seccion -> texto aceptado (contexto para el siguiente pilar)
     };
 
-    // Con ?nuevo=1 se empieza en limpio; sin él se retoma lo que quedó a medias.
-    const empezarDeCero = new URLSearchParams(location.search).has('nuevo');
-    if (empezarDeCero) {
-      localStorage.removeItem(CLAVE);
-    } else {
+    function cargarBorrador() {
+      // Con ?nuevo=1 se empieza en limpio; sin él se retoma lo que quedó a medias.
+      if (new URLSearchParams(location.search).has('nuevo')) {
+        localStorage.removeItem(CLAVE);
+        return;
+      }
       try {
         const guardado = JSON.parse(localStorage.getItem(CLAVE) || 'null');
         if (guardado) estado = Object.assign(estado, guardado);
@@ -876,8 +879,10 @@
       const r = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
         body: JSON.stringify(cuerpo)
       });
+      if (r.status === 401) { location.replace('/login.html?volver=' + encodeURIComponent(location.pathname + location.search)); return; }
       const data = await r.json().catch(() => ({}));
       if (!r.ok) throw new Error(data.error || `El servidor respondió ${r.status}`);
       return data;
@@ -1163,9 +1168,9 @@
     async function cargarSeccionesGuardadas() {
       try {
         const ruta = estado.mensajeId
-          ? `/obtener-mensaje?id=${encodeURIComponent(estado.mensajeId)}&usuario=${encodeURIComponent(usuario)}`
-          : `/obtener-ultimo-mensaje?usuario=${encodeURIComponent(usuario)}`;
-        const r = await fetch(ruta);
+          ? `/obtener-mensaje?id=${encodeURIComponent(estado.mensajeId)}`
+          : '/obtener-ultimo-mensaje';
+        const r = await fetch(ruta, { credentials: 'same-origin' });
         const d = await r.json();
         if (d?.success && d.mensaje) {
           estado.mensajeId = d.mensaje.id;
@@ -1237,15 +1242,16 @@
 
 
     /* ---------- Arranque ---------- */
-    (function iniciar() {
-      if (!usuario) {
-        const nombre = prompt('¿Con qué nombre de usuario trabajas?');
-        if (nombre && nombre.trim()) {
-          localStorage.setItem('currentUser', nombre.trim());
-          location.reload();
-          return;
-        }
-        mostrarError('Necesito saber quién eres.', 'Sin usuario no puedo guardar el mensaje. Vuelve al inicio y toca tu nombre.');
+    (async function iniciar() {
+      try {
+        const r = await fetch('/auth/yo', { credentials: 'same-origin' });
+        if (!r.ok) throw new Error('sin sesión');
+        sesion = (await r.json()).usuario;
+        usuario = sesion.usuario;
+        CLAVE = 'crearEstado:' + usuario;
+        cargarBorrador();
+      } catch {
+        location.replace('/login.html?volver=' + encodeURIComponent(location.pathname + location.search));
         return;
       }
 
