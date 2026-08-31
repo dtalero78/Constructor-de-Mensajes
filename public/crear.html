@@ -961,7 +961,7 @@
         <p class="porque" id="porque" style="margin-top:12px"></p>
       </div>
 
-      <div class="cargando" id="cargandoEntrevista">
+      <div class="cargando" id="cargandoEntrevista" style="display:none">
         <span class="puntos"><i></i><i></i><i></i></span> Pensando la siguiente pregunta…
       </div>
 
@@ -1632,7 +1632,7 @@
     $('#modoTexto').addEventListener('click', () => {
       mostrar('pEntrevista', 'Entrevista');
       pintarHistorial();
-      if (!estado.conversacion.length) siguientePregunta();
+      siguientePregunta();
     });
 
     $('#modoVoz').addEventListener('click', () => {
@@ -1722,7 +1722,10 @@
       vozSesion = null;
       mostrar('pEntrevista', 'Entrevista');
       pintarHistorial();
-      if (!estado.conversacion.length) siguientePregunta();
+      // Siempre se pide la siguiente pregunta: lo hablado ya está en
+      // estado.conversacion, así que el agente retoma con ese contexto.
+      // Sin esto la pantalla quedaba con el "Pensando…" colgado y sin pregunta.
+      siguientePregunta();
     });
 
     // Colgar el micrófono si se cierra la pestaña a media entrevista.

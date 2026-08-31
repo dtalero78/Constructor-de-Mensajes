@@ -181,6 +181,35 @@ que está duplicado en cada página.
    prohíbe el meta-comentario ("## Sugerencia de TÍTULO", "Por qué funciona"). Antes, un título ocupaba
    2282 caracteres de ensayo; ahora, 30.
 
+## Los dos entrevistadores: `materialQueSirve`, no `tonoLivingRoom`
+
+Hay dos constantes de estilo y **no son intercambiables**:
+
+- `tonoLivingRoom` → para los prompts que **escriben** el mensaje. Describe cómo suena una
+  prédica: frases cortas, marcadores de escucha, ráfaga de "quizás", prohibido moralizar.
+- `materialQueSirve` → para los dos **entrevistadores** (texto y voz). Describe qué material
+  vale la pena sacarle al predicador: lo concreto sobre lo abstracto, escenas con cuerpo,
+  la derrota abierta antes que la lección aprendida.
+
+Dárselo al revés tiene un efecto medible: un entrevistador con el manual del mensaje empieza a
+hablar como púlpito —suelta "escúchame", frases de sermón— en vez de preguntar. Si alguien
+"unifica" ambas constantes, eso es lo que vuelve.
+
+### El entrevistador no interroga: propone
+
+La premisa del producto es que el predicador llega **sin** el mensaje armado: trae un versículo
+suelto, una inquietud, o casi nada. Por eso los prompts prohíben expresamente:
+
+- pedir conceptos ("¿cuál es tu historia ancla?"): se pregunta por experiencias vividas;
+- usar el vocabulario del método delante del predicador ("briefing", "pilares", "tensión");
+- quedarse repitiendo una pregunta cuando la respuesta es vaga: hay que **bajarla a lo concreto**
+  ("quiero hablar de la fe" → "¿y a ti en qué te está costando creer últimamente?").
+
+Y al revés de lo que decía la versión anterior del prompt, el agente **sí debe proponer**: cuando
+entiende algo, se lo devuelve al predicador para que lo confirme o lo corrija. Reconocer es fácil;
+producir de la nada es lo que bloquea. El briefing lo compone el agente por inferencia; los seis
+campos son su salida, no un formulario que el predicador rellene.
+
 ## Entrevista por voz
 
 `crear.html` abre en una pantalla de modo (`pModo`): **escribiendo** (el agente de texto de siempre)
