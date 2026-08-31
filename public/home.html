@@ -20,19 +20,39 @@
        verde reservado para lo que de verdad indica estado.
        ============================================================ */
 
+    /* Fondo con color y el contenido dentro de una ventana blanca,
+       como en la referencia: la tarjeta se lee como una superficie
+       sobre el fondo, no como la página entera. */
     body {
       align-items: flex-start;
-      padding: 0;
+      background: var(--fondo);
+      padding: 28px 24px 120px;
     }
 
     .app {
-      max-width: 720px;
-      border: 0;
-      border-radius: 0;
-      box-shadow: none;
-      background: transparent;
-      padding: 0 20px 120px;
+      max-width: 1040px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: 0 1px 3px rgba(16, 24, 40, .06), 0 12px 32px rgba(16, 24, 40, .06);
+      padding: 8px 28px 32px;
       gap: 0;
+    }
+
+    /* En pantallas chicas la ventana ocupa todo: enmarcarla ahí solo
+       roba ancho al contenido. */
+    @media (max-width: 620px) {
+      body {
+        padding: 0 0 110px;
+      }
+
+      .app {
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+        padding: 0 16px 24px;
+        min-height: 100vh;
+      }
     }
 
     /* ---------- Cabecera ---------- */
@@ -198,10 +218,10 @@
       padding: 14px 16px;
       margin-bottom: 10px;
       background: var(--surface);
-      border: 1px solid var(--line);
+      border: 1px solid var(--linea-fila);
       border-radius: 12px;
       color: inherit;
-      transition: border-color .15s ease, box-shadow .15s ease;
+      transition: border-color .15s ease, background .15s ease;
     }
 
     .fila:last-child {
@@ -209,8 +229,8 @@
     }
 
     .fila:hover {
-      border-color: #D5D9DF;
-      box-shadow: var(--shadow-sm);
+      border-color: #C9CFD8;
+      background: #FCFCFD;
     }
 
     .fila.inerte {
@@ -219,8 +239,8 @@
     }
 
     .fila.inerte:hover {
-      border-color: var(--line);
-      box-shadow: none;
+      border-color: var(--linea-fila);
+      background: var(--surface);
     }
 
     .fila .marca {
@@ -329,7 +349,7 @@
       gap: 10px;
       padding: 12px 14px;
       background: var(--surface);
-      border: 1px solid var(--line);
+      border: 1px solid var(--linea-fila);
       border-radius: 12px;
       font-size: 13.5px;
       color: inherit;
@@ -361,7 +381,7 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(255, 255, 255, .92);
+      background: rgba(255, 255, 255, .96);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       border-top: 1px solid var(--line);

@@ -16,6 +16,10 @@
       --brand-700: #0F8A3C;
       --brand-soft: #E9F7EE;
       --page: #F4F5F7;
+      /* Fondo de la página cuando el contenido va dentro de una ventana. */
+      --fondo: #E8EBEF;
+      /* Borde de las filas: más marcado, porque van sobre blanco. */
+      --linea-fila: #DFE3E9;
       --surface: #FFFFFF;
       --surface-2: #F7F8FA;
       --line: #E6E8EC;
