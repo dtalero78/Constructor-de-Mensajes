@@ -310,123 +310,67 @@
       scroll-snap-align: start;
     }
 
+    /* El color lo pone cada tarjeta con --tinte. */
     .quick-tile {
       position: relative;
-      display: block;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
       width: 100%;
       aspect-ratio: 1;
+      padding: 18px;
       overflow: hidden;
-      background: var(--surface);
-      border: 1.5px solid var(--line);
+      background: var(--tinte, var(--surface-2));
       border-radius: 28px;
-      box-shadow: var(--shadow-sm);
-      transition: transform .2s cubic-bezier(.22, 1, .36, 1), box-shadow .2s ease, border-color .2s ease;
+      transition: transform .2s cubic-bezier(.22, 1, .36, 1), box-shadow .2s ease;
     }
 
     .quick:hover .quick-tile {
       transform: translateY(-3px);
       box-shadow: var(--shadow-md);
-      border-color: #E2DCD4;
     }
 
     .quick:active .quick-tile {
       transform: scale(.96);
     }
 
-    /* La foto va a sangre por abajo, recortada por la baldosa */
+    /* La foto vive dentro del círculo, que la recorta: por eso ya no
+       importa que los PNG traigan el fondo blanco quemado. */
+    .quick-circulo {
+      width: 40%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      overflow: hidden;
+      background: rgba(255, 255, 255, .75);
+      display: grid;
+      place-items: center;
+      flex: none;
+    }
+
     .quick-img {
-      position: absolute;
-      left: 50%;
-      bottom: 0;
-      transform: translateX(-50%);
-      height: auto;
-      width: auto;
-      /* max-* nunca amplía: si la baldosa es mayor que el PNG, se queda en su tamaño real */
-      max-height: 84%;
-      max-width: 96%;
-      object-fit: contain;
-      object-position: bottom;
-      transition: transform .3s cubic-bezier(.22, 1, .36, 1);
-    }
-
-    .quick:hover .quick-img {
-      transform: translateX(-50%) scale(1.06);
-    }
-
-    /* Desvanecido blanco: la foto se disuelve donde entra el título */
-    .quick-fade {
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      height: 52%;
-      background: linear-gradient(to top,
-          #fff 26%,
-          rgba(255, 255, 255, .92) 46%,
-          rgba(255, 255, 255, .55) 70%,
-          rgba(255, 255, 255, 0) 100%);
-    }
-
-    /* Título encima de la imagen, dentro del óvalo trazado a mano */
-    .quick-label {
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      bottom: 7%;
-      width: max-content;
-      max-width: 96%;
-      padding: 0 2px 4px;
-      border-bottom: 2.5px solid var(--brand);
-      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-      font-weight: 800;
-      font-size: clamp(13px, 3.4vw, 17px);
-      letter-spacing: -.01em;
-      line-height: 1.15;
-      color: var(--ink);
-      text-align: center;
-      transition: transform .25s ease;
-    }
-
-    .quick:hover .quick-label {
-      transform: translateX(-50%) translateY(-2px);
-    }
-
-    /* Fotos de escena (no recortes): la máscara disuelve el rectángulo en el blanco */
-    /* Fotos de escena (no recortes): llenan la baldosa y se difuminan por los cuatro lados */
-    .quick-img--foto {
-      inset: 0;
-      left: 0;
-      transform: none;
       width: 100%;
       height: 100%;
-      max-width: none;
-      max-height: none;
       object-fit: cover;
-      object-position: center 40%;
-      -webkit-mask-image:
-        linear-gradient(to right, transparent 0%, #000 24%, #000 76%, transparent 100%),
-        linear-gradient(to bottom, transparent 0%, #000 22%, #000 70%, transparent 100%);
-      -webkit-mask-composite: source-in;
-      mask-image:
-        linear-gradient(to right, transparent 0%, #000 24%, #000 76%, transparent 100%),
-        linear-gradient(to bottom, transparent 0%, #000 22%, #000 70%, transparent 100%);
-      mask-composite: intersect;
+      object-position: var(--foco, 50% 12%);
+      display: block;
     }
 
-    .quick:hover .quick-img--foto {
-      transform: scale(1.06);
-    }
-
-    /* Hueco a la espera de su imagen */
+    /* Círculo a la espera de su imagen */
     .quick-ph {
-      position: absolute;
-      left: 18%;
-      right: 18%;
-      top: 12%;
-      bottom: 34%;
-      border-radius: 12px;
-      background: var(--surface-2);
-      border: 1.5px dashed #DFD9D2;
+      width: 46%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      border: 2px dashed rgba(21, 24, 29, .18);
+    }
+
+    .quick-label {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      font-weight: 800;
+      font-size: clamp(15px, 4vw, 19px);
+      letter-spacing: -.02em;
+      line-height: 1.22;
+      color: var(--ink);
+      text-align: left;
     }
 
     /* ---------- Bloques ---------- */
@@ -882,8 +826,6 @@
 
       .quick-label {
         font-size: 19px;
-        padding: 0 3px 7px;
-        bottom: 8%;
       }
 
       .block-head h2 {
@@ -997,43 +939,31 @@
 
     <!-- ================= 4 ACCESOS ================= -->
     <nav class="quick-grid">
-      <a class="quick" href="/crear.html?nuevo=1">
+      <a class="quick" href="/crear.html?nuevo=1" style="--tinte: #E4F5EA; --foco: 50% 6%">
         <span class="quick-tile">
-          <img class="quick-img" src="/images/sebas.png" alt="" />
-          <span class="quick-fade"></span>
-          <span class="quick-label">
-            <span>Crear</span>
-          </span>
+          <span class="quick-circulo"><img class="quick-img" src="/images/sebas.png" alt="" /></span>
+          <span class="quick-label">Crea un mensaje</span>
         </span>
       </a>
 
-      <a class="quick" href="/ideas.html">
+      <a class="quick" href="/tutor-alpha.html" style="--tinte: #E6EEFC; --foco: 42% 0%">
         <span class="quick-tile">
-          <img class="quick-img quick-img--foto" src="/images/ideas.png" alt="" />
-          <span class="quick-fade"></span>
-          <span class="quick-label">
-            <span>Ideas</span>
-          </span>
+          <span class="quick-circulo"><img class="quick-img" src="/images/carlos.png" alt="" /></span>
+          <span class="quick-label">La plantilla LVR</span>
         </span>
       </a>
 
-      <a class="quick" href="/tutor-alpha.html">
+      <a class="quick" href="/ideas.html" style="--tinte: #F0E9FC; --foco: 50% 55%">
         <span class="quick-tile">
-          <img class="quick-img" src="/images/carlos.png" alt="" />
-          <span class="quick-fade"></span>
-          <span class="quick-label">
-            <span>Tutorial</span>
-          </span>
+          <span class="quick-circulo"><img class="quick-img" src="/images/ideas.png" alt="" /></span>
+          <span class="quick-label">Toma ideas de otros</span>
         </span>
       </a>
 
-      <a class="quick" href="#novedades">
+      <a class="quick" href="#novedades" style="--tinte: #FCF3DF">
         <span class="quick-tile">
           <span class="quick-ph"></span>
-          <span class="quick-fade"></span>
-          <span class="quick-label">
-            <span>Novedades</span>
-          </span>
+          <span class="quick-label">Novedades</span>
         </span>
       </a>
     </nav>
