@@ -15,18 +15,18 @@
       --brand-600: #17A34A;
       --brand-700: #0F8A3C;
       --brand-soft: #E9F7EE;
-      --page: #EFE8E0;
+      --page: #F4F5F7;
       --surface: #FFFFFF;
-      --surface-2: #F7F4F0;
-      --line: #ECE7E1;
+      --surface-2: #F7F8FA;
+      --line: #E6E8EC;
       --ink: #15181D;
       --ink-2: #4B5159;
-      --muted: #8E949D;
+      --muted: #767C86;
       --danger: #C0392B;
       --warn: #C08A1E;
       --warn-soft: #FBF1DC;
-      --shadow-sm: 0 2px 6px rgba(24, 20, 16, .05);
-      --shadow-md: 0 6px 18px rgba(24, 20, 16, .07);
+      --shadow-sm: 0 1px 2px rgba(16, 24, 40, .04);
+      --shadow-md: 0 2px 8px rgba(16, 24, 40, .06);
     }
 
 * {
@@ -63,8 +63,9 @@ button {
       width: 100%;
       max-width: 720px;
       background: var(--surface);
-      border-radius: 32px;
-      box-shadow: var(--shadow-md);
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow-sm);
       padding: 18px 20px 28px;
       display: flex;
       flex-direction: column;
@@ -84,9 +85,8 @@ button {
       align-items: center;
       gap: 7px;
       padding: 8px 14px 8px 10px;
-      border-radius: 999px;
-      border: 1.5px solid var(--line);
-      box-shadow: var(--shadow-sm);
+      border-radius: 10px;
+      border: 1px solid var(--line);
       font-size: 13px;
       font-weight: 600;
       color: var(--ink-2);
@@ -134,9 +134,9 @@ textarea {
       line-height: 1.55;
       color: var(--ink);
       background: var(--surface-2);
-      border: 1.5px solid var(--line);
-      border-radius: 20px;
-      padding: 16px 18px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 14px 16px;
       transition: border-color .18s ease, background .18s ease;
     }
 
@@ -162,8 +162,8 @@ textarea::placeholder {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 13px 24px;
-      border-radius: 999px;
+      padding: 12px 20px;
+      border-radius: 10px;
       font-size: 15px;
       font-weight: 700;
       letter-spacing: -.01em;
@@ -171,14 +171,12 @@ textarea::placeholder {
     }
 
 .btn-primario {
-      background: var(--brand);
+      background: var(--brand-700);
       color: #fff;
-      box-shadow: 0 8px 18px rgba(18, 144, 62, .3);
     }
 
 .btn-primario:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 12px 24px rgba(18, 144, 62, .34);
+      background: #0C7532;
     }
 
 .btn-primario:disabled {
@@ -311,9 +309,9 @@ textarea::placeholder {
     }
 
 .campo {
-      border: 1.5px solid var(--line);
-      border-radius: 20px;
-      padding: 14px 18px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 14px 16px;
       background: var(--surface);
       transition: border-color .18s ease;
     }
@@ -344,7 +342,7 @@ textarea::placeholder {
 
 .btn-mini {
       padding: 7px 15px;
-      border-radius: 999px;
+      border-radius: 8px;
       font-size: 12.5px;
       font-weight: 700;
       background: var(--brand);

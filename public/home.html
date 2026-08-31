@@ -4,913 +4,386 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#22B24C" />
+  <meta name="theme-color" content="#0F8A3C" />
   <title>LivingRoom Speakers</title>
+  <link rel="stylesheet" href="/estilos.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
-    href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
     rel="stylesheet" />
   <style>
     /* ============================================================
-       LIVINGROOM SPEAKERS — HOME
-       Un solo archivo: HTML + CSS + JS. Sin build, sin framework.
+       HOME — versión sobria.
+       La jerarquía la hacen el peso tipográfico y el espacio, no el
+       color: una sola tarjeta blanca, filas separadas por líneas y el
+       verde reservado para lo que de verdad indica estado.
        ============================================================ */
 
-    :root {
-      /* Marca */
-      --brand: #22B24C;
-      --brand-600: #17A34A;
-      --brand-700: #0F8A3C;
-      --brand-soft: #E9F7EE;
-
-      /* Superficies */
-      --page: #EFE8E0;
-      --surface: #FFFFFF;
-      --surface-2: #F7F4F0;
-      --line: #ECE7E1;
-
-      /* Tinta */
-      --ink: #15181D;
-      --ink-2: #4B5159;
-      --muted: #8E949D;
-
-      /* Forma y sombra: la base del look "redondeado gordito" */
-      --r-sm: 14px;
-      --r-md: 20px;
-      --r-lg: 26px;
-      --r-xl: 32px;
-      --shadow-sm: 0 2px 6px rgba(24, 20, 16, .05);
-      --shadow-md: 0 6px 18px rgba(24, 20, 16, .07);
-      --shadow-lg: 0 16px 40px rgba(24, 20, 16, .12);
-
-      --gutter: 18px;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
+    body {
+      align-items: flex-start;
       padding: 0;
     }
 
-    html {
-      -webkit-text-size-adjust: 100%;
-    }
-
-    body {
-      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
-      background: var(--page);
-      color: var(--ink);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      padding: 14px 14px 0;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    a {
-      text-decoration: none;
-      color: inherit;
-    }
-
-    button {
-      font: inherit;
-      color: inherit;
-      border: 0;
-      background: none;
-      cursor: pointer;
-    }
-
-    /* ---------- Lienzo principal (la "pantalla" blanca) ---------- */
     .app {
-      width: 100%;
-      max-width: 430px;
-      background: var(--surface);
-      border-radius: var(--r-xl);
-      padding: 16px var(--gutter) 140px;
-      box-shadow: var(--shadow-md);
-      display: flex;
-      flex-direction: column;
-      gap: 22px;
-      animation: rise .5s cubic-bezier(.22, 1, .36, 1) both;
+      max-width: 720px;
+      border: 0;
+      border-radius: 0;
+      box-shadow: none;
+      background: transparent;
+      padding: 0 20px 120px;
+      gap: 0;
     }
 
-    @keyframes rise {
-      from {
-        opacity: 0;
-        transform: translateY(10px);
-      }
-    }
-
-    /* ---------- Header ---------- */
-    .topbar {
+    /* ---------- Cabecera ---------- */
+    .barra-sup {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 12px;
+      padding: 20px 0 24px;
     }
 
-    .user-pill {
+    .yo {
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 6px 16px 6px 6px;
-      background: var(--surface);
-      border: 1.5px solid var(--line);
-      border-radius: 999px;
-      box-shadow: var(--shadow-sm);
-      transition: transform .18s ease, box-shadow .18s ease;
       min-width: 0;
     }
 
-    .user-pill:hover {
-      transform: translateY(-1px);
-      box-shadow: var(--shadow-md);
-    }
-
-    .user-pill:active {
-      transform: scale(.985);
-    }
-
-    .avatar {
-      width: 38px;
-      height: 38px;
+    .yo .avatar {
+      width: 34px;
+      height: 34px;
       flex: none;
       border-radius: 50%;
-      background: linear-gradient(140deg, #2FC85C, #12903E);
-      color: #fff;
+      overflow: hidden;
+      background: var(--brand-soft);
+      color: var(--brand-700);
       display: grid;
       place-items: center;
-      font-weight: 800;
-      font-size: 14px;
-      letter-spacing: .02em;
+      font-size: 12.5px;
+      font-weight: 700;
     }
 
-    .user-meta {
-      display: flex;
-      flex-direction: column;
-      line-height: 1.25;
-      min-width: 0;
+    .yo .avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
 
-    .user-meta strong {
+    .yo strong {
       font-size: 14px;
       font-weight: 700;
-      color: var(--brand-700);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 40vw;
+      letter-spacing: -.01em;
     }
 
-    .user-meta small {
-      font-size: 11px;
-      color: var(--muted);
-      font-weight: 500;
-    }
-
-    .icon-btn {
-      position: relative;
-      width: 44px;
-      height: 44px;
-      flex: none;
+    .icono-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
       display: grid;
       place-items: center;
-      border-radius: 50%;
-      background: var(--surface);
-      border: 1.5px solid var(--line);
-      box-shadow: var(--shadow-sm);
-      color: var(--ink);
-      transition: transform .18s ease, box-shadow .18s ease;
-    }
-
-    .icon-btn:hover {
-      transform: translateY(-1px);
-      box-shadow: var(--shadow-md);
-    }
-
-    .icon-btn svg {
-      width: 20px;
-      height: 20px;
       color: var(--ink-2);
+      position: relative;
+      transition: background .15s ease;
     }
 
-    .icon-btn .badge {
+    .icono-btn:hover {
+      background: var(--surface-2);
+    }
+
+    .icono-btn .punto {
       position: absolute;
-      top: 9px;
-      right: 10px;
-      width: 8px;
-      height: 8px;
+      top: 7px;
+      right: 8px;
+      width: 6px;
+      height: 6px;
       border-radius: 50%;
-      background: #FF5A5F;
-      border: 2px solid #fff;
+      background: #E5484D;
     }
 
-    /* ---------- Hero ---------- */
-    .hero {
+    /* ---------- Banner ---------- *
+       Mismo gesto que el anterior, en la clave nueva: color plano,
+       sin brillo ni sombra, tipografía a la mitad y el radio del sistema. */
+    .banner {
       position: relative;
       overflow: hidden;
-      /* No es un rectángulo: esquinas muy abiertas, casi cápsula */
-      border-radius: 58px;
-      background:
-        radial-gradient(120% 130% at 85% 15%, rgba(255, 255, 255, .28) 0%, rgba(255, 255, 255, 0) 55%),
-        linear-gradient(135deg, #35C963 0%, #22B24C 46%, #12903E 100%);
+      background: var(--brand-600);
       color: #fff;
-      padding: 26px 30px;
-      min-height: 158px;
-      display: flex;
-      align-items: center;
-      box-shadow: 0 12px 26px rgba(18, 144, 62, .28);
+      border-radius: 14px;
+      padding: 22px 22px 24px;
+      margin-bottom: 26px;
     }
 
-    .hero::after {
-      /* aro decorativo, como el brillo del banner de referencia */
-      content: "";
-      position: absolute;
-      right: -70px;
-      bottom: -90px;
-      width: 240px;
-      height: 240px;
-      border-radius: 50%;
-      border: 26px solid rgba(255, 255, 255, .08);
-    }
-
-    .hero-copy {
-      position: relative;
-      z-index: 2;
-      max-width: 74%;
-    }
-
-    .eyebrow {
-      font-size: 12px;
+    .banner .eyebrow {
+      font-size: 11.5px;
       font-weight: 600;
       letter-spacing: .01em;
-      color: rgba(255, 255, 255, .88);
-      margin-bottom: 6px;
+      color: rgba(255, 255, 255, .82);
     }
 
-    .wordmark {
-      font-family: 'Archivo', 'Plus Jakarta Sans', sans-serif;
+    .banner h1 {
+      position: relative;
+      z-index: 2;
+      margin-top: 6px;
+      font-size: clamp(21px, 5.2vw, 26px);
       font-weight: 800;
-      letter-spacing: -.035em;
-      line-height: .94;
-      font-size: clamp(30px, 9.6vw, 42px);
+      letter-spacing: -.03em;
+      line-height: 1.14;
+      max-width: 62%;
     }
 
-    .wordmark span {
-      display: block;
-    }
-
-    .wordmark .reg {
-      font-size: .3em;
-      vertical-align: super;
+    .banner sup {
+      font-size: .42em;
       font-weight: 700;
-      letter-spacing: 0;
-      margin-left: .12em;
+      vertical-align: super;
+      margin-left: .1em;
     }
 
-    .hero-mark {
+    /* El sofá en el globo, como marca de agua discreta. */
+    .banner .sello {
       position: absolute;
-      z-index: 1;
-      right: -16px;
+      right: 18px;
       top: 50%;
-      width: 126px;
-      height: 126px;
-      color: rgba(255, 255, 255, .34);
-      transform: translateY(-50%) rotate(-8deg);
+      transform: translateY(-50%);
+      width: 96px;
+      height: 96px;
+      color: rgba(255, 255, 255, .22);
+      z-index: 1;
     }
 
-    .hero-mark svg {
+    .banner .sello svg {
       width: 100%;
       height: 100%;
     }
 
-    /* ---------- Accesos rápidos (4 botones) ---------- */
-    /* Riel horizontal: el siguiente acceso asoma para invitar a deslizar. */
-    .quick-grid {
+    @media (max-width: 420px) {
+      .banner .sello {
+        width: 84px;
+        height: 84px;
+        right: 6px;
+      }
+    }
+
+    /* ---------- Tarjeta con filas ---------- */
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      overflow: hidden;
+      margin-bottom: 26px;
+    }
+
+    .panel-cab {
       display: flex;
-      gap: 12px;
-      overflow-x: auto;
-      scroll-snap-type: x mandatory;
-      padding: 2px var(--gutter) 8px;
-      margin: 0 calc(var(--gutter) * -1);
-      scrollbar-width: none;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    .quick-grid::-webkit-scrollbar {
-      display: none;
-    }
-
-    .quick {
-      display: block;
-      flex: none;
-      width: 62%;
-      max-width: 250px;
-      scroll-snap-align: start;
-    }
-
-    /* El color lo pone cada tarjeta con --tinte. */
-    .quick-tile {
-      position: relative;
-      display: flex;
-      flex-direction: column;
+      align-items: baseline;
       justify-content: space-between;
-      width: 100%;
-      aspect-ratio: 1;
-      padding: 18px;
+      gap: 12px;
+      padding: 16px 18px 12px;
+    }
+
+    .panel-cab h2 {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: -.01em;
+    }
+
+    .panel-cab .nota {
+      font-size: 12.5px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .fila {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 18px;
+      border-top: 1px solid var(--line);
+      color: inherit;
+      transition: background .15s ease;
+    }
+
+    .fila:hover {
+      background: var(--surface-2);
+    }
+
+    .fila.inerte {
+      cursor: default;
+      opacity: .6;
+    }
+
+    .fila.inerte:hover {
+      background: transparent;
+    }
+
+    .fila .marca {
+      width: 40px;
+      height: 40px;
+      flex: none;
+      border-radius: 11px;
       overflow: hidden;
       background: var(--tinte, var(--surface-2));
-      border-radius: 28px;
-      transition: transform .2s cubic-bezier(.22, 1, .36, 1), box-shadow .2s ease;
-    }
-
-    .quick:hover .quick-tile {
-      transform: translateY(-3px);
-      box-shadow: var(--shadow-md);
-    }
-
-    .quick:active .quick-tile {
-      transform: scale(.96);
-    }
-
-    /* La foto vive dentro del círculo, que la recorta: por eso ya no
-       importa que los PNG traigan el fondo blanco quemado. */
-    .quick-circulo {
-      width: 40%;
-      aspect-ratio: 1;
-      border-radius: 50%;
-      overflow: hidden;
-      background: rgba(255, 255, 255, .75);
       display: grid;
       place-items: center;
-      flex: none;
     }
 
-    .quick-img {
+    .fila .marca img {
       width: 100%;
       height: 100%;
       object-fit: cover;
       object-position: var(--foco, 50% 12%);
+    }
+
+    .fila .texto {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .fila .texto b {
       display: block;
-    }
-
-    /* Círculo a la espera de su imagen */
-    .quick-ph {
-      width: 46%;
-      aspect-ratio: 1;
-      border-radius: 50%;
-      border: 2px dashed rgba(21, 24, 29, .18);
-    }
-
-    /* Aún sin destino: se ve, pero no promete un clic que no lleva a nada. */
-    .quick-pronto {
-      cursor: default;
-    }
-
-    .quick-pronto .quick-tile {
-      opacity: .72;
-    }
-
-    .quick-pronto:hover .quick-tile {
-      transform: none;
-      box-shadow: none;
-    }
-
-    .quick-label em {
-      display: block;
-      margin-top: 4px;
-      font-size: .72em;
-      font-style: normal;
-      font-weight: 700;
-      color: var(--muted);
-    }
-
-    .quick-label {
-      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-      font-weight: 800;
-      font-size: clamp(15px, 4vw, 19px);
-      letter-spacing: -.02em;
-      line-height: 1.22;
-      color: var(--ink);
-      text-align: left;
-    }
-
-    /* ---------- Bloques ---------- */
-    .block {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-
-    .block-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
-
-    .block-head h2 {
-      font-size: 18px;
-      font-weight: 800;
-      letter-spacing: -.02em;
-    }
-
-    .block-head .count {
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--muted);
-    }
-
-    .chev {
-      width: 26px;
-      height: 26px;
-      flex: none;
-      border-radius: 50%;
-      display: grid;
-      place-items: center;
-      border: 1.5px solid #D9E6FB;
-      color: #2F63DA;
-      transition: background .18s ease, transform .18s ease;
-    }
-
-    .chev:hover {
-      background: #E9F0FE;
-      transform: translateX(2px);
-    }
-
-    /* ---------- Tarjetas de mensajes ---------- */
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-    }
-
-    .card {
-      background: var(--surface);
-      border: 1.5px solid var(--line);
-      border-radius: var(--r-md);
-      padding: 8px 8px 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      box-shadow: var(--shadow-sm);
-      transition: transform .2s cubic-bezier(.22, 1, .36, 1), box-shadow .2s ease;
-    }
-
-    .card:hover {
-      transform: translateY(-3px);
-      box-shadow: var(--shadow-md);
-    }
-
-    .card-cover {
-      position: relative;
-      aspect-ratio: 4 / 3;
-      border-radius: var(--r-sm);
-      overflow: hidden;
-      background: linear-gradient(140deg, #2FC85C, #0F8A3C);
-      display: grid;
-      place-items: center;
-      color: #fff;
-      padding: 32px 12px 12px;
-    }
-
-    .card-cover::after {
-      content: "";
-      position: absolute;
-      right: -28px;
-      top: -34px;
-      width: 96px;
-      height: 96px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, .12);
-    }
-
-    .card-cover p {
-      position: relative;
-      z-index: 2;
-      font-size: 11px;
-      font-weight: 600;
-      line-height: 1.35;
-      text-align: center;
-      display: -webkit-box;
-      -webkit-line-clamp: 4;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-      opacity: .95;
-    }
-
-    .card-cover .chip {
-      position: absolute;
-      z-index: 3;
-      left: 8px;
-      top: 8px;
-      background: rgba(255, 255, 255, .92);
-      color: var(--brand-700);
-      font-size: 10px;
-      font-weight: 800;
-      padding: 3px 8px;
-      border-radius: 999px;
-    }
-
-    /* Con .card-cover delante para ganarle en especificidad a .card-cover .chip,
-       que fija left:8px y dejaba el distintivo estirado de lado a lado. */
-    .card-cover .chip-curso {
-      left: auto;
-      right: 8px;
-      background: var(--brand);
-      color: #fff;
-      box-shadow: 0 2px 6px rgba(9, 74, 32, .25);
-    }
-
-    .card-body {
-      padding: 0 4px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .card-title {
-      font-size: 14px;
+      font-size: 14.5px;
       font-weight: 700;
       letter-spacing: -.01em;
-      line-height: 1.25;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
+      line-height: 1.35;
     }
 
-    .card-meta {
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      gap: 8px;
-    }
-
-    .card-meta small {
-      font-size: 11px;
+    .fila .texto span {
+      display: block;
+      font-size: 13px;
       color: var(--muted);
-      font-weight: 500;
-    }
-
-    .card-meta b {
-      font-size: 14px;
-      font-weight: 800;
-      color: var(--brand-700);
+      line-height: 1.45;
+      margin-top: 1px;
+      overflow: hidden;
+      text-overflow: ellipsis;
       white-space: nowrap;
     }
 
-    .bar {
-      height: 5px;
+    .contador {
+      flex: none;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--brand-700);
+      background: var(--brand-soft);
+      padding: 4px 9px;
+      border-radius: 999px;
+    }
+
+    .contador.gris {
+      color: var(--muted);
+      background: var(--surface-2);
+    }
+
+    .fila .flecha {
+      flex: none;
+      color: #B6BCC5;
+    }
+
+    /* ---------- Mensajes ---------- */
+    .avance {
+      width: 54px;
+      height: 4px;
       border-radius: 999px;
       background: var(--surface-2);
       overflow: hidden;
+      margin-top: 7px;
     }
 
-    .bar i {
+    .avance i {
       display: block;
       height: 100%;
-      border-radius: 999px;
-      background: linear-gradient(90deg, #35C963, #12903E);
-    }
-
-    /* Tarjeta "nuevo" punteada */
-    .card-new {
-      border: 1.5px dashed #D8D2CA;
-      background: var(--surface-2);
-      border-radius: var(--r-md);
-      min-height: 150px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      text-align: center;
-      padding: 18px 14px;
-      color: var(--ink-2);
-      transition: transform .2s ease, border-color .2s ease, background .2s ease;
-    }
-
-    .card-new:hover {
-      transform: translateY(-3px);
-      border-color: var(--brand);
-      background: var(--brand-soft);
-    }
-
-    .card-new .plus {
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
       background: var(--brand);
-      color: #fff;
-      display: grid;
-      place-items: center;
-      box-shadow: 0 8px 16px rgba(18, 144, 62, .3);
+      border-radius: 999px;
     }
 
-    .card-new strong {
-      font-size: 13px;
-      font-weight: 700;
+    .vacio {
+      padding: 30px 18px;
+      text-align: center;
+      border-top: 1px solid var(--line);
     }
 
-    .card-new small {
-      font-size: 11px;
+    .vacio p {
+      font-size: 13.5px;
       color: var(--muted);
-      line-height: 1.35;
+      margin-bottom: 14px;
     }
 
-    /* Si la última tarjeta queda sola en la fila (grid de 2), que ocupe todo el ancho */
-    .cards> :last-child:nth-child(odd) {
-      grid-column: 1 / -1;
-      min-height: 132px;
-    }
-
-    .skeleton {
-      border-radius: var(--r-md);
-      min-height: 190px;
-      background: linear-gradient(100deg, #F3F0EC 30%, #FAF8F6 50%, #F3F0EC 70%);
-      background-size: 220% 100%;
-      animation: shimmer 1.2s infinite linear;
-    }
-
-    @keyframes shimmer {
-      to {
-        background-position: -220% 0;
-      }
-    }
-
-    /* ---------- Riel de pilares ---------- */
-    .rail {
-      display: flex;
-      gap: 10px;
-      overflow-x: auto;
-      padding: 2px var(--gutter) 6px;
-      margin: 0 calc(var(--gutter) * -1);
-      scroll-snap-type: x mandatory;
-      scrollbar-width: none;
-    }
-
-    .rail::-webkit-scrollbar {
-      display: none;
+    /* ---------- Pilares ---------- */
+    .pilares {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0;
     }
 
     .pilar {
-      flex: none;
-      scroll-snap-align: start;
-      width: 128px;
-      padding: 12px;
-      border-radius: var(--r-md);
-      background: var(--surface);
-      border: 1.5px solid var(--line);
-      box-shadow: var(--shadow-sm);
       display: flex;
-      flex-direction: column;
-      gap: 8px;
-      transition: transform .2s ease, box-shadow .2s ease;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 18px;
+      border-top: 1px solid var(--line);
+      font-size: 13.5px;
+      color: inherit;
+      transition: background .15s ease;
     }
 
     .pilar:hover {
-      transform: translateY(-3px);
-      box-shadow: var(--shadow-md);
+      background: var(--surface-2);
     }
 
-    .pilar .num {
-      width: 26px;
-      height: 26px;
-      border-radius: 9px;
-      background: var(--brand-soft);
-      color: var(--brand-700);
-      font-size: 12px;
-      font-weight: 800;
-      display: grid;
-      place-items: center;
-    }
-
-    .pilar strong {
-      font-size: 13px;
+    .pilar em {
+      width: 20px;
+      font-style: normal;
+      font-size: 11.5px;
       font-weight: 700;
-      letter-spacing: -.01em;
-    }
-
-    .pilar small {
-      font-size: 10.5px;
       color: var(--muted);
-      line-height: 1.35;
+      flex: none;
     }
 
-    /* ---------- Dock inferior ---------- */
-    .dock-wrap {
+    @media (max-width: 560px) {
+      .pilares {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ---------- Barra inferior ---------- */
+    .abajo {
       position: fixed;
       left: 0;
       right: 0;
       bottom: 0;
+      background: rgba(255, 255, 255, .92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-top: 1px solid var(--line);
+      padding: 8px 20px calc(8px + env(safe-area-inset-bottom));
+      z-index: 20;
+    }
+
+    .abajo nav {
+      max-width: 720px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    .abajo a {
       display: flex;
-      justify-content: center;
-      padding: 0 14px calc(14px + env(safe-area-inset-bottom));
-      pointer-events: none;
-      z-index: 30;
-    }
-
-    .dock {
-      pointer-events: auto;
-      position: relative;
-      width: 100%;
-      max-width: 402px;
-      height: 64px;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, .88);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border: 1.5px solid var(--line);
-      box-shadow: var(--shadow-lg);
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
+      flex-direction: column;
       align-items: center;
-      justify-items: center;
+      gap: 3px;
+      padding: 7px 0;
+      font-size: 10.5px;
+      font-weight: 600;
+      color: var(--muted);
+      border-radius: 9px;
     }
 
-    .dock a {
-      width: 44px;
-      height: 44px;
-      display: grid;
-      place-items: center;
-      border-radius: 50%;
-      color: #A9AEB6;
-      transition: color .18s ease, background .18s ease, transform .18s ease;
-    }
-
-    .dock a:hover {
+    .abajo a.activo {
       color: var(--brand-700);
-      background: var(--brand-soft);
     }
 
-    .dock a.active {
-      color: var(--brand-700);
-      background: var(--brand-soft);
-    }
-
-    .dock a svg {
-      width: 22px;
-      height: 22px;
-    }
-
-    .fab {
-      width: 58px;
-      height: 58px;
-      border-radius: 50%;
-      background: linear-gradient(140deg, #35C963, #12903E);
-      color: #fff !important;
-      display: grid;
-      place-items: center;
-      transform: translateY(-16px);
-      box-shadow: 0 12px 24px rgba(18, 144, 62, .4);
-      border: 4px solid #fff;
-    }
-
-    .fab:hover {
-      background: linear-gradient(140deg, #35C963, #12903E) !important;
-      transform: translateY(-19px);
-    }
-
-    .fab svg {
-      width: 26px;
-      height: 26px;
-    }
-
-    /* ============================================================
-       WEB / TABLET — el mismo lenguaje, más aire
-       ============================================================ */
-    @media (min-width: 760px) {
-      :root {
-        --gutter: 30px;
-      }
-
-      body {
-        padding: 26px 26px 0;
-      }
-
-      .app {
-        max-width: 1060px;
-        padding: 26px var(--gutter) 150px;
-        gap: 30px;
-      }
-
-      .user-meta strong {
-        max-width: none;
-        font-size: 15px;
-      }
-
-      .hero {
-        border-radius: 96px;
-        min-height: 230px;
-        padding: 44px 60px;
-      }
-
-      .hero-copy {
-        max-width: 60%;
-      }
-
-      .wordmark {
-        font-size: 72px;
-      }
-
-      .eyebrow {
-        font-size: 14px;
-      }
-
-      .hero-mark {
-        width: 200px;
-        height: 200px;
-        right: 64px;
-        bottom: auto;
-        color: rgba(255, 255, 255, .4);
-      }
-
-      .hero::after {
-        right: 0;
-        bottom: -170px;
-        width: 380px;
-        height: 380px;
-      }
-
-      .quick-grid {
-        gap: 18px;
-      }
-
-      .quick {
-        width: 232px;
-        max-width: none;
-      }
-
-      .quick-tile {
-        border-radius: 34px;
-      }
-
-      .quick-label {
-        font-size: 19px;
-      }
-
-      .block-head h2 {
-        font-size: 22px;
-      }
-
-      .cards {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 18px;
-      }
-
-      .cards> :last-child:nth-child(odd) {
-        grid-column: auto;
-        min-height: 0;
-      }
-
-      .card-cover {
-        aspect-ratio: 16 / 10;
-      }
-
-      .card-title {
-        font-size: 16px;
-      }
-
-      /* En web el riel deja de ser scroll horizontal y se abre en rejilla */
-      .rail {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 16px;
-        overflow: visible;
-        margin: 0;
-        padding: 0;
-      }
-
-      .pilar {
-        width: auto;
-        padding: 16px;
-      }
-
-      .pilar strong {
-        font-size: 14px;
-      }
-
-      .pilar small {
-        font-size: 11.5px;
-      }
-    }
-
-    @media (min-width: 1180px) {
-      .app {
-        max-width: 1180px;
-      }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-
-      *,
-      *::before,
-      *::after {
-        animation: none !important;
-        transition: none !important;
-      }
+    .abajo a:hover {
+      background: var(--surface-2);
     }
   </style>
 </head>
@@ -918,290 +391,225 @@
 <body>
   <main class="app">
 
-    <!-- ================= HEADER ================= -->
-    <header class="topbar">
-      <button class="user-pill" id="userPill" title="Cambiar de usuario">
+    <header class="barra-sup">
+      <div class="yo">
         <span class="avatar" id="avatar">LR</span>
-        <span class="user-meta">
-          <strong id="userName">Invitado</strong>
-          <small id="userRole">Toca para identificarte</small>
-        </span>
-      </button>
-
-      <button class="icon-btn" id="btnNovedades" aria-label="Novedades">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
-          stroke-linejoin="round">
-          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-          <path d="M13.7 21a2 2 0 0 1-3.4 0" />
+        <strong id="nombre"></strong>
+      </div>
+      <button class="icono-btn" id="btnSalir" aria-label="Cerrar sesión" title="Cerrar sesión">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M15 17v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v2" />
+          <path d="M19 12H9m10 0-3-3m3 3-3 3" />
         </svg>
-        <span class="badge"></span>
       </button>
     </header>
 
-    <!-- ================= HERO ================= -->
-    <section class="hero">
-      <div class="hero-copy">
-        <p class="eyebrow">Construye tu mensaje</p>
-        <h1 class="wordmark">
-          <span>LivingRoom</span>
-          <span>Speakers<sup class="reg">®</sup></span>
-        </h1>
-      </div>
-
-      <!-- Marca: el sofá dentro del globo de diálogo -->
-      <div class="hero-mark" aria-hidden="true">
-        <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"
-          stroke-linejoin="round">
+    <section class="banner">
+      <p class="eyebrow">Construye tu mensaje</p>
+      <h1>LivingRoom<br />Speakers<sup>®</sup></h1>
+      <span class="sello" aria-hidden="true">
+        <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3"
+          stroke-linecap="round" stroke-linejoin="round">
           <path d="M32 7c14 0 25 8.9 25 20s-11 20-25 20a29 29 0 0 1-7.6-1l-13.6 6.6 3.4-9.7C8.7 39.2 7 33.4 7 27 7 15.9 18 7 32 7Z" />
           <path d="M20.5 30.5v-4.2a3 3 0 0 1 3-3h17a3 3 0 0 1 3 3v4.2" />
           <path d="M18.5 30.5a3 3 0 0 1 3 3v4h21v-4a3 3 0 0 1 3-3" />
           <path d="M21.5 37.5v2.6M42.5 37.5v2.6" />
         </svg>
-      </div>
-    </section>
-
-    <!-- ================= 4 ACCESOS ================= -->
-    <nav class="quick-grid">
-      <a class="quick" href="/crear.html?nuevo=1" style="--tinte: #E4F5EA; --foco: 50% 6%">
-        <span class="quick-tile">
-          <span class="quick-circulo"><img class="quick-img" src="/images/sebas.png" alt="" /></span>
-          <span class="quick-label">Crea un mensaje</span>
-        </span>
-      </a>
-
-      <a class="quick" href="/tutor-alpha.html" style="--tinte: #E6EEFC; --foco: 42% 0%">
-        <span class="quick-tile">
-          <span class="quick-circulo"><img class="quick-img" src="/images/carlos.png" alt="" /></span>
-          <span class="quick-label">La plantilla LVR</span>
-        </span>
-      </a>
-
-      <a class="quick" href="/ideas.html" style="--tinte: #F0E9FC; --foco: 50% 55%">
-        <span class="quick-tile">
-          <span class="quick-circulo"><img class="quick-img" src="/images/ideas.png" alt="" /></span>
-          <span class="quick-label">Toma ideas de otros</span>
-        </span>
-      </a>
-
-      <span class="quick quick-pronto" aria-disabled="true">
-        <span class="quick-tile" style="--tinte: #FCF3DF">
-          <span class="quick-ph"></span>
-          <span class="quick-label">Novedades <em>Pronto</em></span>
-        </span>
       </span>
-    </nav>
-
-    <!-- ================= MIS MENSAJES ================= -->
-    <section class="block" id="mensajes">
-      <div class="block-head">
-        <h2>Mis mensajes</h2>
-        <span class="count" id="contadorMensajes"></span>
-        <a class="chev" href="/crear.html?nuevo=1" aria-label="Nuevo mensaje">
-          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4"
-            stroke-linecap="round" stroke-linejoin="round">
-            <path d="m9 18 6-6-6-6" />
-          </svg>
-        </a>
-      </div>
-      <div class="cards" id="cardsMensajes">
-        <div class="skeleton"></div>
-        <div class="skeleton"></div>
-      </div>
     </section>
 
-    <!-- ================= LOS 8 PILARES ================= -->
-    <section class="block" id="pilares">
-      <div class="block-head">
-        <h2>Los 8 pilares</h2>
-        <span class="count">Toca uno para editarlo</span>
+    <section class="panel">
+      <div class="panel-cab">
+        <h2>Empezar</h2>
       </div>
-      <div class="rail" id="railPilares"></div>
+
+      <a class="fila" href="/crear.html?nuevo=1" style="--tinte:#E4F5EA; --foco:50% 6%">
+        <span class="marca"><img src="/images/sebas.png" alt="" /></span>
+        <span class="texto">
+          <b>Crea un mensaje</b>
+          <span>El agente te pregunta y escribe contigo</span>
+        </span>
+        <svg class="flecha" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+          stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6" /></svg>
+      </a>
+
+      <a class="fila" href="/tutor-alpha.html" style="--tinte:#E6EEFC; --foco:42% 0%">
+        <span class="marca"><img src="/images/carlos.png" alt="" /></span>
+        <span class="texto">
+          <b>La plantilla LVR</b>
+          <span>Cómo se arma un mensaje, pilar por pilar</span>
+        </span>
+        <svg class="flecha" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+          stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6" /></svg>
+      </a>
+
+      <a class="fila" href="/ideas.html" style="--tinte:#F0E9FC; --foco:50% 55%">
+        <span class="marca"><img src="/images/ideas.png" alt="" /></span>
+        <span class="texto">
+          <b>Toma ideas de otros</b>
+          <span>Clasifica una idea suelta en su pilar</span>
+        </span>
+        <svg class="flecha" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+          stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6" /></svg>
+      </a>
+
+      <span class="fila inerte">
+        <span class="marca" style="--tinte:#FCF3DF"></span>
+        <span class="texto">
+          <b>Novedades</b>
+          <span>Lo que va cambiando en la comunidad</span>
+        </span>
+        <span class="contador gris">Pronto</span>
+      </span>
+    </section>
+
+    <section class="panel">
+      <div class="panel-cab">
+        <h2>Mis mensajes</h2>
+        <span class="nota" id="contadorMensajes"></span>
+      </div>
+      <div id="listaMensajes"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-cab">
+        <h2>Los 8 pilares</h2>
+        <span class="nota">El orden en que se construye</span>
+      </div>
+      <div class="pilares" id="pilares"></div>
     </section>
   </main>
 
-  <!-- ================= DOCK ================= -->
-  <nav class="dock-wrap">
-    <div class="dock">
-      <a href="/home.html" class="active" aria-label="Inicio">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"
-          stroke-linejoin="round">
-          <path d="M3.5 10.5 12 3.5l8.5 7" />
-          <path d="M5.5 9.6V20h13V9.6" />
-          <path d="M9.8 20v-5.2h4.4V20" />
+  <div class="abajo">
+    <nav>
+      <a href="/home.html" class="activo">
+        <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3.5 10.5 12 3.5l8.5 7M5.5 9.6V20h13V9.6" />
         </svg>
+        Inicio
       </a>
-      <a href="#mensajes" aria-label="Mis mensajes">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"
-          stroke-linejoin="round">
-          <path d="M4 5.5h16v13H8.5L4 21.5v-16Z" />
-          <path d="M8 10.5h8M8 14h5" />
-        </svg>
-      </a>
-      <a class="fab" href="/crear.html?nuevo=1" aria-label="Crear mensaje">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+      <a href="/crear.html?nuevo=1">
+        <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8"
+          stroke-linecap="round" stroke-linejoin="round">
           <path d="M12 5.5v13M5.5 12h13" />
         </svg>
+        Crear
       </a>
-      <a href="/ideas.html" aria-label="Ideas">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"
-          stroke-linejoin="round">
-          <path d="M9 18h6M10 21.5h4" />
-          <path d="M12 2.5a6.5 6.5 0 0 0-4 11.6c.6.5 1 1.2 1 2v.4h6v-.4c0-.8.4-1.5 1-2A6.5 6.5 0 0 0 12 2.5Z" />
+      <a href="/ideas.html">
+        <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 18h6M10 21h4" />
+          <path d="M12 3a6 6 0 0 0-3.7 10.7c.5.4.9 1 .9 1.7v.6h5.6v-.6c0-.7.4-1.3.9-1.7A6 6 0 0 0 12 3Z" />
         </svg>
+        Ideas
       </a>
-      <a href="#" id="dockUser" aria-label="Perfil">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"
-          stroke-linejoin="round">
-          <circle cx="12" cy="8.5" r="3.8" />
-          <path d="M4.5 20.5c1.3-3.7 4.1-5.6 7.5-5.6s6.2 1.9 7.5 5.6" />
+      <a href="#" id="btnPerfil">
+        <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8"
+          stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="8.5" r="3.6" />
+          <path d="M4.8 20.4c1.3-3.5 4-5.3 7.2-5.3s5.9 1.8 7.2 5.3" />
         </svg>
+        Cuenta
       </a>
-    </div>
-  </nav>
+    </nav>
+  </div>
 
   <script>
-    /* ============================================================
-       Estado de usuario — el SPA lo lee de localStorage.currentUser
-       ============================================================ */
+    const $ = (s) => document.querySelector(s);
+
     const PILARES = [
-      { id: 'titulo', nombre: 'Título', desc: 'La promesa en una línea' },
-      { id: 'introduccion', nombre: 'Introducción', desc: 'Gancho y contexto' },
-      { id: 'costura', nombre: 'Costura', desc: 'Hilo que une todo' },
-      { id: 'problematica', nombre: 'Problemática', desc: 'La tensión real' },
-      { id: 'conector', nombre: 'Conector', desc: 'Puente al desarrollo' },
-      { id: 'desarrollo', nombre: 'Desarrollo', desc: 'El cuerpo del mensaje' },
-      { id: 'conclusion', nombre: 'Conclusión', desc: 'El cierre que aterriza' },
-      { id: 'ministracion', nombre: 'Ministración', desc: 'El paso a la acción' }
+      { id: 'titulo', nombre: 'Título' },
+      { id: 'introduccion', nombre: 'Introducción' },
+      { id: 'costura', nombre: 'Costura' },
+      { id: 'problematica', nombre: 'Problemática' },
+      { id: 'conector', nombre: 'Conector' },
+      { id: 'desarrollo', nombre: 'Desarrollo' },
+      { id: 'conclusion', nombre: 'Conclusión' },
+      { id: 'ministracion', nombre: 'Ministración' }
     ];
 
-    const $ = (sel) => document.querySelector(sel);
-
-
-    const esc = (str = '') => String(str)
+    const esc = (t = '') => String(t)
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 
-    // La identidad la manda el servidor; el navegador ya no la inventa.
     let sesion = null;
-    function getUser() { return sesion?.usuario || ''; }
 
-    function iniciales(nombre) {
-      const partes = nombre.trim().split(/\s+/).filter(Boolean);
-      if (!partes.length) return 'LR';
-      return (partes[0][0] + (partes[1] ? partes[1][0] : partes[0][1] || '')).toUpperCase();
-    }
+    const iniciales = (n) => {
+      const p = (n || '').trim().split(/\s+/).filter(Boolean);
+      return p.length ? (p[0][0] + (p[1]?.[0] || '')).toUpperCase() : 'LR';
+    };
 
-    function pintarUsuario() {
-      const visible = sesion?.nombre || sesion?.usuario || '';
-      $('#userName').textContent = visible;
-      $('#userRole').textContent = sesion?.email || 'Speakers · Living Room';
-      if (sesion?.foto) {
-        $('#avatar').innerHTML = `<img src="${sesion.foto}" alt="" referrerpolicy="no-referrer"
-          style="width:100%;height:100%;border-radius:50%;object-fit:cover" />`;
-      } else {
-        $('#avatar').textContent = iniciales(visible);
-      }
-    }
-
-    async function pedirUsuario() {
-      if (!confirm('¿Cerrar sesión?')) return;
-      await fetch('/auth/salir', { method: 'POST', credentials: 'same-origin' });
-      location.replace('/login.html');
-    }
-
-    $('#userPill').addEventListener('click', pedirUsuario);
-    $('#dockUser').addEventListener('click', (e) => { e.preventDefault(); pedirUsuario(); });
-
-    /* ---------- Riel de pilares ---------- */
-    $('#railPilares').innerHTML = PILARES.map((p, i) => `
-      <a class="pilar" href="/crear.html#pilar-${p.id}">
-        <span class="num">${i + 1}</span>
-        <strong>${p.nombre}</strong>
-        <small>${p.desc}</small>
-      </a>`).join('');
-
-    /* ---------- Mis mensajes ---------- */
-    const tarjetaNueva = (texto = 'Nuevo mensaje') => `
-      <a class="card-new" href="/crear.html?nuevo=1">
-        <span class="plus">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
-            stroke-width="2.4" stroke-linecap="round"><path d="M12 5.5v13M5.5 12h13"/></svg>
-        </span>
-        <strong>${esc(texto)}</strong>
-        <small>Empieza por el título y sigue los 8 pilares</small>
-      </a>`;
-
-    function formatearFecha(valor) {
+    function fecha(valor) {
       if (!valor) return '';
       const d = new Date(String(valor).replace(' ', 'T'));
       if (isNaN(d)) return '';
+      const dias = Math.floor((Date.now() - d) / 86400000);
+      if (dias === 0) return 'hoy';
+      if (dias === 1) return 'ayer';
+      if (dias < 30) return `hace ${dias} días`;
       const mes = d.toLocaleDateString('es-CO', { month: 'short' }).replace('.', '');
       return `${d.getDate()} ${mes} ${d.getFullYear()}`;
     }
 
-    const tarjetaConsolidado = (id) => `
-      <a class="card-new" href="/crear.html?mensaje=${encodeURIComponent(id)}&ver=completo">
-        <span class="plus">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
-            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M6 3.5h8l4 4v13H6z"/><path d="M14 3.5v4h4"/><path d="M9 12.5h6M9 16h4"/>
-          </svg>
-        </span>
-        <strong>Mensaje consolidado</strong>
-        <small>Léelo completo y descárgalo en PDF</small>
-      </a>`;
+    function pintarSesion() {
+      $('#nombre').textContent = sesion?.nombre || sesion?.usuario || '';
+      $('#avatar').innerHTML = sesion?.foto
+        ? `<img src="${esc(sesion.foto)}" alt="" referrerpolicy="no-referrer" />`
+        : esc(iniciales(sesion?.nombre || sesion?.usuario));
+    }
 
-    function tarjetaMensaje(m, enCurso = false) {
+    function filaMensaje(m) {
       const llenas = PILARES.filter(p => (m[p.id] || '').trim()).length;
       const titulo = (m.titulo || '').trim().split('\n')[0] || 'Mensaje sin título';
-      const primera = PILARES.find(p => p.id !== 'titulo' && (m[p.id] || '').trim());
-      const extracto = primera ? m[primera.id].trim().slice(0, 150) : 'Aún no has escrito ninguna sección.';
       const pct = Math.round(llenas / PILARES.length * 100);
-
       return `
-        <a class="card" href="/crear.html?mensaje=${encodeURIComponent(m.id)}">
-          <span class="card-cover">
-            <span class="chip">${llenas}/${PILARES.length}</span>
-            ${enCurso ? '<span class="chip chip-curso">En curso</span>' : ''}
-            <p>${esc(extracto)}</p>
+        <a class="fila" href="/crear.html?mensaje=${encodeURIComponent(m.id)}">
+          <span class="texto">
+            <b>${esc(titulo.slice(0, 80))}</b>
+            <span>${esc(fecha(m.fecha_mensaje))}</span>
+            <span class="avance"><i style="width:${pct}%"></i></span>
           </span>
-          <span class="card-body">
-            <span class="card-title">${esc(titulo.slice(0, 90))}</span>
-            <span class="bar"><i style="width:${pct}%"></i></span>
-            <span class="card-meta">
-              <small>${esc(formatearFecha(m.fecha_mensaje)) || 'En curso'}</small>
-              <b>${pct}%</b>
-            </span>
-          </span>
+          <span class="contador${llenas ? '' : ' gris'}">${llenas}/8</span>
+          <svg class="flecha" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+            stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
         </a>`;
     }
 
     async function cargarMensajes() {
-      const cont = $('#cardsMensajes');
-      const user = getUser();
-
+      const cont = $('#listaMensajes');
       try {
         const r = await fetch('/obtener-mensajes', { credentials: 'same-origin' });
         const mensajes = await r.json();
 
         if (!Array.isArray(mensajes) || !mensajes.length) {
-          cont.innerHTML = tarjetaNueva('Tu primer mensaje');
-          $('#contadorMensajes').textContent = '';
+          cont.innerHTML = `<div class="vacio">
+            <p>Todavía no has empezado ninguno.</p>
+            <a class="btn btn-primario" href="/crear.html?nuevo=1">Crear el primero</a>
+          </div>`;
           return;
         }
 
-        // El más reciente primero; el último es el que se está trabajando.
-        cont.innerHTML = tarjetaNueva('Nuevo mensaje') +
-          mensajes.map((m, i) => tarjetaMensaje(m, i === 0)).join('') +
-          tarjetaConsolidado(mensajes[0].id);
-
+        cont.innerHTML = mensajes.map(filaMensaje).join('');
         $('#contadorMensajes').textContent =
           mensajes.length === 1 ? '1 mensaje' : `${mensajes.length} mensajes`;
       } catch (err) {
         console.error('No se pudieron cargar los mensajes:', err);
-        cont.innerHTML = tarjetaNueva('Crear mensaje');
+        cont.innerHTML = `<div class="vacio"><p>No pude cargar tus mensajes.</p></div>`;
       }
     }
+
+    $('#pilares').innerHTML = PILARES.map((p, i) =>
+      `<a class="pilar" href="/crear.html#pilar-${p.id}"><em>${i + 1}</em>${p.nombre}</a>`).join('');
+
+    async function salir() {
+      if (!confirm('¿Cerrar sesión?')) return;
+      await fetch('/auth/salir', { method: 'POST', credentials: 'same-origin' });
+      location.replace('/login.html');
+    }
+    $('#btnSalir').addEventListener('click', salir);
+    $('#btnPerfil').addEventListener('click', (e) => { e.preventDefault(); salir(); });
 
     (async function iniciar() {
       try {
@@ -1212,7 +620,7 @@
         location.replace('/login.html?volver=' + encodeURIComponent(location.pathname));
         return;
       }
-      pintarUsuario();
+      pintarSesion();
       cargarMensajes();
     })();
   </script>
