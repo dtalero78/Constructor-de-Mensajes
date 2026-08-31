@@ -1267,11 +1267,21 @@
     });
 
     /* ============ 3. CONSTRUCCIÓN ============ */
-    function guardarEnBase(campos) {
+    async function guardarEnBase(campos) {
       const cuerpo = { usuario, mensajeId: estado.mensajeId };
+      // Sin mensajeId el servidor guarda sobre el ÚLTIMO mensaje que tocó esta
+      // persona (ORDER BY actualizado_en DESC). Para el primer guardado de un
+      // mensaje nuevo hay que pedirlo explícitamente, o se pisa el anterior.
+      if (!estado.mensajeId) cuerpo.nuevo = true;
       PILARES.forEach(p => { cuerpo[p.id] = ''; });
       Object.assign(cuerpo, campos);
-      return pedir('/guardar-mensaje', cuerpo);
+      const respuesta = await pedir('/guardar-mensaje', cuerpo);
+      // A partir de aquí las demás secciones van a ese mismo mensaje.
+      if (respuesta && respuesta.id && !estado.mensajeId) {
+        estado.mensajeId = respuesta.id;
+        persistir();
+      }
+      return respuesta;
     }
 
     /* ============ EL MENSAJE: las 8 secciones como tarjetas ============ */
@@ -1459,12 +1469,7 @@
       pintarCalibracion();
     }
 
-    function guardarEnBase(campos) {
-      const cuerpo = { usuario, mensajeId: estado.mensajeId };
-      PILARES.forEach(p => { cuerpo[p.id] = ''; });
-      Object.assign(cuerpo, campos);
-      return pedir('/guardar-mensaje', cuerpo);
-    }
+    // (aquí había una segunda copia idéntica de guardarEnBase; se eliminó)
 
 
     /* ============================================================

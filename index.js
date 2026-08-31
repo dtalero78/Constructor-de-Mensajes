@@ -688,6 +688,25 @@ QUÉ MATERIAL SIRVE (para ti, no para recitárselo al predicador)
 - Una audiencia es una persona con nombre y situación, nunca "todos" ni "la gente".
 `;
 
+
+/**
+ * El nombre de pila de quien está en sesión, para que el agente salude por él.
+ * Se saca de la cookie, nunca de lo que mande el navegador.
+ */
+function nombreDePila(usuario) {
+  const crudo = String(usuario?.nombre || usuario?.usuario || "").trim();
+  if (!crudo) return "";
+  const primero = crudo.split(/\s+/)[0];
+  return primero.charAt(0).toUpperCase() + primero.slice(1);
+}
+
+function saludoPersonal(nombre) {
+  if (!nombre) return "";
+  return `\n\nLA PERSONA CON LA QUE HABLAS SE LLAMA ${nombre}.
+Salúdala por su nombre en tu primera intervención, una sola vez. Después no repitas
+el nombre en cada turno: suena a vendedor. Úsalo solo si quieres marcar algo.`;
+}
+
 // Tope duro: red de seguridad contra una entrevista que nunca cierra
 const MAX_PREGUNTAS = 12;
 
@@ -798,7 +817,7 @@ app.post('/agente/entrevista', requiereSesion, async (req, res) => {
   const peticion = {
     model: MODELO,
     max_tokens: 4000,
-    system: promptEntrevistador,
+    system: promptEntrevistador + saludoPersonal(nombreDePila(req.usuario)),
     messages,
     output_config: { format: jsonSchemaOutputFormat(ESQUEMA_ENTREVISTA), effort: "low" }
   };
@@ -922,7 +941,7 @@ app.post('/agente/voz/token', requiereSesion, async (req, res) => {
         session: {
           type: "realtime",
           model: MODELO_VOZ,
-          instructions: promptEntrevistadorVoz,
+          instructions: promptEntrevistadorVoz + saludoPersonal(nombreDePila(req.usuario)),
           audio: {
             input: {
               transcription: { model: "gpt-4o-transcribe", language: "es" },

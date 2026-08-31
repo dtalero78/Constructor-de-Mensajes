@@ -87,6 +87,11 @@ secciones (id, mensaje_id → mensajes, pilar (enum de los 8), contenido, UNIQUE
 
 - Un usuario puede tener **varios mensajes**. `guardarMensaje` decide destino así: `mensajeId` (validando que
   sea de esa persona) → `nuevo: true` (crea uno) → por defecto, el último que tocó.
+- **El front tiene que pedir `nuevo: true` en el primer guardado de un mensaje nuevo.** Ese "por defecto"
+  es un `ORDER BY actualizado_en DESC LIMIT 1`: si no se pide, empezar un mensaje desde cero escribe
+  encima del anterior. `?nuevo=1` limpia el borrador de `localStorage` pero **no** le dice nada a la base.
+  `guardarEnBase()` en [crear.html](public/crear.html) manda `nuevo: true` cuando no hay `mensajeId` y se
+  queda con el `id` que responde el servidor, para que las otras siete secciones vayan a ese mismo mensaje.
 - Las secciones que llegan vacías **se dejan como estaban**: el front manda los 8 pilares y solo llena el que
   se editó. Vaciar una sección a propósito requiere ir por SQL.
 - `mensajes.titulo` es un espejo del pilar `titulo`, para poder listar sin join. La fuente de verdad es
@@ -180,6 +185,12 @@ que está duplicado en cada página.
 2. **Lo que devuelve `/generar-una-sugerencia` se guarda tal cual como la sección.** Por eso el prompt
    prohíbe el meta-comentario ("## Sugerencia de TÍTULO", "Por qué funciona"). Antes, un título ocupaba
    2282 caracteres de ensayo; ahora, 30.
+
+### El agente saluda por el nombre
+
+`nombreDePila()` y `saludoPersonal()` en [index.js](index.js) sacan el nombre de `req.usuario`, que viene
+de la cookie y nunca de lo que mande el navegador. Se añaden al final del prompt en las dos entrevistas.
+Si la sesión no tiene nombre no se añade nada, y el agente arranca sin saludo en vez de decir "Hola ".
 
 ## Los dos entrevistadores: `materialQueSirve`, no `tonoLivingRoom`
 
