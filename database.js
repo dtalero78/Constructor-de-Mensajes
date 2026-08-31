@@ -167,6 +167,22 @@ async function obtenerMensaje(id, usuario) {
   return aplanar(rows[0], secciones);
 }
 
+/**
+ * Borra un mensaje, solo si es de ese usuario. Las secciones se van con
+ * él por el ON DELETE CASCADE del esquema.
+ * Devuelve false si no existe o si es de otra persona: quien pide no
+ * llega a saber cuál de las dos cosas fue.
+ */
+async function borrarMensaje(id, usuario) {
+  const { rowCount } = await pool.query(
+    `DELETE FROM mensajes m
+     USING usuarios u
+     WHERE m.usuario_id = u.id AND m.id = $1 AND u.usuario = $2`,
+    [id, usuario]
+  );
+  return rowCount > 0;
+}
+
 /** Todos los mensajes; si se pasa usuario, solo los suyos. */
 async function todosLosMensajes(usuario = null) {
   const { rows } = await pool.query(
@@ -188,4 +204,4 @@ async function todosLosMensajes(usuario = null) {
   return rows.map(m => aplanar(m, secciones.filter(s => String(s.mensaje_id) === String(m.id))));
 }
 
-module.exports = { pool, PILARES, guardarMensaje, ultimoMensaje, obtenerMensaje, todosLosMensajes };
+module.exports = { pool, PILARES, guardarMensaje, ultimoMensaje, obtenerMensaje, borrarMensaje, todosLosMensajes };

@@ -306,6 +306,43 @@
     }
 
     /* ---------- Mensajes ---------- */
+    /* La fila de mensaje deja de ser un enlace entero: dentro conviven
+       el enlace de abrir y el botón de borrar, y anidarlos sería HTML
+       inválido además de una trampa para el clic. */
+    .fila-mensaje {
+      padding-right: 8px;
+    }
+
+    .fila-enlace {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex: 1;
+      min-width: 0;
+      color: inherit;
+    }
+
+    .borrar {
+      flex: none;
+      width: 32px;
+      height: 32px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      color: #A9AFB9;
+      transition: color .15s ease, background .15s ease;
+    }
+
+    .borrar:hover {
+      color: var(--danger);
+      background: #FDF0EF;
+    }
+
+    .borrar:disabled {
+      opacity: .4;
+      cursor: default;
+    }
+
     .avance {
       width: 54px;
       height: 4px;
@@ -595,16 +632,26 @@
       const titulo = (m.titulo || '').trim().split('\n')[0] || 'Mensaje sin título';
       const pct = Math.round(llenas / PILARES.length * 100);
       return `
-        <a class="fila" href="/crear.html?mensaje=${encodeURIComponent(m.id)}">
-          <span class="texto">
-            <b>${esc(titulo.slice(0, 80))}</b>
-            <span>${esc(fecha(m.fecha_mensaje))}</span>
-            <span class="avance"><i style="width:${pct}%"></i></span>
-          </span>
-          <span class="contador${llenas ? '' : ' gris'}">${llenas}/8</span>
-          <svg class="flecha" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-            stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-        </a>`;
+        <div class="fila fila-mensaje" data-id="${esc(m.id)}">
+          <a class="fila-enlace" href="/crear.html?mensaje=${encodeURIComponent(m.id)}">
+            <span class="texto">
+              <b>${esc(titulo.slice(0, 80))}</b>
+              <span>${esc(fecha(m.fecha_mensaje))}</span>
+              <span class="avance"><i style="width:${pct}%"></i></span>
+            </span>
+            <span class="contador${llenas ? '' : ' gris'}">${llenas}/8</span>
+            <svg class="flecha" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+              stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+          </a>
+          <button class="borrar" data-borrar="${esc(m.id)}" title="Borrar este mensaje"
+            aria-label="Borrar ${esc(titulo.slice(0, 40))}">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+              stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 7h16M10 11v6M14 11v6"/>
+              <path d="M6 7l1 13h10l1-13M9 7V4.5h6V7"/>
+            </svg>
+          </button>
+        </div>`;
     }
 
     async function cargarMensajes() {
@@ -629,6 +676,33 @@
         cont.innerHTML = `<div class="vacio"><p>No pude cargar tus mensajes.</p></div>`;
       }
     }
+
+    // El borrado es definitivo: se avisa con el título delante, no con un
+    // "¿estás seguro?" genérico que nadie lee.
+    $('#listaMensajes').addEventListener('click', async (e) => {
+      const boton = e.target.closest('[data-borrar]');
+      if (!boton) return;
+      e.preventDefault();
+
+      const fila = boton.closest('.fila-mensaje');
+      const titulo = fila.querySelector('b')?.textContent || 'este mensaje';
+      if (!confirm(`¿Borrar "${titulo}"?\n\nSe va con sus secciones y no se puede deshacer.`)) return;
+
+      boton.disabled = true;
+      try {
+        const r = await fetch('/mensaje/' + encodeURIComponent(boton.dataset.borrar), {
+          method: 'DELETE',
+          credentials: 'same-origin'
+        });
+        const data = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(data.error || `El servidor respondió ${r.status}`);
+        fila.remove();
+        cargarMensajes();
+      } catch (err) {
+        alert('No pude borrarlo: ' + err.message);
+        boton.disabled = false;
+      }
+    });
 
     $('#pilares').innerHTML = PILARES.map((p, i) =>
       `<a class="pilar" href="/crear.html#pilar-${p.id}"><em>${i + 1}</em>${p.nombre}</a>`).join('');

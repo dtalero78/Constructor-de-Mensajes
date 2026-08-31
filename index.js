@@ -13,7 +13,7 @@ const cookieParser = require('cookie-parser');
 const detect = require('detect-port').default;
 const { exec } = require("child_process");
 const path = require("path");
-const { guardarMensaje, ultimoMensaje, obtenerMensaje, todosLosMensajes } = require('./database');
+const { guardarMensaje, ultimoMensaje, obtenerMensaje, borrarMensaje, todosLosMensajes } = require('./database');
 
 const app = express();
 const upload = multer({ dest: 'uploads/' });
@@ -568,6 +568,19 @@ app.get('/obtener-ultimo-mensaje', requiereSesion, async (req, res) => {
   } catch (error) {
     console.error("❌ Error al obtener último mensaje:", error.message);
     return res.status(500).json({ error: "Error al obtener mensaje" });
+  }
+});
+
+
+// Borrar un mensaje. Se va con sus secciones; no hay papelera.
+app.delete('/mensaje/:id', requiereSesion, async (req, res) => {
+  try {
+    const borrado = await borrarMensaje(req.params.id, req.usuario.usuario);
+    if (!borrado) return res.status(404).json({ error: "Ese mensaje no existe o no es tuyo" });
+    return res.json({ success: true });
+  } catch (error) {
+    console.error("❌ Error al borrar el mensaje:", error.message);
+    return res.status(500).json({ error: "No se pudo borrar el mensaje" });
   }
 });
 
