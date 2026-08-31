@@ -1358,9 +1358,16 @@
         const contenido = (corte ? sugerencia.split(corte[0])[0] : sugerencia).trim();
 
         cuerpo.innerHTML = formatOpenAiText(contenido);
-        marcarSucia(tarjeta, true);
         tarjeta.classList.remove('vacia');
         tarjeta.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        // Se guarda sola. Antes solo se pintaba en el DOM y se marcaba "sin guardar":
+        // si no se pulsaba "Guardar cambios" tarjeta por tarjeta, la generación se
+        // perdía entera —ni siquiera quedaba en el borrador local—, y cada una cuesta
+        // media llamada de API y medio minuto de espera.
+        // Si el guardado falla se deja sucia, para poder reintentarlo a mano.
+        const guardada = await guardarTarjeta(pilarId);
+        if (!guardada) marcarSucia(tarjeta, true);
       } catch (err) {
         cuerpo.innerHTML = formatOpenAiText(estado.guardados[pilarId] || 'Sin escribir todavía.');
         mostrarError(`No pude escribir ${nombrePilar(pilarId)}.`, err.message, () => generarEnTarjeta(pilarId));
@@ -1733,8 +1740,15 @@
       siguientePregunta();
     });
 
-    // Colgar el micrófono si se cierra la pestaña a media entrevista.
-    window.addEventListener('beforeunload', () => { if (vozSesion) vozSesion.terminar(); });
+    // Colgar el micrófono si se cierra la pestaña a media entrevista, y avisar si
+    // queda alguna edición a mano sin guardar (lo que escribe la IA ya se guarda solo).
+    window.addEventListener('beforeunload', (e) => {
+      if (vozSesion) vozSesion.terminar();
+      if (document.querySelector('.hecho.sucia')) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    });
 
 
     /* ---------- Arranque ---------- */

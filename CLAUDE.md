@@ -186,6 +186,17 @@ que está duplicado en cada página.
    prohíbe el meta-comentario ("## Sugerencia de TÍTULO", "Por qué funciona"). Antes, un título ocupaba
    2282 caracteres de ensayo; ahora, 30.
 
+### Lo que escribe la IA se guarda solo
+
+`generarEnTarjeta()` llama a `guardarTarjeta()` en cuanto recibe el texto. Antes solo lo pintaba en
+el DOM y marcaba la tarjeta como "sin guardar": si el predicador no pulsaba **Guardar cambios** en
+cada una de las ocho, la generación se perdía entera —ni siquiera quedaba en el borrador local,
+porque `estado.guardados` no se tocaba—. Pasó de verdad: un mensaje quedó en la base con briefing
+y **cero secciones**.
+
+Si el guardado falla, la tarjeta se deja `sucia` para poder reintentarlo a mano. **Guardar cambios**
+queda solo para las ediciones manuales, y un `beforeunload` avisa si alguna quedó sin guardar.
+
 ### El agente saluda por el nombre
 
 `nombreDePila()` y `saludoPersonal()` en [index.js](index.js) sacan el nombre de `req.usuario`, que viene
