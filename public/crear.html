@@ -7,6 +7,7 @@
   <meta name="theme-color" content="#22B24C" />
   <title>Crear mensaje · LivingRoom Speakers</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+  <script src="/calibracion.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
@@ -31,6 +32,8 @@
       --ink-2: #4B5159;
       --muted: #8E949D;
       --danger: #C0392B;
+      --warn: #C08A1E;
+      --warn-soft: #FBF1DC;
       --shadow-sm: 0 2px 6px rgba(24, 20, 16, .05);
       --shadow-md: 0 6px 18px rgba(24, 20, 16, .07);
     }
@@ -701,6 +704,114 @@
         transition: none !important;
       }
     }
+
+    /* ============================================================
+       CALIBRACIÓN — la curva del corpus aplicada al mensaje en curso.
+       La FORMA de la curva es fija (es el molde medido en 10 prédicas);
+       lo que cambia es cuánto material tiene cargado cada tramo.
+       ============================================================ */
+    .calib {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+
+    .calib-top {
+      display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
+      padding: 14px 18px; border-bottom: 1px solid var(--line); background: var(--surface-2);
+    }
+    .calib-top h3 { font-size: 13px; font-weight: 700; letter-spacing: .01em; }
+    .calib-top .resumen { font-size: 12.5px; color: var(--muted); margin-left: auto; }
+    .calib-top .resumen b { color: var(--ink); font-weight: 700; }
+
+    .calib-lienzo { padding: 10px 14px 6px; }
+    .calib svg { display: block; width: 100%; height: auto; }
+
+    .cal-guia { stroke: var(--line); stroke-width: 1; stroke-dasharray: 3 6; }
+    .cal-eje { stroke-dasharray: none; }
+    .cal-molde { fill: none; stroke: var(--line); stroke-width: 2.5; stroke-linecap: round; }
+
+    .cal-anillo-fondo { fill: var(--surface); stroke: var(--line); stroke-width: 2.5; }
+    .cal-anillo { fill: none; stroke-width: 2.5; stroke-linecap: round; stroke: var(--brand); }
+    .cal-punto { fill: var(--line); }
+
+    .cal-vacio   .cal-punto { fill: var(--surface); stroke: var(--line); stroke-width: 2; }
+    .cal-flojo   .cal-punto { fill: var(--danger); }
+    .cal-flojo   .cal-anillo { stroke: var(--danger); }
+    .cal-parcial .cal-punto { fill: var(--warn); }
+    .cal-parcial .cal-anillo { stroke: var(--warn); }
+    .cal-lleno   .cal-punto { fill: var(--brand); }
+    .cal-lleno   .cal-anillo { stroke: var(--brand); }
+
+    .cal-etq { font-size: 12px; font-weight: 700; fill: var(--ink); text-anchor: middle; }
+    .cal-voz { font-size: 10.5px; fill: var(--muted); text-anchor: middle; }
+    .cal-vacio .cal-etq { fill: var(--muted); font-weight: 600; }
+
+    .cal-nodo[role="button"] { cursor: pointer; }
+    .cal-nodo[role="button"]:hover .cal-punto,
+    .cal-nodo[role="button"]:focus-visible .cal-punto { r: 11; }
+    /* El anillo de foco nativo se dibuja alrededor de TODO el <g>, y como el <g>
+       incluye la etiqueta, el rectángulo azul de Chrome la tapaba. Se quita el
+       nativo y se marca el foco en el propio anillo del nodo. */
+    .cal-nodo:focus, .cal-nodo:focus-visible { outline: none; }
+    .cal-nodo[role="button"]:focus-visible .cal-anillo-fondo { stroke: var(--ink); stroke-width: 3.5; }
+    .cal-nodo.sel .cal-anillo-fondo { stroke: var(--ink); stroke-width: 3; }
+
+    /* detalle por tramo */
+    .calib-detalle { border-top: 1px solid var(--line); }
+    .calib-tramo { border-bottom: 1px solid var(--line); }
+    .calib-tramo:last-child { border-bottom: 0; }
+    .calib-tramo > .cab {
+      display: flex; align-items: center; gap: 10px; width: 100%;
+      padding: 12px 18px; background: none; border: 0; cursor: pointer;
+      font: inherit; text-align: left; color: var(--ink);
+    }
+    .calib-tramo > .cab:hover { background: var(--surface-2); }
+    .calib-tramo > .cab:focus-visible { outline: 2px solid var(--brand); outline-offset: -2px; }
+    .calib-tramo .bolita { width: 9px; height: 9px; border-radius: 50%; flex: none; background: var(--line); }
+    .calib-tramo.e-flojo   .bolita { background: var(--danger); }
+    .calib-tramo.e-parcial .bolita { background: var(--warn); }
+    .calib-tramo.e-lleno   .bolita { background: var(--brand); }
+    .calib-tramo .nom { font-size: 13.5px; font-weight: 700; }
+    .calib-tramo .marca-crit {
+      font-size: 10px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
+      color: var(--warn); background: var(--warn-soft); padding: 2px 7px; border-radius: 20px;
+    }
+    .calib-tramo .cuenta { margin-left: auto; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+    .calib-tramo .cuerpo { padding: 0 18px 14px 37px; display: none; }
+    .calib-tramo.abierto .cuerpo { display: block; }
+    .calib-tramo .resumen-t { font-size: 13px; color: var(--ink-2); margin-bottom: 11px; line-height: 1.5; }
+    .calib-señal { display: flex; gap: 9px; padding: 7px 0; border-top: 1px dashed var(--line); }
+    .calib-señal .ico { flex: none; width: 15px; font-size: 12px; line-height: 1.5; font-weight: 700; }
+    .calib-señal.ok .ico { color: var(--brand); }
+    .calib-señal.no .ico { color: var(--danger); }
+    .calib-señal .txt { font-size: 12.5px; line-height: 1.5; }
+    .calib-señal .txt b { font-weight: 700; }
+    .calib-señal .txt .busca { color: var(--muted); }
+    .calib-señal.no .txt .pista { display: block; margin-top: 3px; color: var(--ink-2); }
+    .calib-señal.ok .txt .pista { display: none; }
+
+    .calib-pie {
+      display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+      padding: 13px 18px; border-top: 1px solid var(--line); background: var(--surface-2);
+    }
+    .calib-pie .nota { font-size: 11.5px; color: var(--muted); line-height: 1.45; flex: 1; min-width: 210px; }
+    .calib-juicio { padding: 0 18px 16px; }
+    .calib-juicio .jt {
+      border-left: 3px solid var(--brand); background: var(--brand-soft);
+      padding: 11px 14px; border-radius: 0 10px 10px 0; margin-top: 10px;
+    }
+    .calib-juicio .jt h4 { font-size: 12.5px; font-weight: 800; margin-bottom: 4px; }
+    .calib-juicio .jt p { font-size: 12.5px; line-height: 1.55; color: var(--ink-2); }
+    .calib-juicio .jt.baja { border-left-color: var(--danger); background: #FDF0EE; }
+    .calib-juicio .jt.media { border-left-color: var(--warn); background: var(--warn-soft); }
+
+    @media (max-width: 720px) {
+      .calib-top .resumen { margin-left: 0; width: 100%; }
+    }
+
   </style>
 </head>
 
@@ -774,6 +885,18 @@
         </div>
       </div>
 
+      <section class="calib" id="calibCompacta" hidden>
+        <div class="calib-top">
+          <h3>Calibración del mensaje</h3>
+          <span class="resumen" id="calibResumenMini"></span>
+        </div>
+        <div class="calib-lienzo"><svg id="calibSvgMini"></svg></div>
+        <div class="calib-pie">
+          <span class="nota" id="calibPistaMini"></span>
+          <button class="btn btn-fantasma" id="btnCalibDetalle" type="button">Ver detalle</button>
+        </div>
+      </section>
+
       <div class="hechos" id="hechos"></div>
     </section>
 
@@ -786,6 +909,23 @@
           <button class="btn btn-fantasma" id="btnVolverMensaje">← Volver a las secciones</button>
         </div>
       </div>
+      <section class="calib" id="calibCompleta" style="margin-bottom:22px">
+        <div class="calib-top">
+          <h3>Calibración del mensaje</h3>
+          <span class="resumen" id="calibResumen"></span>
+        </div>
+        <div class="calib-lienzo"><svg id="calibSvg"></svg></div>
+        <div class="calib-detalle" id="calibDetalle"></div>
+        <div class="calib-pie">
+          <span class="nota">
+            Esto no mide si el mensaje es bueno: comprueba si está presente el material que
+            produce cada tramo de la curva. Son señales de texto, no un juicio.
+          </span>
+          <button class="btn btn-primario" id="btnCalibIA" type="button">Análisis profundo</button>
+        </div>
+        <div class="calib-juicio" id="calibJuicio" hidden></div>
+      </section>
+
       <article class="consolidado" id="consolidado"></article>
     </section>
 
@@ -1195,6 +1335,7 @@
       const hechos = PILARES.filter(p => (estado.guardados[p.id] || '').trim()).length;
       $('#barra').style.width = (hechos / PILARES.length * 100) + '%';
       $('#paso').textContent = `${hechos} de ${PILARES.length}`;
+      pintarCalibracion();
     }
 
     function guardarEnBase(campos) {
@@ -1204,6 +1345,123 @@
       return pedir('/guardar-mensaje', cuerpo);
     }
 
+
+    /* ============================================================
+       CALIBRACIÓN
+       La forma de la curva es fija: sale de medir 10 prédicas del corpus.
+       Lo que se mide aquí es si cada tramo tiene cargado su material.
+       ============================================================ */
+    let calibSel = null;   // tramo abierto en el detalle
+
+    function calibEstadoClase(t) {
+      return 'e-' + (window.Calibracion ? window.Calibracion.estadoNodo(t) : 'vacio');
+    }
+
+    function pintarCalibracion() {
+      if (!window.Calibracion) return;
+      const res = window.Calibracion.calibrar(estado.guardados);
+
+      // --- compacta (pantalla de construcción) ---
+      const caja = $('#calibCompacta');
+      if (caja) {
+        caja.hidden = res.escritos === 0;
+        if (res.escritos) {
+          window.Calibracion.dibujar($('#calibSvgMini'), estado.guardados, { modo: 'compacta', resultado: res });
+          const llenos = res.tramos.filter(t => !t.vacio && t.razon >= 1).length;
+          $('#calibResumenMini').innerHTML =
+            `<b>${llenos}</b> de ${res.escritos} tramos escritos tienen todo su material`;
+          const flojo = res.tramos.find(t => t.critico && !t.vacio && t.razon < 1)
+                     || res.faltantes[0];
+          $('#calibPistaMini').textContent = flojo
+            ? `Falta algo en «${flojo.nombre}»: ${flojo.señales.find(x => !x.ok).etiqueta.toLowerCase()}.`
+            : 'Todos los tramos escritos tienen su material completo.';
+        }
+      }
+
+      // --- completa (mensaje completo) ---
+      if (!$('#calibCompleta')) return;
+      window.Calibracion.dibujar($('#calibSvg'), estado.guardados, { modo: 'completa', resultado: res, interactivo: true });
+      const llenos = res.tramos.filter(t => !t.vacio && t.razon >= 1).length;
+      $('#calibResumen').innerHTML = res.escritos
+        ? `<b>${llenos}</b> de ${res.escritos} tramos escritos con todo su material`
+        : 'Todavía no hay secciones escritas';
+
+      $('#calibDetalle').innerHTML = res.tramos.map(t => `
+        <div class="calib-tramo ${calibEstadoClase(t)} ${calibSel === t.clave ? 'abierto' : ''}" data-tramo="${t.clave}">
+          <button class="cab" type="button" aria-expanded="${calibSel === t.clave}">
+            <span class="bolita"></span>
+            <span class="nom">${esc(t.nombre)}</span>
+            ${t.critico ? '<span class="marca-crit">tramo clave</span>' : ''}
+            <span class="cuenta">${t.vacio ? 'sin escribir' : t.cumplidas + ' / ' + t.total}</span>
+          </button>
+          <div class="cuerpo">
+            <p class="resumen-t">${esc(t.resumen)}</p>
+            ${t.vacio
+              ? `<p class="resumen-t"><em>Escribe ${t.pilares.map(nombrePilar).join(' y ')} para calibrar este tramo.</em></p>`
+              : t.señales.map(x => `
+                <div class="calib-señal ${x.ok ? 'ok' : 'no'}">
+                  <span class="ico">${x.ok ? '✓' : '✗'}</span>
+                  <span class="txt">
+                    <b>${esc(x.etiqueta)}</b> <span class="busca">— busca ${esc(x.busca)}</span>
+                    <span class="pista">${esc(x.pista)}</span>
+                  </span>
+                </div>`).join('')}
+          </div>
+        </div>`).join('');
+
+      $('#calibDetalle').querySelectorAll('.calib-tramo .cab').forEach(b => {
+        b.addEventListener('click', () => {
+          const clave = b.closest('.calib-tramo').dataset.tramo;
+          calibSel = (calibSel === clave) ? null : clave;
+          pintarCalibracion();
+        });
+      });
+
+      $('#calibSvg').querySelectorAll('.cal-nodo').forEach(n => {
+        const abrir = () => { calibSel = n.dataset.tramo; pintarCalibracion();
+          $(`.calib-tramo[data-tramo="${calibSel}"]`)?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); };
+        n.addEventListener('click', abrir);
+        n.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); abrir(); } });
+        if (n.dataset.tramo === calibSel) n.classList.add('sel');
+      });
+    }
+
+    $('#btnCalibDetalle')?.addEventListener('click', () => {
+      pintarConsolidado();
+      mostrar('pCompleto', 'Completo');
+      $('#calibCompleta')?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    });
+
+    /* --- Análisis profundo: el juicio cualitativo que la heurística no puede dar --- */
+    $('#btnCalibIA')?.addEventListener('click', async () => {
+      const btn = $('#btnCalibIA');
+      const caja = $('#calibJuicio');
+      const escritas = PILARES.filter(p => (estado.guardados[p.id] || '').trim());
+      if (escritas.length < 3) {
+        caja.hidden = false;
+        caja.innerHTML = '<div class="jt media"><p>Escribe al menos tres secciones antes de pedir el análisis profundo.</p></div>';
+        return;
+      }
+      btn.disabled = true;
+      const antes = btn.textContent;
+      btn.textContent = 'Analizando…';
+      caja.hidden = false;
+      caja.innerHTML = '<div class="jt"><p>Leyendo el mensaje completo…</p></div>';
+      try {
+        const r = await pedir('/analizar-curva', { secciones: estado.guardados });
+        caja.innerHTML = (r.tramos || []).map(t => `
+          <div class="jt ${t.nivel === 'bajo' ? 'baja' : t.nivel === 'medio' ? 'media' : ''}">
+            <h4>${esc(t.nombre)}</h4>
+            <p>${esc(t.comentario)}</p>
+          </div>`).join('') || '<div class="jt"><p>Sin observaciones.</p></div>';
+      } catch (e) {
+        caja.innerHTML = `<div class="jt baja"><p>${esc(e.message || 'No se pudo analizar el mensaje.')}</p></div>`;
+      } finally {
+        btn.disabled = false;
+        btn.textContent = antes;
+      }
+    });
+
     /* ---- Mensaje completo y PDF ---- */
     function pintarConsolidado() {
       const partes = PILARES
@@ -1212,6 +1470,7 @@
       $('#consolidado').innerHTML = partes.length
         ? partes.join('')
         : '<p>Todavía no hay ninguna sección guardada.</p>';
+      pintarCalibracion();
     }
 
     $('#btnVerCompleto').addEventListener('click', () => {

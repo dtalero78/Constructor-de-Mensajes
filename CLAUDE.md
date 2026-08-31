@@ -147,6 +147,7 @@ El flujo real y mantenido es el de texto (`/evaluar-escrito`, `/aplicar-sugerenc
 | `POST /aplicar-sugerencias` | reescribe el texto incorporando la evaluación |
 | `POST /generar-una-sugerencia` | genera una sección desde cero usando `relacionesImportantes` |
 | `POST /clasificar-idea` | clasifica una idea suelta en uno de los 8 pilares |
+| `POST /analizar-curva` | juicio cualitativo de los 6 tramos de la curva. JSON validado por esquema |
 | `POST /agente/entrevista` | el entrevistador. Devuelve **JSON validado por esquema**, no prosa |
 | `POST /guardar-mensaje` | upsert por pilar. Acepta `mensajeId` o `nuevo: true` |
 | `GET /obtener-mensajes` | con `?usuario=` filtra; **sin él devuelve los de todos** |
@@ -158,6 +159,7 @@ El flujo real y mantenido es el de texto (`/evaluar-escrito`, `/aplicar-sugerenc
 ## Frontend
 
 Sin bundler: se edita el `<script>` inline de cada página. Dependencia externa: `html2pdf` por CDN.
+La única pieza de JS propia fuera de las páginas es [public/calibracion.js](public/calibracion.js).
 
 - `/` → [home.html](public/home.html). El usuario sale de `localStorage.currentUser`.
 - `/crear.html` → el agente. `?nuevo=1` empieza en limpio; `?mensaje=<id>` abre ese mensaje sin entrevista;
@@ -175,6 +177,28 @@ que está duplicado en cada página.
 2. **Lo que devuelve `/generar-una-sugerencia` se guarda tal cual como la sección.** Por eso el prompt
    prohíbe el meta-comentario ("## Sugerencia de TÍTULO", "Por qué funciona"). Antes, un título ocupaba
    2282 caracteres de ensayo; ahora, 30.
+
+## Calibración del mensaje (la curva)
+
+[public/calibracion.js](public/calibracion.js) es un módulo sin dependencias, compartido por las dos
+vistas de [crear.html](public/crear.html): la tira compacta sobre las tarjetas y el panel completo del
+consolidado. Se carga **sin `defer`**, porque el `<script>` inline de la página corre antes que los
+diferidos y lo usa al pintar.
+
+La idea que sostiene el diseño: **la forma de la curva es fija**. Sale de medir 10 prédicas del corpus
+y no depende del mensaje del usuario. Lo que varía es cuánto material tiene cargado cada uno de los
+seis tramos, que es lo único medible con conteos sin caer en falso rigor. El módulo **no puntúa la
+calidad** del mensaje ni pretende medir emoción; comprueba presencia de señales y lo dice en la UI.
+
+Cada tramo declara de qué pilares se alimenta y una lista de `señales` con `prueba` (regex),
+`busca` (qué mira, se enseña al usuario) y `pista` (cómo arreglarlo). Al tocar las señales conviene
+probarlas contra textos reales: un patrón estrecho marca como ausente algo que sí está escrito —
+pasó con la descarga de la CONCLUSIÓN ("nunca dependió de…" no casaba con "no depende") y con la
+declaración de la MINISTRACIÓN, que no siempre empieza por "yo creo".
+
+`/analizar-curva` es la otra mitad y es deliberadamente **a demanda**: la heurística dice si el
+material está, el modelo dice si el tramo *funciona*. Usa salida estructurada con `effort: "low"` y
+un reintento ante 400, por la misma razón documentada en `/agente/entrevista`.
 
 ## Despliegue
 

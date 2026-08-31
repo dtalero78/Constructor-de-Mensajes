@@ -95,18 +95,60 @@ function mensajeDeError(error) {
 
 const SIN_AUDIO = { error: "El audio necesita una clave de OpenAI (OPENAI_API_KEY): Whisper y TTS no existen en Anthropic." };
 
+// Estilo de la comunidad, derivado de medir 10 prédicas reales (82.854 palabras).
+// Las proporciones NO son decorativas: son conteos sobre ese corpus. Si se tocan,
+// convendría volver a medirlas, porque el modelo las sigue bastante literalmente.
 const tonoLivingRoom = `
-  🎙️ Recuerda que el estilo de este mensaje debe reflejar el tono característico de la comunidad Living Room, que se define así:
-  
-  - Cercano y conversacional, como una charla con un amigo.
-  - Honestidad y vulnerabilidad, compartiendo testimonios reales.
-  - Uso de imágenes visuales simples y ejemplos cotidianos.
-  - Inspirador pero sin exageración ni frases vacías.
-  - Lenguaje que incluya y conecte con la audiencia (“nosotros”, “a ti y a mí”).
-  - Referencias bíblicas contadas como parte de una historia personal.
-  
-  Asegúrate de que esta sección respete y refleje este estilo en su contenido y forma.
-  `;
+🎙️ ESTILO LIVING ROOM — cómo suena de verdad un mensaje de esta comunidad.
+Estas reglas salen de medir prédicas reales. No son matices de tono: son la forma.
+
+VOZ
+- Le hablas a UNA persona, no a un auditorio: segunda persona del singular ("tú").
+- El plural existe y DEBE aparecer, pero solo para incluirte en la falla
+  ("todos nos equivocamos aquí", "nosotros abortamos el plan"). La promesa y la
+  instrucción siempre van en singular. Nunca "todos debemos": "tú necesitas".
+  En cada sección tiene que haber al menos una frase donde te incluyas con "nosotros"
+  al describir el error. Si una sección no tiene ninguna, está mal calibrada.
+- Quien habla ya se estrelló con esto. La autoridad viene de haberlo vivido peor,
+  no de saber más. Cuenta la derrota mientras sigue abierta, no desde la lección aprendida.
+
+RITMO
+- Ritmo hablado y VARIADO. La frase corta es el golpe, no el material de construcción:
+  si escribes tres frases muy cortas seguidas, la siguiente tiene que ser larga.
+  Un texto entero en frases de cinco palabras suena a telegrama, no a alguien hablando.
+- La pregunta es la puntuación de este estilo, y tiene que abundar: casi todo párrafo
+  largo lleva una. Muchas no esperan respuesta y solo marcan dónde está el peso
+  ("¿te das cuenta?", "¿sabes qué?", "¿estamos claros?"). Lo único que no debe pasar
+  es que un párrafo entero sea una ristra de preguntas encadenadas.
+- Un marcador de escucha ("escúchame", "óyeme bien", "¿te das cuenta?") antes de las
+  afirmaciones centrales, no antes de cada idea. Si aparece en cada párrafo, pierde
+  todo el efecto y suena a tic.
+- Esto se dice en voz alta. Si suena a texto escrito para leerse, reescríbelo.
+
+MATERIAL
+- Ninguna idea abstracta viaja sola: cada una entra por una escena física con
+  objeto, lugar y cifra.
+- Los ejemplos son domésticos y locales: el aeropuerto, el restaurante, la cancha,
+  el banco, la obra, la cuota del colegio, el trancón.
+- Se habla de plata, deuda y negocio sin eufemismo y sin pedir disculpas.
+  Es el terreno donde aterriza todo lo demás.
+- Todo concepto se vuelve objeto manipulable en la misma frase en que aparece
+  (la palabra es una semilla; la lengua es el timón de un buque).
+
+APLICACIÓN
+- El abanico de aplicaciones es una ráfaga de vidas concretas seguidas, sin transición
+  entre ellas. Va UNA sola vez en todo el mensaje, en la PROBLEMÁTICA.
+- "Quizás" encadena esa ráfaga y solo esa. En el resto del mensaje evita la palabra:
+  si la lees más de dos o tres veces fuera de la ráfaga, sobra y suena a muletilla.
+- Reencuadra por negación antes de afirmar: "no es X, es Y".
+- Anticipa la objeción del oyente poniéndola en su voz, y contéstala.
+
+PROHIBIDO
+- Moraleja moral o consejo de conducta. Si el texto se resume en "pórtate mejor",
+  está mal escrito y hay que rehacerlo.
+- Miedo, culpa o condena como palanca. El oyente debe sentirse descrito, nunca acusado.
+- Cadenas de citas de autores, estadísticas, y jerga teológica sin traducir.
+`;
 
 let transcripciones = {
   titulo: "",
@@ -234,7 +276,9 @@ async function evaluarTranscripcion(transcripcion, section, usuario) {
   1. Evalúa si esta sección se conecta con las anteriores de forma lógica y coherente.
   2. Si necesita mejoras, sugiere una versión revisada.
   3. Finaliza tu respuesta con un resumen de **3 puntos clave** que expliquen tu evaluación, usando el contexto anterior como referencia.
-  4. Refiere el tono de la comunidad Living Room, que se caracteriza por ser cercano y conversacional, con honestidad y vulnerabilidad, usando imágenes visuales simples y ejemplos cotidianos. El lenguaje debe incluir y conectar con la audiencia. 
+  4. Evalúa la sección contra el ESTILO LIVING ROOM que aparece abajo, y sé concreto:
+     señala qué frase suena escrita en vez de hablada, dónde falta un ejemplo físico,
+     dónde se usó el plural para exhortar, y si el cierre cae en moraleja.
   
   ${tonoLivingRoom}
   `;
@@ -469,7 +513,9 @@ app.post("/aplicar-sugerencias", requiereSesion, async (req, res) => {
   1. Producir una nueva versión del texto que incorpore las sugerencias de manera coherente y clara.
   2. Respetar el estilo del autor y el contexto general.
   3. Finaliza con un resumen de **3 mejoras aplicadas**, explicando brevemente por qué se realizaron y cómo mejoran la sección respecto al mensaje global.
-  4. Refiere el tono de la comunidad Living Room, que se caracteriza por ser cercano y conversacional, con honestidad y vulnerabilidad, usando imágenes visuales simples y ejemplos cotidianos. El lenguaje debe incluir y conectar con la audiencia. 
+  4. Evalúa la sección contra el ESTILO LIVING ROOM que aparece abajo, y sé concreto:
+     señala qué frase suena escrita en vez de hablada, dónde falta un ejemplo físico,
+     dónde se usó el plural para exhortar, y si el cierre cae en moraleja.
 
   ${tonoLivingRoom}
   `;
@@ -809,6 +855,117 @@ app.post('/clasificar-idea', requiereSesion, async (req, res) => {
 
 // ✅ PARA ALPHA `generar-una-sugerencia` sin calificación y con contexto visible
 
+
+// ============================================================
+// ANÁLISIS PROFUNDO DE LA CURVA
+// La heurística de public/calibracion.js comprueba si el material de cada tramo
+// está presente; eso es todo lo que se puede medir con conteos honestamente.
+// Esto es la otra mitad: el juicio cualitativo sobre si el tramo FUNCIONA.
+// ============================================================
+const TRAMOS_CURVA = [
+  { clave: "complicidad",   nombre: "Complicidad",       pilares: ["introduccion"],  busca: "que la apertura desarme y haga sonreír sin cobrarle nada a nadie todavía" },
+  { clave: "reconocimiento", nombre: "Reconocimiento",   pilares: ["costura"],       busca: "que el oyente se vea retratado y piense «ese soy yo»" },
+  { clave: "incomodidad",   nombre: "Incomodidad",       pilares: ["problematica"],  busca: "que nombre una conducta concreta y de verdad incomode, sin acusar ni dar culpa" },
+  { clave: "tension",       nombre: "Tensión sostenida", pilares: ["desarrollo"],    busca: "que aguante sin resolver, sosteniendo la espera antes de dar la salida" },
+  { clave: "alivio",        nombre: "Alivio",            pilares: ["conclusion"],    busca: "que traslade la carga del oyente a Dios y no cierre con moraleja ni con tarea" },
+  { clave: "envio",         nombre: "Envío",             pilares: ["ministracion"],  busca: "que sea breve, con un acto físico y una frase que se diga en voz alta" }
+];
+
+const ESQUEMA_CURVA = {
+  type: "object",
+  properties: {
+    tramos: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          clave: { type: "string", enum: TRAMOS_CURVA.map(t => t.clave) },
+          nombre: { type: "string" },
+          nivel: { type: "string", enum: ["alto", "medio", "bajo"] },
+          comentario: { type: "string" }
+        },
+        required: ["clave", "nombre", "nivel", "comentario"],
+        additionalProperties: false
+      }
+    }
+  },
+  required: ["tramos"],
+  additionalProperties: false
+};
+
+app.post('/analizar-curva', requiereSesion, async (req, res) => {
+  const secciones = req.body?.secciones || {};
+  const escritas = TRAMOS_CURVA
+    .flatMap(t => t.pilares)
+    .filter(p => String(secciones[p] || "").trim());
+
+  if (escritas.length < 2) {
+    return res.status(400).json({ error: "Hacen falta al menos dos secciones escritas para analizar la curva." });
+  }
+
+  const cuerpo = TRAMOS_CURVA.map(t => {
+    const texto = t.pilares.map(p => String(secciones[p] || "").trim()).filter(Boolean).join("\n\n");
+    return `### ${t.nombre} — se alimenta de ${t.pilares.join(", ").toUpperCase()}\nQué debe lograr: ${t.busca}\n\n${texto || "(sin escribir todavía)"}`;
+  }).join("\n\n---\n\n");
+
+  const prompt = `
+Eres el editor de mensajes de Living Room. Vas a evaluar la CURVA EMOCIONAL de un mensaje.
+
+La curva de esta comunidad tiene seis tramos y una forma característica: abre en complicidad,
+sube al reconocimiento, BAJA deliberadamente a la incomodidad, sostiene la tensión un buen rato
+sin resolver, y solo entonces sube al alivio y cierra con el envío.
+
+El descenso a la incomodidad es el tramo que casi todos se saltan, y es el que hace que el alivio
+del final signifique algo: sin peso previo, no hay nada que quitar.
+
+${tonoLivingRoom}
+
+Estas son las secciones escritas hasta ahora:
+
+${cuerpo}
+
+Para CADA UNO de los seis tramos devuelve:
+- "nivel": "alto" si el tramo cumple su función, "medio" si se queda a medias, "bajo" si falla
+  o si aún no hay texto suficiente para lograrlo.
+- "comentario": DOS frases como máximo. Sé concreto y cita el texto del predicador cuando puedas.
+  Di qué falta o qué sobra, no des una nota general. Si el tramo está vacío, dilo en una frase.
+
+No repitas lo que ya es evidente por la longitud. Juzga si FUNCIONA, no si está presente.
+`;
+
+  const peticion = {
+    model: MODELO,
+    max_tokens: 4000,
+    system: prompt,
+    messages: [{ role: "user", content: "Evalúa los seis tramos de la curva." }],
+    // effort "low" por la misma razón que en /agente/entrevista: salida estructurada
+    // con esfuerzo alto devuelve 400 intermitentes.
+    output_config: { format: jsonSchemaOutputFormat(ESQUEMA_CURVA), effort: "low" }
+  };
+
+  try {
+    let respuesta;
+    try {
+      respuesta = await anthropic.messages.parse(peticion);
+    } catch (primerIntento) {
+      if (!(primerIntento instanceof Anthropic.BadRequestError)) throw primerIntento;
+      console.warn("⚠️  400 al analizar la curva; reintentando una vez.");
+      respuesta = await anthropic.messages.parse(peticion);
+    }
+    const data = respuesta.parsed_output;
+    if (!data) return res.status(502).json({ error: "El análisis devolvió una respuesta ilegible." });
+    return res.json(data);
+  } catch (error) {
+    console.error("❌ Error analizando la curva:", error);
+    return res.status(500).json({ error: mensajeDeError(error) });
+  }
+});
+
+// TÍTULO y COSTURA se guardan tal cual como la sección, y son de una sola línea.
+// El párrafo "🔗 Conexión con lo anterior" que se le pide al resto acabaría dentro
+// del mensaje, así que a estas dos se les prohíbe explícitamente.
+const SECCIONES_DE_UNA_LINEA = new Set(["TITULO", "COSTURA", "CONECTOR"]);
+
 const relacionesImportantes = {
   // 1. TÍTULO (EPÍTOME)
   "TITULO": {
@@ -977,10 +1134,14 @@ ${indicacionesDeConexion}
     "Título principal recomendado", "Por qué este título funciona", "Análisis:", "Evaluación:",
     ni notas sobre tus decisiones, ni versiones alternativas, ni indicaciones de duración.
     El predicador quiere el texto, no la explicación de cómo lo escribiste.
-3.  Al final, y solo al final, agrega el párrafo "🔗 Conexión con lo anterior:" donde expliques
+${SECCIONES_DE_UNA_LINEA.has(seccionActual)
+  ? `3.  NO agregues el párrafo "🔗 Conexión con lo anterior:" ni ningún otro comentario.
+    Esta sección es de una sola línea y se guarda tal cual: cualquier cosa que añadas
+    después queda dentro del mensaje. Devuelve la línea y nada más.`
+  : `3.  Al final, y solo al final, agrega el párrafo "🔗 Conexión con lo anterior:" donde expliques
     en 1 a 3 frases cómo esta sección se apoya en las anteriores. ${seccionesRelevantesParaConectar.length > 0 ? `Enfócate en la conexión con ${seccionesRelevantesParaConectar.join(' y ')}, priorizando según el "ENFOQUE DE CONEXIÓN", y nombra el **tipo de conexión** (por ejemplo "conexión temática" o "transición fluida").` : 'Si no hay secciones previas, di simplemente que es el punto de partida.'}
-    Ese párrafo es lo ÚNICO que puede hablar sobre el mensaje en vez de ser el mensaje.
-4.  Aplica el tono "Living Room": claro, visual, cercano y práctico.
+    Ese párrafo es lo ÚNICO que puede hablar sobre el mensaje en vez de ser el mensaje.`}
+4.  Aplica el ESTILO LIVING ROOM de arriba. No es un adorno: es la forma de la sección.
 5.  Solo en la sección INTRODUCCIÓN, cierra el contenido con 3 versículos centrales relacionados
     con el tema, listados al final de la sección.
 
