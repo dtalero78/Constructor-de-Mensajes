@@ -23,8 +23,9 @@ docker build -t constructor . && docker run -p 3000:3000 --env-file .env constru
 - Requiere `.env` con:
   - `ANTHROPIC_API_KEY` — todo el texto pasa por Claude.
   - `DATABASE_URL` — Postgres (cluster `bslpostgres` en DigitalOcean, base `speakers`).
-  - `OPENAI_API_KEY` — **opcional**, solo para audio (Whisper y TTS, que Anthropic no tiene). Sin ella la
-    app arranca igual y `/transcribir` y `/api/tts` responden 503 con un mensaje explícito.
+  - `OPENAI_API_KEY` — **opcional**, para todo lo que es voz: Whisper, TTS y la entrevista hablada
+    (Anthropic no tiene ninguna de las tres). Sin ella la app arranca igual; `/transcribir` y
+    `/api/tts` responden 503 y la entrevista por voz queda deshabilitada.
 - **La base exige VPN**: el firewall del cluster solo deja pasar `174.138.59.209`. Sin el túnel
   `wg-bsl-vpn` activo, el arranque avisa que no pudo conectar.
 - ffmpeg en el PATH solo hace falta para `/transcribir`.
@@ -149,6 +150,7 @@ El flujo real y mantenido es el de texto (`/evaluar-escrito`, `/aplicar-sugerenc
 | `POST /clasificar-idea` | clasifica una idea suelta en uno de los 8 pilares |
 | `POST /analizar-curva` | juicio cualitativo de los 6 tramos de la curva. JSON validado por esquema |
 | `POST /agente/entrevista` | el entrevistador. Devuelve **JSON validado por esquema**, no prosa |
+| `POST /agente/voz/token` | token efímero de OpenAI Realtime para la entrevista hablada |
 | `POST /guardar-mensaje` | upsert por pilar. Acepta `mensajeId` o `nuevo: true` |
 | `GET /obtener-mensajes` | con `?usuario=` filtra; **sin él devuelve los de todos** |
 | `GET /obtener-ultimo-mensaje`, `GET /obtener-mensaje?id=&usuario=` | el mensaje en curso, o uno concreto |
@@ -159,7 +161,8 @@ El flujo real y mantenido es el de texto (`/evaluar-escrito`, `/aplicar-sugerenc
 ## Frontend
 
 Sin bundler: se edita el `<script>` inline de cada página. Dependencia externa: `html2pdf` por CDN.
-La única pieza de JS propia fuera de las páginas es [public/calibracion.js](public/calibracion.js).
+Las piezas de JS propias fuera de las páginas son [public/calibracion.js](public/calibracion.js)
+y [public/voz.js](public/voz.js).
 
 - `/` → [home.html](public/home.html). El usuario sale de `localStorage.currentUser`.
 - `/crear.html` → el agente. `?nuevo=1` empieza en limpio; `?mensaje=<id>` abre ese mensaje sin entrevista;
@@ -177,6 +180,29 @@ que está duplicado en cada página.
 2. **Lo que devuelve `/generar-una-sugerencia` se guarda tal cual como la sección.** Por eso el prompt
    prohíbe el meta-comentario ("## Sugerencia de TÍTULO", "Por qué funciona"). Antes, un título ocupaba
    2282 caracteres de ensayo; ahora, 30.
+
+## Entrevista por voz
+
+`crear.html` abre en una pantalla de modo (`pModo`): **escribiendo** (el agente de texto de siempre)
+o **hablando**. Los dos caminos terminan en el mismo briefing de seis campos, así que a partir del
+briefing el flujo es idéntico.
+
+La voz va por **OpenAI Realtime** (`gpt-realtime-2.1`) sobre WebRTC, porque Anthropic no tiene voz en
+tiempo real. Dos decisiones que conviene no deshacer:
+
+- **El navegador nunca ve la `OPENAI_API_KEY`.** `/agente/voz/token` pide a
+  `https://api.openai.com/v1/realtime/client_secrets` un token efímero (~1 min) y devuelve solo eso.
+- **La sesión se configura entera en el servidor**, dentro de esa misma petición: instrucciones,
+  voz, transcripción y la tool. Así el prompt de estilo tampoco viaja al cliente en texto plano.
+  Si se moviera al `session.update` del navegador, quedaría a la vista en las DevTools.
+
+El briefing **no se saca parseando la conversación**: el agente llama a la tool `entregar_briefing`
+con los seis campos, y [public/voz.js](public/voz.js) lo recoge en el `response.done`. Es mucho más
+fiable que interpretar una transcripción, que además llega con erratas.
+
+`semantic_vad` gestiona los turnos (no hay botón de "hablar"), y la transcripción del predicador usa
+`gpt-4o-transcribe` en español. Los turnos hablados se guardan en `estado.conversacion` igual que los
+escritos, así que se puede salir a la entrevista de texto sin perder lo dicho.
 
 ## Calibración del mensaje (la curva)
 

@@ -792,6 +792,114 @@ app.post('/agente/entrevista', requiereSesion, async (req, res) => {
   }
 });
 
+
+// ============================================================
+// ENTREVISTA POR VOZ — OpenAI Realtime (Anthropic no tiene voz en tiempo real)
+// El navegador NUNCA ve la OPENAI_API_KEY: el servidor emite un token efímero
+// (~1 min) y de paso deja la sesión ya configurada, así las instrucciones de
+// Living Room tampoco viajan al cliente en texto plano.
+// ============================================================
+const MODELO_VOZ = "gpt-realtime-2.1";
+const VOZ_AGENTE = "marin";
+
+const promptEntrevistadorVoz = `
+Eres el entrevistador de Living Room Speakers y estás hablando POR VOZ con un predicador.
+Tu trabajo NO es escribir la prédica: es sacarle el material crudo para construirla.
+
+Necesitas llenar seis campos, y solo seis:
+- ideaCentral: la idea del mensaje, en una frase.
+- audiencia: a quién le habla, concreto (edad, ciudad, situación), no "a todos".
+- transformacion: qué hace distinto esa persona el lunes.
+- historiaAncla: una historia PROPIA del predicador, con escena, lugar y detalle.
+- tension: la objeción real de esa audiencia, dicha con sus palabras.
+- tiempo: cuántos minutos va a hablar.
+
+CÓMO HABLAS
+- Español latinoamericano, cercano y natural. Tuteas.
+- UNA sola pregunta por turno. Corta. Sin preámbulos ni resúmenes largos.
+- Esto es una conversación hablada: frases breves, nada de listas ni de viñetas.
+- No repitas lo que acaba de decir salvo media frase para confirmar y seguir.
+- Si la respuesta es vaga ("hablar de la fe", "para todos", "que crezcan"),
+  REPREGUNTA pidiendo algo concreto: un nombre, una escena, una fecha, una cifra.
+  No te conformes, pero sin ponerte pesado: máximo dos repreguntas por campo.
+- La historia ancla es la que más cuesta sacar. Pide el detalle físico:
+  dónde estaba, qué hora era, quién estaba, qué dijo exactamente.
+- Nunca propongas contenido de la prédica ni redactes secciones. Solo preguntas.
+
+CUÁNDO CIERRAS
+Cuando tengas material real en los seis campos, di en una frase que ya tienes lo
+necesario y llama a la función entregar_briefing. Nunca antes de cinco preguntas.
+Si la persona te dice que ya no quiere más preguntas, cierra con lo que tengas.
+Redacta el briefing con las palabras del predicador, no con las tuyas.
+`;
+
+const TOOL_BRIEFING_VOZ = {
+  type: "function",
+  name: "entregar_briefing",
+  description: "Entrega el briefing terminado. Llámala solo cuando tengas material real en los seis campos, o cuando el predicador pida cerrar.",
+  parameters: {
+    type: "object",
+    properties: {
+      ideaCentral: { type: "string", description: "La idea central del mensaje, en una frase." },
+      audiencia: { type: "string", description: "A quién le habla, concreto." },
+      transformacion: { type: "string", description: "Qué hace distinto el oyente el lunes." },
+      historiaAncla: { type: "string", description: "La historia propia del predicador, con su detalle." },
+      tension: { type: "string", description: "La objeción real de esa audiencia." },
+      tiempo: { type: "string", description: "Tiempo disponible del mensaje." }
+    },
+    required: ["ideaCentral", "audiencia", "transformacion", "historiaAncla", "tension", "tiempo"],
+    additionalProperties: false
+  }
+};
+
+app.post('/agente/voz/token', requiereSesion, async (req, res) => {
+  if (!process.env.OPENAI_API_KEY) {
+    return res.status(503).json({ error: "La entrevista por voz necesita una clave de OpenAI (OPENAI_API_KEY)." });
+  }
+  try {
+    const r = await fetch('https://api.openai.com/v1/realtime/client_secrets', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        session: {
+          type: "realtime",
+          model: MODELO_VOZ,
+          instructions: promptEntrevistadorVoz + "\n" + tonoLivingRoom,
+          audio: {
+            input: {
+              transcription: { model: "gpt-4o-transcribe", language: "es" },
+              turn_detection: { type: "semantic_vad" }
+            },
+            output: { voice: VOZ_AGENTE }
+          },
+          tools: [TOOL_BRIEFING_VOZ]
+        }
+      })
+    });
+
+    const texto = await r.text();
+    if (!r.ok) {
+      console.error("❌ OpenAI rechazó el token de voz:", r.status, texto.slice(0, 300));
+      return res.status(502).json({ error: "No se pudo abrir la sesión de voz con OpenAI." });
+    }
+
+    const datos = JSON.parse(texto);
+    const secreto = datos.value || datos.client_secret?.value;
+    if (!secreto) {
+      console.error("❌ El token de voz vino sin valor:", texto.slice(0, 300));
+      return res.status(502).json({ error: "OpenAI devolvió una sesión de voz ilegible." });
+    }
+    // Solo sale el token efímero: ni la clave ni las instrucciones.
+    return res.json({ token: secreto, modelo: MODELO_VOZ, expira: datos.expires_at || null });
+  } catch (error) {
+    console.error("❌ Error abriendo la sesión de voz:", error);
+    return res.status(500).json({ error: "Error abriendo la sesión de voz." });
+  }
+});
+
 app.post('/clasificar-idea', requiereSesion, async (req, res) => {
   const { idea } = req.body;
   const usuario = req.usuario.usuario;

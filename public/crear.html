@@ -8,6 +8,7 @@
   <title>Crear mensaje · LivingRoom Speakers</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
   <script src="/calibracion.js"></script>
+  <script src="/voz.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
@@ -812,6 +813,68 @@
       .calib-top .resumen { margin-left: 0; width: 100%; }
     }
 
+
+    /* ============================================================
+       MODO DE CONSTRUCCIÓN Y ENTREVISTA POR VOZ
+       ============================================================ */
+    .modos { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 26px; }
+    .modo {
+      display: flex; flex-direction: column; align-items: flex-start; gap: 9px;
+      padding: 24px 22px; text-align: left; font: inherit; color: var(--ink);
+      background: var(--surface); border: 1px solid var(--line); border-radius: 18px;
+      box-shadow: var(--shadow-sm); cursor: pointer; transition: border-color .15s, box-shadow .15s, transform .15s;
+    }
+    .modo:hover:not(:disabled) { border-color: var(--brand); box-shadow: var(--shadow-md); transform: translateY(-2px); }
+    .modo:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; }
+    .modo:disabled { opacity: .55; cursor: not-allowed; }
+    .modo-ico {
+      display: grid; place-items: center; width: 46px; height: 46px; border-radius: 13px;
+      background: var(--brand-soft); color: var(--brand-700); margin-bottom: 3px;
+    }
+    .modo-nombre { font-size: 17px; font-weight: 800; letter-spacing: -.01em; }
+    .modo-desc { font-size: 13.5px; line-height: 1.55; color: var(--ink-2); }
+    .modo-nota { font-size: 12px; color: var(--danger); }
+
+    .voz-escenario { display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 34px 0 26px; }
+    .voz-orbe {
+      position: relative; width: 108px; height: 108px; border-radius: 50%;
+      display: grid; place-items: center;
+      background: radial-gradient(circle at 50% 45%, var(--brand-soft), var(--surface) 70%);
+      border: 1px solid var(--line);
+    }
+    .voz-orbe i {
+      position: absolute; inset: 0; border-radius: 50%; border: 2px solid var(--brand);
+      opacity: 0; transform: scale(.72);
+    }
+    .voz-orbe.activo i { animation: vozPulso 2.1s cubic-bezier(.24,.6,.35,1) infinite; }
+    .voz-orbe.activo i:nth-child(2) { animation-delay: .7s; }
+    .voz-orbe.activo i:nth-child(3) { animation-delay: 1.4s; }
+    .voz-orbe::after {
+      content: ''; width: 46px; height: 46px; border-radius: 50%;
+      background: var(--line); transition: background .25s, transform .25s;
+    }
+    .voz-orbe.escuchando::after { background: var(--brand); transform: scale(1.12); }
+    .voz-orbe.hablando::after { background: var(--brand-700); }
+    .voz-orbe.error::after { background: var(--danger); }
+    @keyframes vozPulso {
+      0%   { opacity: .55; transform: scale(.72); }
+      100% { opacity: 0;   transform: scale(1.32); }
+    }
+    @media (prefers-reduced-motion: reduce) { .voz-orbe.activo i { animation: none; } }
+
+    .voz-estado { font-size: 14px; font-weight: 600; color: var(--ink-2); }
+    .voz-turnos { display: flex; flex-direction: column; gap: 11px; max-height: 42vh; overflow-y: auto; padding: 2px; }
+    .voz-turno { padding: 12px 15px; border-radius: 14px; font-size: 14.5px; line-height: 1.55; max-width: 86%; }
+    .voz-turno.agente { background: var(--surface); border: 1px solid var(--line); align-self: flex-start; }
+    .voz-turno.usuario { background: var(--brand-soft); align-self: flex-end; }
+    .voz-turno .quien {
+      display: block; font-size: 10.5px; font-weight: 800; letter-spacing: .08em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 4px;
+    }
+    .voz-turno.parcial { opacity: .62; }
+
+    @media (max-width: 720px) { .modos { grid-template-columns: 1fr; } }
+
   </style>
 </head>
 
@@ -831,8 +894,66 @@
 
     <div class="error" id="error"></div>
 
-    <!-- ============ 1. ENTREVISTA ============ -->
-    <section class="pantalla activa" id="pEntrevista">
+    <!-- ============ 0. CÓMO CONSTRUIR ============ -->
+    <section class="pantalla activa" id="pModo">
+      <div>
+        <h1 class="titulo-bloque">¿Cómo quieres construir tu mensaje?</h1>
+        <p class="subtitulo">En los dos casos el agente te entrevista y arma el mismo briefing.
+          Cambia la forma de contárselo.</p>
+      </div>
+
+      <div class="modos">
+        <button class="modo" id="modoTexto" type="button">
+          <span class="modo-ico" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor"
+              stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+          </span>
+          <span class="modo-nombre">Escribiendo</span>
+          <span class="modo-desc">Una pregunta a la vez, en texto. Puedes pensar la respuesta
+            con calma y volver atrás.</span>
+        </button>
+
+        <button class="modo" id="modoVoz" type="button">
+          <span class="modo-ico" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor"
+              stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"/>
+            </svg>
+          </span>
+          <span class="modo-nombre">Hablando</span>
+          <span class="modo-desc">Conversas en voz alta con el agente, como si le contaras el
+            mensaje a alguien. Necesita micrófono.</span>
+          <span class="modo-nota" id="notaVoz"></span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ============ 1b. ENTREVISTA POR VOZ ============ -->
+    <section class="pantalla" id="pVoz">
+      <div>
+        <h1 class="titulo-bloque">Cuéntame tu mensaje</h1>
+        <p class="subtitulo">Habla normal, como si se lo contaras a un amigo. El agente te va
+          preguntando y cuando tenga lo necesario arma el briefing.</p>
+      </div>
+
+      <div class="voz-escenario">
+        <div class="voz-orbe" id="vozOrbe"><i></i><i></i><i></i></div>
+        <p class="voz-estado" id="vozEstado">Conectando…</p>
+      </div>
+
+      <div class="voz-turnos" id="vozTurnos"></div>
+
+      <div class="acciones">
+        <button class="btn btn-primario" id="btnVozCerrar">Ya tengo suficiente, armemos el briefing →</button>
+        <button class="btn-texto" id="btnVozSalir">Salir y escribir en su lugar</button>
+      </div>
+    </section>
+
+    <!-- ============ 1. ENTREVISTA ESCRITA ============ -->
+    <section class="pantalla" id="pEntrevista">
       <div class="historial" id="historial"></div>
 
       <div id="bloquePregunta">
@@ -1500,6 +1621,114 @@
 
 
 
+
+    /* ============================================================
+       MODO DE CONSTRUCCIÓN — escribiendo o hablando
+       Los dos caminos terminan en el mismo briefing de 6 campos.
+       ============================================================ */
+    let vozSesion = null;
+    let vozParciales = { usuario: '', agente: '' };
+
+    $('#modoTexto').addEventListener('click', () => {
+      mostrar('pEntrevista', 'Entrevista');
+      pintarHistorial();
+      if (!estado.conversacion.length) siguientePregunta();
+    });
+
+    $('#modoVoz').addEventListener('click', () => {
+      mostrar('pVoz', 'Entrevista');
+      iniciarVoz();
+    });
+
+    function vozPintarEstado(texto, clase) {
+      $('#vozEstado').textContent = texto;
+      const orbe = $('#vozOrbe');
+      orbe.className = 'voz-orbe' + (clase ? ' ' + clase : '');
+      if (clase === 'escuchando' || clase === 'hablando') orbe.classList.add('activo');
+    }
+
+    function vozAgregarTurno(quien, texto, esFinal) {
+      const caja = $('#vozTurnos');
+      let parcial = caja.querySelector(`.voz-turno.parcial.${quien}`);
+
+      if (!esFinal) {
+        vozParciales[quien] += texto;
+        if (!parcial) {
+          parcial = document.createElement('div');
+          parcial.className = `voz-turno parcial ${quien}`;
+          parcial.innerHTML = `<span class="quien">${quien === 'agente' ? 'Agente' : 'Tú'}</span><span class="txt"></span>`;
+          caja.appendChild(parcial);
+        }
+        parcial.querySelector('.txt').textContent = vozParciales[quien];
+      } else {
+        vozParciales[quien] = '';
+        if (parcial) parcial.remove();
+        const div = document.createElement('div');
+        div.className = `voz-turno ${quien}`;
+        div.innerHTML = `<span class="quien">${quien === 'agente' ? 'Agente' : 'Tú'}</span><span class="txt"></span>`;
+        div.querySelector('.txt').textContent = texto;
+        caja.appendChild(div);
+        // La conversación hablada se guarda igual que la escrita, para que el
+        // briefing se pueda revisar y para poder volver a la entrevista de texto.
+        estado.conversacion.push({ rol: quien === 'agente' ? 'agente' : 'usuario', texto });
+        persistir();
+      }
+      caja.scrollTop = caja.scrollHeight;
+    }
+
+    function iniciarVoz() {
+      $('#vozTurnos').innerHTML = '';
+      vozParciales = { usuario: '', agente: '' };
+      vozPintarEstado('Conectando…', null);
+
+      vozSesion = VozLivingRoom.crear({
+        onEstado: (e) => {
+          const mapa = {
+            conectando: ['Conectando…', null],
+            esperando:  ['Te escucho', 'escuchando'],
+            escuchando: ['Te escucho', 'escuchando'],
+            pensando:   ['Un momento…', null],
+            hablando:   ['Hablando', 'hablando'],
+            cerrando:   ['Armando el briefing…', null],
+            listo:      ['Listo', null],
+            cerrada:    ['Sesión terminada', null]
+          };
+          const [txt, cls] = mapa[e] || [e, null];
+          vozPintarEstado(txt, cls);
+        },
+        onTranscripcion: vozAgregarTurno,
+        onBriefing: (briefing) => {
+          estado.briefing = briefing;
+          persistir();
+          if (vozSesion) vozSesion.terminar();
+          pintarBriefing();
+          mostrar('pBriefing', 'Briefing');
+        },
+        onError: (mensaje) => {
+          vozPintarEstado(mensaje, 'error');
+          mostrarError('No se pudo continuar por voz', ' ' + mensaje, false);
+        }
+      });
+
+      vozSesion.iniciar();
+    }
+
+    $('#btnVozCerrar').addEventListener('click', () => {
+      if (vozSesion && vozSesion.activa) vozSesion.pedirCierre();
+    });
+
+    $('#btnVozSalir').addEventListener('click', () => {
+      if (vozSesion) vozSesion.terminar();
+      vozSesion = null;
+      mostrar('pEntrevista', 'Entrevista');
+      pintarHistorial();
+      if (!estado.conversacion.length) siguientePregunta();
+    });
+
+    // Colgar el micrófono si se cierra la pestaña a media entrevista.
+    window.addEventListener('beforeunload', () => { if (vozSesion) vozSesion.terminar(); });
+
+
     /* ---------- Arranque ---------- */
     (async function iniciar() {
       try {
@@ -1542,9 +1771,16 @@
       } else if (estado.briefing) {
         pintarBriefing();
         mostrar('pBriefing', 'Briefing');
-      } else {
+      } else if (estado.conversacion.length) {
+        // Entrevista a medias: se retoma en texto, sea como sea que empezó.
+        mostrar('pEntrevista', 'Entrevista');
         pintarHistorial();
-        siguientePregunta();
+      } else {
+        if (!VozLivingRoom.soportado) {
+          $('#modoVoz').disabled = true;
+          $('#notaVoz').textContent = 'Tu navegador no permite micrófono aquí.';
+        }
+        mostrar('pModo', 'Entrevista');
       }
     })();
   </script>
