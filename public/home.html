@@ -166,11 +166,8 @@
     }
 
     /* ---------- Tarjeta con filas ---------- */
+    /* El panel ya no es una tarjeta: cada fila es la suya. */
     .panel {
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      overflow: hidden;
       margin-bottom: 26px;
     }
 
@@ -179,7 +176,7 @@
       align-items: baseline;
       justify-content: space-between;
       gap: 12px;
-      padding: 16px 18px 12px;
+      padding: 0 2px 10px;
     }
 
     .panel-cab h2 {
@@ -198,14 +195,22 @@
       display: flex;
       align-items: center;
       gap: 14px;
-      padding: 14px 18px;
-      border-top: 1px solid var(--line);
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 12px;
       color: inherit;
-      transition: background .15s ease;
+      transition: border-color .15s ease, box-shadow .15s ease;
+    }
+
+    .fila:last-child {
+      margin-bottom: 0;
     }
 
     .fila:hover {
-      background: var(--surface-2);
+      border-color: #D5D9DF;
+      box-shadow: var(--shadow-sm);
     }
 
     .fila.inerte {
@@ -214,7 +219,8 @@
     }
 
     .fila.inerte:hover {
-      background: transparent;
+      border-color: var(--line);
+      box-shadow: none;
     }
 
     .fila .marca {
@@ -299,7 +305,9 @@
     .vacio {
       padding: 30px 18px;
       text-align: center;
-      border-top: 1px solid var(--line);
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 12px;
     }
 
     .vacio p {
@@ -312,22 +320,24 @@
     .pilares {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 0;
+      gap: 10px;
     }
 
     .pilar {
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 12px 18px;
-      border-top: 1px solid var(--line);
+      padding: 12px 14px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 12px;
       font-size: 13.5px;
       color: inherit;
-      transition: background .15s ease;
+      transition: border-color .15s ease;
     }
 
     .pilar:hover {
-      background: var(--surface-2);
+      border-color: #D5D9DF;
     }
 
     .pilar em {
