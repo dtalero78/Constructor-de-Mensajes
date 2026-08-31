@@ -1,0 +1,394 @@
+/* ============================================================
+   Sistema visual de LivingRoom Speakers.
+   Una sola definición de los tokens y de los componentes que
+   comparten todas las pantallas. Antes cada página traía su
+   propia copia: el verde estaba declarado cinco veces.
+   ============================================================ */
+
+/* ============================================================
+       CREAR — el agente entrevistador.
+       Una pregunta por pantalla → briefing → los 8 pilares.
+       ============================================================ */
+
+    :root {
+      --brand: #22B24C;
+      --brand-600: #17A34A;
+      --brand-700: #0F8A3C;
+      --brand-soft: #E9F7EE;
+      --page: #EFE8E0;
+      --surface: #FFFFFF;
+      --surface-2: #F7F4F0;
+      --line: #ECE7E1;
+      --ink: #15181D;
+      --ink-2: #4B5159;
+      --muted: #8E949D;
+      --danger: #C0392B;
+      --warn: #C08A1E;
+      --warn-soft: #FBF1DC;
+      --shadow-sm: 0 2px 6px rgba(24, 20, 16, .05);
+      --shadow-md: 0 6px 18px rgba(24, 20, 16, .07);
+    }
+
+* {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+body {
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      background: var(--page);
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 14px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+button {
+      font: inherit;
+      border: 0;
+      background: none;
+      cursor: pointer;
+      color: inherit;
+    }
+
+.app {
+      width: 100%;
+      max-width: 720px;
+      background: var(--surface);
+      border-radius: 32px;
+      box-shadow: var(--shadow-md);
+      padding: 18px 20px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+
+/* ---------- Cabecera ---------- */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+.volver {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 14px 8px 10px;
+      border-radius: 999px;
+      border: 1.5px solid var(--line);
+      box-shadow: var(--shadow-sm);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink-2);
+      transition: transform .18s ease;
+    }
+
+.volver:hover {
+      transform: translateX(-2px);
+    }
+
+.paso {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--brand-700);
+      background: var(--brand-soft);
+      padding: 6px 12px;
+      border-radius: 999px;
+    }
+
+/* ---------- Pantallas ---------- */
+    .pantalla {
+      display: none;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+.pantalla.activa {
+      display: flex;
+      animation: entra .35s cubic-bezier(.22, 1, .36, 1) both;
+    }
+
+@keyframes entra {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+    }
+
+textarea {
+      width: 100%;
+      min-height: 130px;
+      resize: vertical;
+      font: inherit;
+      font-size: 15px;
+      line-height: 1.55;
+      color: var(--ink);
+      background: var(--surface-2);
+      border: 1.5px solid var(--line);
+      border-radius: 20px;
+      padding: 16px 18px;
+      transition: border-color .18s ease, background .18s ease;
+    }
+
+textarea:focus {
+      outline: 0;
+      background: var(--surface);
+      border-color: var(--brand);
+    }
+
+textarea::placeholder {
+      color: #B7BCC3;
+    }
+
+/* ---------- Botones ---------- */
+    .acciones {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+.btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 13px 24px;
+      border-radius: 999px;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -.01em;
+      transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+
+.btn-primario {
+      background: var(--brand);
+      color: #fff;
+      box-shadow: 0 8px 18px rgba(18, 144, 62, .3);
+    }
+
+.btn-primario:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px rgba(18, 144, 62, .34);
+    }
+
+.btn-primario:disabled {
+      background: #C9D3CC;
+      box-shadow: none;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+.btn-fantasma {
+      color: var(--ink-2);
+      border: 1.5px solid var(--line);
+      background: var(--surface);
+    }
+
+.btn-fantasma:hover {
+      background: var(--surface-2);
+    }
+
+.btn-texto {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--muted);
+      padding: 8px 4px;
+    }
+
+.btn-texto:hover {
+      color: var(--brand-700);
+    }
+
+/* ---------- Estados ---------- */
+    .cargando {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 600;
+      padding: 8px 0;
+    }
+
+.puntos {
+      display: inline-flex;
+      gap: 5px;
+    }
+
+.puntos i {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--brand);
+      animation: latir 1s infinite ease-in-out;
+    }
+
+.puntos i:nth-child(2) {
+      animation-delay: .15s;
+    }
+
+.puntos i:nth-child(3) {
+      animation-delay: .3s;
+    }
+
+@keyframes latir {
+
+      0%,
+      80%,
+      100% {
+        opacity: .25;
+        transform: scale(.8);
+      }
+
+      40% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+.error {
+      background: #FDEDEA;
+      border: 1.5px solid #F5C6BE;
+      color: var(--danger);
+      border-radius: 18px;
+      padding: 14px 16px;
+      font-size: 13.5px;
+      line-height: 1.5;
+      display: none;
+    }
+
+.error.visible {
+      display: block;
+    }
+
+.error b {
+      display: block;
+      margin-bottom: 3px;
+    }
+
+.btn-reintentar {
+      margin-top: 10px;
+      display: inline-block;
+      padding: 7px 16px;
+      border-radius: 999px;
+      background: var(--danger);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+/* ---------- Briefing ---------- */
+    .titulo-bloque {
+      font-family: 'Archivo', sans-serif;
+      font-weight: 800;
+      letter-spacing: -.03em;
+      font-size: clamp(24px, 5.4vw, 34px);
+      line-height: 1.12;
+    }
+
+.subtitulo {
+      font-size: 14px;
+      color: var(--muted);
+      font-weight: 500;
+      line-height: 1.5;
+      margin-top: 8px;
+    }
+
+.campos {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+.campo {
+      border: 1.5px solid var(--line);
+      border-radius: 20px;
+      padding: 14px 18px;
+      background: var(--surface);
+      transition: border-color .18s ease;
+    }
+
+.campo:focus-within {
+      border-color: var(--brand);
+    }
+
+.campo label {
+      display: block;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      color: var(--brand-700);
+      margin-bottom: 6px;
+    }
+
+.campo textarea {
+      min-height: 0;
+      padding: 0;
+      border: 0;
+      background: none;
+      border-radius: 0;
+      font-size: 15px;
+      field-sizing: content;
+    }
+
+.btn-mini {
+      padding: 7px 15px;
+      border-radius: 999px;
+      font-size: 12.5px;
+      font-weight: 700;
+      background: var(--brand);
+      color: #fff;
+    }
+
+.btn-mini.gris {
+      background: var(--surface-2);
+      color: var(--ink-2);
+    }
+
+.consolidado {
+      background: var(--surface-2);
+      border: 1.5px solid var(--line);
+      border-radius: 22px;
+      padding: 26px 28px;
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+.consolidado h2 {
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--brand-700);
+      margin: 26px 0 8px;
+    }
+
+.consolidado h2:first-child {
+      margin-top: 0;
+    }
+
+.consolidado p {
+      margin-bottom: 10px;
+      white-space: pre-wrap;
+    }
+
+@media (prefers-reduced-motion: reduce) {
+
+      *,
+      *::before,
+      *::after {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
