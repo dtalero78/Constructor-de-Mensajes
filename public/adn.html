@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#22B24C" />
+<title>El ADN comunicativo de LVR · LivingRoom Speakers</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --paper:#F3F4F7;
+    --surface:#FFFFFF;
+    --surface-2:#EAECF1;
+    --ink:#14161C;
+    --ink-2:#3A3F4C;
+    --muted:#666B79;
+    --rule:#D8DCE4;
+    --rule-soft:#E7EAF0;
+    --accent:#2B3A67;
+    --accent-soft:#E3E7F2;
+    --hi:#9A6414;
+    --hi-soft:#F6EBD8;
+    --hi-mark:#EBD3A4;
+    --shadow:0 1px 2px rgba(20,22,28,.05), 0 8px 24px -12px rgba(20,22,28,.14);
+    --sans:'Archivo', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --serif:'Newsreader', Georgia, 'Times New Roman', serif;
+    --mono:'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#0F1116;
+      --surface:#171A21;
+      --surface-2:#1E222B;
+      --ink:#E9EBF0;
+      --ink-2:#C2C7D2;
+      --muted:#8F96A6;
+      --rule:#2A2F3A;
+      --rule-soft:#232833;
+      --accent:#8FA5E0;
+      --accent-soft:#1D2437;
+      --hi:#E0A855;
+      --hi-soft:#2A2318;
+      --hi-mark:#5A4520;
+      --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#0F1116;
+    --surface:#171A21;
+    --surface-2:#1E222B;
+    --ink:#E9EBF0;
+    --ink-2:#C2C7D2;
+    --muted:#8F96A6;
+    --rule:#2A2F3A;
+    --rule-soft:#232833;
+    --accent:#8FA5E0;
+    --accent-soft:#1D2437;
+    --hi:#E0A855;
+    --hi-soft:#2A2318;
+    --hi-mark:#5A4520;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+  }
+
+  *{box-sizing:border-box}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--sans);
+    font-size:16px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1140px;margin:0 auto;padding:0 24px 96px}
+  .col{max-width:68ch}
+
+  h1,h2,h3,h4{text-wrap:balance;margin:0}
+  a{color:var(--accent)}
+  a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
+
+  .eyebrow{
+    font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--muted);margin:0;
+  }
+
+  /* ---------- header ---------- */
+  header{padding:72px 0 44px;border-bottom:1px solid var(--rule)}
+  header h1{
+    font-family:var(--serif);font-weight:600;font-size:clamp(38px,6.2vw,68px);
+    line-height:1.02;letter-spacing:-.022em;margin:18px 0 20px;
+  }
+  header .lede{
+    font-family:var(--serif);font-size:clamp(18px,2.1vw,22px);line-height:1.5;
+    color:var(--ink-2);max-width:60ch;margin:0;
+  }
+  .corpusbar{
+    display:flex;flex-wrap:wrap;gap:10px 28px;margin-top:32px;
+    font-family:var(--mono);font-size:12px;color:var(--muted);
+  }
+  .corpusbar b{color:var(--ink);font-weight:500}
+
+  /* ---------- sections ---------- */
+  section{padding:64px 0;border-bottom:1px solid var(--rule-soft)}
+  section:last-of-type{border-bottom:0}
+  .sec-head{display:flex;align-items:baseline;gap:16px;margin-bottom:8px;flex-wrap:wrap}
+  .sec-head h2{
+    font-family:var(--serif);font-weight:600;font-size:clamp(26px,3.4vw,36px);
+    letter-spacing:-.015em;line-height:1.15;
+  }
+  .sec-sub{color:var(--muted);max-width:66ch;margin:10px 0 34px;font-size:15.5px}
+
+  /* ---------- EL MOTOR (gráfico central) ---------- */
+  .engine{
+    background:var(--surface);border:1px solid var(--rule);border-radius:3px;
+    box-shadow:var(--shadow);padding:36px 30px 34px;margin-top:8px;
+  }
+  .engine-title{
+    display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;
+    padding-bottom:22px;margin-bottom:26px;border-bottom:1px solid var(--rule-soft);
+  }
+  .engine-title h3{font-family:var(--serif);font-size:23px;font-weight:600;letter-spacing:-.01em}
+  .engine-scroll{overflow-x:auto;padding-bottom:6px}
+  .beats{
+    display:grid;grid-template-columns:repeat(6,minmax(158px,1fr));gap:0;
+    min-width:960px;position:relative;
+  }
+  .beat{padding:0 18px;border-left:1px solid var(--rule);position:relative}
+  .beat:first-child{padding-left:0;border-left:0}
+  .beat-n{
+    font-family:var(--mono);font-size:11px;color:var(--accent);
+    letter-spacing:.1em;margin-bottom:12px;display:block;
+  }
+  .beat h4{
+    font-size:12.5px;font-weight:700;line-height:1.3;
+    text-transform:uppercase;letter-spacing:.045em;margin-bottom:9px;
+  }
+  .beat p{margin:0 0 12px;font-size:13.5px;line-height:1.52;color:var(--ink-2)}
+  .beat .ex{
+    font-family:var(--serif);font-style:italic;font-size:14px;line-height:1.45;
+    color:var(--muted);margin:0;padding-top:11px;border-top:1px dashed var(--rule);
+  }
+  .beat.pivot .beat-n{color:var(--hi)}
+  .beat.pivot h4{color:var(--hi)}
+  mark{background:var(--hi-mark);color:var(--ink);padding:.05em .22em;border-radius:2px}
+
+  /* ---------- diales ---------- */
+  .dials{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    gap:1px;background:var(--rule);border:1px solid var(--rule);
+    margin-top:28px;border-radius:3px;overflow:hidden;
+  }
+  .dial{background:var(--surface);padding:20px 20px 18px}
+  .dial .v{
+    font-family:var(--mono);font-size:27px;font-weight:500;letter-spacing:-.02em;
+    color:var(--ink);font-variant-numeric:tabular-nums;line-height:1.1;
+  }
+  .dial .v small{font-size:14px;color:var(--muted);font-weight:400}
+  .dial .k{font-size:12.5px;color:var(--muted);margin-top:7px;line-height:1.4}
+
+  /* ---------- hace / no hace ---------- */
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+  .panel{border:1px solid var(--rule);border-radius:3px;background:var(--surface);padding:26px 24px}
+  .panel h3{
+    font-family:var(--mono);font-size:11px;letter-spacing:.13em;text-transform:uppercase;
+    margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid var(--rule-soft);
+  }
+  .panel.yes h3{color:var(--accent)}
+  .panel.no h3{color:var(--hi)}
+  .panel ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:13px}
+  .panel li{font-size:14.5px;line-height:1.52;padding-left:20px;position:relative;color:var(--ink-2)}
+  .panel li::before{
+    position:absolute;left:0;top:0;font-family:var(--mono);font-size:13px;
+  }
+  .panel.yes li::before{content:"+";color:var(--accent)}
+  .panel.no li::before{content:"–";color:var(--hi)}
+  .panel li b{color:var(--ink);font-weight:600}
+
+  /* ---------- callout app ---------- */
+  .callout{
+    border:1px solid var(--accent);border-left-width:3px;border-radius:3px;
+    background:var(--accent-soft);padding:26px 26px 24px;
+  }
+  .callout h3{font-family:var(--serif);font-size:20px;font-weight:600;margin-bottom:12px}
+  .callout p{margin:0 0 14px;font-size:15px;line-height:1.6;color:var(--ink-2);max-width:70ch}
+  .callout p:last-child{margin-bottom:0}
+  code{
+    font-family:var(--mono);font-size:.87em;background:var(--surface);
+    border:1px solid var(--rule);border-radius:2px;padding:.1em .38em;color:var(--ink);
+  }
+
+  /* ---------- prose ---------- */
+  .prose p{margin:0 0 17px;color:var(--ink-2);font-size:16px;line-height:1.65}
+  .prose p:last-child{margin-bottom:0}
+  .prose strong{color:var(--ink);font-weight:600}
+  blockquote{
+    margin:22px 0;padding:2px 0 2px 20px;border-left:2px solid var(--hi);
+    font-family:var(--serif);font-style:italic;font-size:17px;line-height:1.5;color:var(--ink);
+  }
+  blockquote cite{
+    display:block;font-family:var(--mono);font-style:normal;font-size:11px;
+    letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:9px;
+  }
+
+  /* ---------- tabla ADN ---------- */
+  .tablewrap{overflow-x:auto;border:1px solid var(--rule);border-radius:3px;background:var(--surface)}
+  table{border-collapse:collapse;width:100%;min-width:760px;font-size:14.5px}
+  th,td{text-align:left;padding:14px 16px;border-bottom:1px solid var(--rule-soft);vertical-align:top}
+  thead th{
+    font-family:var(--mono);font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;
+    color:var(--muted);font-weight:400;background:var(--surface-2);border-bottom:1px solid var(--rule);
+    position:sticky;top:0;
+  }
+  tbody tr:last-child td{border-bottom:0}
+  td.rank{font-family:var(--mono);color:var(--muted);font-variant-numeric:tabular-nums;width:38px}
+  td.trait b{display:block;color:var(--ink);font-weight:600;margin-bottom:4px}
+  td.trait span{color:var(--muted);font-size:13.5px;line-height:1.5;display:block}
+  td.ex{font-family:var(--serif);font-style:italic;color:var(--ink-2);font-size:14.5px;line-height:1.45}
+  .pill{
+    display:inline-block;font-family:var(--mono);font-size:10px;letter-spacing:.07em;
+    padding:3px 8px;border-radius:2px;white-space:nowrap;text-transform:uppercase;
+  }
+  .p-vhigh{background:var(--accent);color:var(--surface)}
+  :root[data-theme="dark"] .p-vhigh{color:#0F1116}
+  @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .p-vhigh{color:#0F1116}}
+  .p-high{background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent)}
+  .p-mid{background:var(--surface-2);color:var(--muted);border:1px solid var(--rule)}
+  .conf{font-family:var(--mono);font-size:11px;color:var(--muted);white-space:nowrap}
+
+  /* ---------- arquitecturas ---------- */
+  .archs{display:flex;flex-direction:column;gap:14px}
+  .arch{
+    border:1px solid var(--rule);border-radius:3px;background:var(--surface);
+    padding:20px 22px;display:grid;grid-template-columns:1fr;gap:10px;
+  }
+  .arch .name{font-weight:600;font-size:15px;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+  .arch .count{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.06em}
+  .arch .flow{
+    font-family:var(--mono);font-size:12.5px;line-height:1.9;color:var(--accent);
+    word-spacing:.05em;
+  }
+  .arch .flow span{color:var(--muted)}
+  .arch .note{font-size:14px;color:var(--ink-2);line-height:1.55;margin:0}
+
+  /* ---------- diccionario ---------- */
+  .lex{display:grid;grid-template-columns:repeat(auto-fit,minmax(258px,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:3px;overflow:hidden}
+  .lexcell{background:var(--surface);padding:20px}
+  .lexcell h4{
+    font-family:var(--mono);font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;
+    color:var(--muted);margin-bottom:13px;font-weight:400;
+  }
+  .lexcell ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:7px}
+  .lexcell li{font-size:14px;line-height:1.45;color:var(--ink-2)}
+  .lexcell li b{color:var(--ink);font-weight:600;font-family:var(--serif);font-size:15px}
+  .lexcell .n{font-family:var(--mono);font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+
+  /* ---------- curva emocional ---------- */
+  .curve{
+    border:1px solid var(--rule);border-radius:3px;background:var(--surface);
+    padding:28px 24px 20px;
+  }
+  .curve svg{display:block;width:100%;height:auto;color:var(--accent)}
+  .curve .lbl{font-family:var(--mono);font-size:10px;fill:var(--muted);letter-spacing:.04em}
+  .curve .lbl-strong{font-family:var(--sans);font-size:11.5px;fill:var(--ink);font-weight:600}
+
+  /* ---------- reglas operativas ---------- */
+  .rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px}
+  .rule{border:1px solid var(--rule);border-radius:3px;background:var(--surface);padding:18px 20px}
+  .rule h4{
+    font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--accent);margin-bottom:9px;font-weight:400;
+  }
+  .rule p{margin:0;font-size:14px;line-height:1.55;color:var(--ink-2)}
+
+  /* ---------- fórmula ---------- */
+  .formula{
+    border-top:2px solid var(--ink);border-bottom:2px solid var(--ink);
+    padding:38px 0;margin-top:10px;
+  }
+  .formula p{
+    font-family:var(--serif);font-size:clamp(21px,3vw,31px);line-height:1.34;
+    letter-spacing:-.012em;margin:0;max-width:26ch;color:var(--ink);
+  }
+  .formula p em{font-style:italic;color:var(--hi)}
+
+  footer{padding:44px 0 0;border-top:1px solid var(--rule);margin-top:10px}
+  footer p{font-size:13.5px;color:var(--muted);max-width:72ch;margin:0 0 12px;line-height:1.6}
+
+  @media (max-width:860px){
+    .split{grid-template-columns:1fr}
+    header{padding:52px 0 36px}
+    section{padding:48px 0}
+    .engine{padding:26px 20px}
+  }
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+  /* Barra de la app. El documento mantiene su propia tipografía —es una lectura
+     larga, no una pantalla operativa— pero la barra usa el verde de la marca
+     para que se note que sigues dentro de LivingRoom Speakers. */
+  .barra-app{
+    position:sticky; top:0; z-index:10;
+    display:flex; align-items:center; gap:12px;
+    padding:12px 24px;
+    background:var(--surface); border-bottom:1px solid var(--rule);
+    font-family:var(--sans);
+  }
+  .barra-app a.volver{
+    display:inline-flex; align-items:center; gap:7px;
+    font-size:13.5px; font-weight:600; color:var(--ink-2); text-decoration:none;
+    padding:7px 12px; border:1px solid var(--rule); border-radius:9px;
+  }
+  .barra-app a.volver:hover{ border-color:#22B24C; color:#17A34A; }
+  .barra-app a.volver:focus-visible{ outline:2px solid #22B24C; outline-offset:2px; }
+  .barra-app .donde{
+    font-family:var(--mono); font-size:11px; letter-spacing:.13em;
+    text-transform:uppercase; color:var(--muted); margin-left:auto;
+  }
+  @media (max-width:620px){ .barra-app .donde{ display:none } }
+</style>
+
+
+</head>
+
+<body>
+<div class="barra-app">
+  <a class="volver" href="/home.html">
+    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor"
+      stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="m15 18-6-6 6-6"/>
+    </svg>
+    Inicio
+  </a>
+  <span class="donde">LivingRoom Speakers</span>
+</div>
+
+<div class="wrap">
+
+<header>
+  <p class="eyebrow">Análisis de estilo · corpus de 10 prédicas</p>
+  <h1>El ADN comunicativo<br>de LVR</h1>
+  <p class="lede">El ADN comunicativo de Carlos Fraija, medido sobre 83.000 palabras habladas — y traducido a reglas que el Constructor de Mensajes puede aplicar.</p>
+  <div class="corpusbar">
+    <span><b>10</b> mensajes completos</span>
+    <span><b>82.854</b> palabras</span>
+    <span><b>2021–2026</b></span>
+    <span><b>4</b> contextos: campus, congreso, iglesia invitada, online</span>
+    <span><b>3</b> países</span>
+  </div>
+</header>
+
+<!-- ============ EL GRÁFICO ============ -->
+<section>
+  <div class="sec-head"><h2>El motor de seis tiempos</h2></div>
+  <p class="sec-sub">Nueve de los diez mensajes recorren esta misma secuencia, y la repiten dos o tres veces dentro de un mismo mensaje —una vez por cada punto. Es la unidad mínima del estilo: si la app genera una sección, debe generar un ciclo completo de esto.</p>
+
+  <div class="engine">
+    <div class="engine-title">
+      <h3>Un ciclo</h3>
+      <p class="eyebrow" style="margin-left:auto">se repite 2–3 veces por mensaje · ~8 min cada uno</p>
+    </div>
+    <div class="engine-scroll">
+      <div class="beats">
+
+        <div class="beat">
+          <span class="beat-n">TIEMPO 1</span>
+          <h4>Ancla cotidiana</h4>
+          <p>Abre en una escena banal, física, con nombres propios y precios reales. Nunca abre en el texto bíblico.</p>
+          <p class="ex">La maleta a las 12 de la noche, llena de "por si acaso", para un viaje de dos días.</p>
+        </div>
+
+        <div class="beat pivot">
+          <span class="beat-n">TIEMPO 2</span>
+          <h4>El giro</h4>
+          <p>Corta la anécdota en seco con un marcador de escucha y nombra lo que estaba realmente en juego.</p>
+          <p class="ex"><mark>Pero escúchame</mark> — en la vida es exactamente igual.</p>
+        </div>
+
+        <div class="beat">
+          <span class="beat-n">TIEMPO 3</span>
+          <h4>Espejo bíblico</h4>
+          <p>La misma tensión, contada como escena con cuerpo: qué comían, qué olía, qué pensaba el personaje.</p>
+          <p class="ex">Cuatro leprosos a la puerta de Samaria: "si nos quedamos aquí, nos morimos".</p>
+        </div>
+
+        <div class="beat">
+          <span class="beat-n">TIEMPO 4</span>
+          <h4>Principio nombrado</h4>
+          <p>Una frase corta, portable, repetida tres o más veces seguidas. Es lo único que el oyente se lleva.</p>
+          <p class="ex">Suelta el plan y abraza la promesa.</p>
+        </div>
+
+        <div class="beat">
+          <span class="beat-n">TIEMPO 5</span>
+          <h4>Abanico "quizás tú"</h4>
+          <p>El principio se abre en cinco a ocho vidas concretas seguidas, en segunda persona, sin transición entre ellas.</p>
+          <p class="ex">Quizás es la deuda. Quizás el diagnóstico. Quizás ese hijo. Quizás el negocio.</p>
+        </div>
+
+        <div class="beat">
+          <span class="beat-n">TIEMPO 6</span>
+          <h4>Declaración en futuro</h4>
+          <p>Cierra afirmando lo que va a ocurrir, en segunda persona y en indicativo. Nunca una moraleja ni un consejo.</p>
+          <p class="ex">Vas a ver cómo se abre camino donde no lo hay.</p>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="dials">
+      <div class="dial">
+        <div class="v">11–13 <small>palabras</small></div>
+        <div class="k">Mediana de frase. Un tercio de las frases tiene 8 palabras o menos.</div>
+      </div>
+      <div class="dial">
+        <div class="v">1 : 100</div>
+        <div class="k">Una pregunta cada ~100 palabras. En un mensaje: unas 80 preguntas.</div>
+      </div>
+      <div class="dial">
+        <div class="v">6 : 1</div>
+        <div class="k">"Tú" frente a "nosotros". 2.390 marcas de 2ª persona contra 364 de 1ª plural.</div>
+      </div>
+      <div class="dial">
+        <div class="v">~2 <small>min</small></div>
+        <div class="k">Intervalo entre historias nuevas. Ninguna idea abstracta viaja sola.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ HACE / NO HACE ============ -->
+<section>
+  <div class="sec-head"><h2>Lo que siempre hace y lo que nunca hace</h2></div>
+  <p class="sec-sub">La columna derecha define el estilo tanto como la izquierda: son recursos que un predicador promedio usaría y que aquí están sistemáticamente ausentes.</p>
+  <div class="split">
+    <div class="panel yes">
+      <h3>Siempre</h3>
+      <ul>
+        <li><b>Se pone a sí mismo en el problema primero.</b> Cuenta su deuda, su terapeuta, su aislamiento — con cifras y fechas — antes de pedirle nada a nadie.</li>
+        <li><b>Interrumpe su propia frase</b> con "escúchame" (70 veces), "óyeme bien" (34) o "¿te das cuenta?" (30) para marcar dónde está el peso.</li>
+        <li><b>Convierte la abstracción en objeto.</b> La palabra es una semilla, un timón, un lenguaje de programación; la vulnerabilidad es barro sobre una lámpara.</li>
+        <li><b>Anticipa la objeción con la voz del oyente.</b> "Y Carlos, vinimos aquí a escuchar del poder de Dios" — y responde a eso.</li>
+        <li><b>Habla de dinero sin eufemismo.</b> 226 menciones a negocios, deuda, facturación, plata: el terreno donde aterriza todo.</li>
+        <li><b>Nombra a gente real de la sala</b> y a su familia: Natalia, Calil, Yahua, Samara, los campus líderes, el vecino del padel.</li>
+      </ul>
+    </div>
+    <div class="panel no">
+      <h3>Nunca</h3>
+      <ul>
+        <li><b>No predica en "nosotros".</b> Casi todo va dirigido a un "tú" singular. El plural aparece solo para incluirse en la falla, no en la exhortación.</li>
+        <li><b>No acumula citas de autores.</b> En 83.000 palabras hay tres o cuatro (Bill Johnson, Brené Brown, Henry Ford). No hay cadena de autoridades.</li>
+        <li><b>No usa estadísticas</b> salvo una vez, y para hablar de fútbol. Los números que sí usa son personales: 14 años, 20 kilos, 170 millones, 300 soldados.</li>
+        <li><b>No cierra con moraleja moral.</b> Lo rechaza en voz alta: dice que podría llevar la enseñanza a "no te precipites" y que sería mentir, porque la historia no trata de eso.</li>
+        <li><b>No usa jerga teológica.</b> Cuando aparece un término técnico lo traduce en la misma frase, o lo sustituye por una imagen doméstica.</li>
+        <li><b>No se disculpa por la digresión</b> ni pide permiso para el chiste. Entra y sale del humor sin señalizarlo.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ APP ============ -->
+<section>
+  <div class="sec-head"><h2>Qué corregir en la app</h2></div>
+  <p class="sec-sub">Un punto del <code>tonoLivingRoom</code> actual empuja al modelo en dirección contraria a la evidencia.</p>
+  <div class="callout">
+    <h3>La instrucción de "nosotros" contradice al corpus</h3>
+    <p>La constante <code>tonoLivingRoom</code> en <code>index.js</code> pide hoy «Lenguaje que incluya y conecte con la audiencia (<em>"nosotros"</em>, <em>"a ti y a mí"</em>)». El corpus dice lo contrario con claridad: 2.390 marcas de segunda persona frente a 364 de primera del plural, una proporción de seis a uno. Fraija no dice «todos necesitamos perseverar»; dice «tú necesitas dar una vuelta más».</p>
+      <p>El "nosotros" sí aparece, pero cumple una función distinta y estrecha: sirve para <strong>incluirse en el error</strong> («nosotros abortamos el plan de Dios», «somos iguales»), nunca para repartir la exigencia. La regla real es: <strong>plural para la falla, singular para la promesa y para la instrucción</strong>.</p>
+    <p>Los otros seis puntos de la constante se sostienen contra la evidencia. Faltan tres que el corpus muestra como estructurales y que hoy no están escritas: el abanico «quizás tú» de aplicaciones concretas, el cierre en futuro indicativo, y la prohibición de la moraleja moral.</p>
+  </div>
+</section>
+
+<!-- ============ A. PERFIL ============ -->
+<section class="prose col">
+  <p class="eyebrow">A</p>
+  <div class="sec-head"><h2>Perfil ejecutivo</h2></div>
+  <p>Carlos Fraija predica como quien conversa en una sala llena de gente a la que conoce por su nombre. La voz base es la de un <strong>amigo mayor que ya cometió el error del que habla</strong>: abogado, empresario del sector inmobiliario, treinta y tantos largos, casado hace veinte años, tres hijos que aparecen constantemente como material. Sobre esa base monta, cuando hace falta, una autoridad declarativa —«yo declaro sobre los matrimonios de este lugar»— pero vuelve enseguida al registro de sala.</p>
+  <p>Su credibilidad no se construye con títulos ni con citas. Se construye con <strong>exposición</strong>. Cuenta que estuvo siete años con episodios de tristeza sin buscar ayuda porque era el predicador y le daba vergüenza. Cuenta que debía diez veces sus ingresos mensuales y no podía dormir. Cuenta que se preguntó en serio si era un farsante. Esa vulnerabilidad no es un adorno: es el mecanismo por el que se gana el derecho a exigir después.</p>
+  <p>La estructura es casi siempre la misma y es muy reconocible. Arranca en una <strong>escena cotidiana absolutamente concreta</strong> —un mesero estresado que no quiere ir a preguntarle al chef, la maleta de 30 kilos para dos noches, el pasajero que se cuela al bajar del avión— la estira hasta que el auditorio se ríe, y entonces la corta en seco: «pero escúchame». Ahí gira hacia el texto bíblico, que cuenta con el mismo grano físico que la anécdota: qué comían los sitiados de Samaria, cuánto costaba una cabeza de burro, qué peso llevaba el niño subiendo el monte. Nombra un principio en una frase corta y repetible, lo repite tres veces, y luego lo abre en abanico sobre la vida del oyente: la deuda, el diagnóstico, el hijo rebelde, el negocio que no factura, el matrimonio tosco. Cierra en futuro indicativo, afirmando lo que va a pasar.</p>
+  <p>El ritmo es rápido y entrecortado. Frases de once a trece palabras de mediana, un tercio de ellas de ocho o menos, con estallidos ocasionales de acumulación larga cuando enumera. Pregunta constantemente —una vez cada cien palabras— y muchas de esas preguntas no esperan respuesta: son señales de posición, marcadores de que viene algo. Interrumpe sus propias frases con «escúchame», «óyeme bien», «¿estamos claros?». Habla de dinero sin ningún rodeo: es el dominio semántico más denso del corpus después del religioso.</p>
+  <p>Lo que más lo distingue de otros comunicadores del mismo género es la <strong>traducción de lo espiritual a mecánica cotidiana</strong>. La fe es la diferencia entre pedir aceite de oliva y aceptar aceite vegetal. La incredulidad son semillas compitiendo por nutrientes en el mismo terreno. La vulnerabilidad es barro cubriendo una lámpara. La confianza es un amigo que te transfiere seis mil dólares sin preguntar para qué. Nunca deja un concepto abstracto sin objeto.</p>
+</section>
+
+<!-- ============ B. ADN ============ -->
+<section>
+  <p class="eyebrow">B</p>
+  <div class="sec-head"><h2>ADN comunicativo</h2></div>
+  <p class="sec-sub">Quince rasgos ordenados por peso definitorio. Frecuencia según la escala del encargo; confianza según cantidad y consistencia de evidencia.</p>
+  <div class="tablewrap">
+    <table>
+      <thead>
+        <tr><th></th><th>Rasgo</th><th>Ejemplo del corpus</th><th>Función</th><th>Frec.</th><th>Conf.</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="rank">01</td>
+          <td class="trait"><b>Anécdota doméstica como puerta de entrada</b><span>Ninguna idea entra por la puerta teológica. Entra por un restaurante, un aeropuerto, una cancha de fútbol infantil.</span></td>
+          <td class="ex">"Estamos en un restaurante en mi ciudad… el restaurante solo es de carne."</td>
+          <td>Baja la guardia y crea terreno común antes de exigir nada.</td>
+          <td><span class="pill p-vhigh">Muy alta</span></td>
+          <td class="conf">Alta</td>
+        </tr>
+        <tr>
+          <td class="rank">02</td>
+          <td class="trait"><b>Marcador de escucha que corta la frase</b><span>"Escúchame" 70 veces en 9 de 10 mensajes; "óyeme bien" 34; "escucha esto" 16.</span></td>
+          <td class="ex">"Y escúchame, entre cosas más extraordinarias… las presiones van a ser más grandes."</td>
+          <td>Señaliza jerarquía de información en un medio sin tipografía.</td>
+          <td><span class="pill p-vhigh">Muy alta</span></td>
+          <td class="conf">Alta</td>
+        </tr>
+        <tr>
+          <td class="rank">03</td>
+          <td class="trait"><b>Segunda persona singular dominante</b><span>2.390 marcas de "tú/te/ti/tu" contra 364 de "nosotros". Habla a una persona, no a un auditorio.</span></td>
+          <td class="ex">"Tú necesitas perseverar, tú necesitas dar una vuelta más."</td>
+          <td>Convierte una reunión de mil personas en una conversación de dos.</td>
+          <td><span class="pill p-vhigh">Muy alta</span></td>
+          <td class="conf">Alta</td>
+        </tr>
+        <tr>
+          <td class="rank">04</td>
+          <td class="trait"><b>Abanico de aplicaciones con "quizás"</b><span>151 apariciones en los 10 mensajes. Enumera cinco a ocho situaciones concretas seguidas para que cada oyente se reconozca en una.</span></td>
+          <td class="ex">"Quizás no sabes cómo vas a salir de deudas… quizás estás lidiando con un divorcio…"</td>
+          <td>Personaliza en masa sin conocer a nadie.</td>
+          <td><span class="pill p-vhigh">Muy alta</span></td>
+          <td class="conf">Alta</td>
+        </tr>
+        <tr>
+          <td class="rank">05</td>
+          <td class="trait"><b>Vulnerabilidad con cifras verificables</b><span>La debilidad se cuenta con datos: siete años, diez veces sus ingresos, dos años sin dormir bien.</span></td>
+          <td class="ex">"Las cuotas mensuales eran 10 veces superiores a mis ingresos."</td>
+          <td>Construye ethos por exposición, no por credenciales.</td>
+          <td><span class="pill p-vhigh">Muy alta</span></td>
+          <td class="conf">Alta</td>
+        </tr>
+        <tr>
+          <td class="rank">06</td>
+          <td class="trait"><b>Metáfora-objeto que sostiene todo el mensaje</b><span>Una sola imagen concreta organiza los tres puntos: la maleta, la vasija de barro, las vueltas a la muralla, el asiento del medio.</span></td>
+          <td class="ex">"Las promesas de Dios quedaron como un anillo extraviado en el fondo de tu equipaje."</td>
+          <td>Da al oyente un percherito mnemotécnico para toda la enseñanza.</td>
+          <td><span class="pill p-vhigh">Muy alta</span></td>
+          <td class="conf">Alta</td>
+        </tr>
+        <tr>
+          <td class="rank">07</td>
+          <td class="trait"><b>Pregunta retórica como puntuación</b><span>Una cada ~100 palabras. "¿Sabes qué?" (112), "¿te das cuenta?" (30). Rara vez esperan respuesta.</span></td>
+          <td class="ex">"¿Te das cuenta que hay una contradicción entre el versículo uno y el dos?"</td>
+          <td>Marca transiciones y mantiene al oyente en modo activo.</td>
+          <td><span class="pill p-vhigh">Muy alta</span></td>
+          <td class="conf">Alta</td>
+        </tr>
+        <tr>
+          <td class="rank">08</td>
+          <td class="trait"><b>Reencuadre por negación: "no es X, es Y"</b><span>35 construcciones explícitas. Casi siempre desmonta una creencia religiosa asumida antes de proponer la suya.</span></td>
+          <td class="ex">"La incredulidad no es la falta de fe. La fe puede coexistir con la incredulidad."</td>
+          <td>Genera el "ajá" que justifica que la enseñanza no era obvia.</td>
+          <td><span class="pill p-vhigh">Muy alta</span></td>
+          <td class="conf">Alta</td>
+        </tr>
+        <tr>
+          <td class="rank">09</td>
+          <td class="trait"><b>Dinero y negocio como terreno de aterrizaje</b><span>226 menciones a plata, deuda, factura, empresa, en los 10 mensajes. Ninguna disculpa por hablar de eso.</span></td>
+          <td class="ex">"Si eres constructor y estás pensando que en Barranquilla nadie está comprando…"</td>
+          <td>Ancla lo espiritual en la ansiedad real de su audiencia.</td>
+          <td><span class="pill p-vhigh">Muy alta</span></td>
+          <td class="conf">Alta</td>
+        </tr>
+        <tr>
+          <td class="rank">10</td>
+          <td class="trait"><b>Cierre en futuro indicativo</b><span>191 usos de "vas a". No pide, no sugiere: afirma lo que ocurrirá.</span></td>
+          <td class="ex">"Hoy vas a salir de aquí sanado. Hoy vas a salir de aquí restaurado."</td>
+          <td>Traslada la carga del esfuerzo del oyente a la promesa.</td>
+          <td><span class="pill p-vhigh">Muy alta</span></td>
+          <td class="conf">Alta</td>
+        </tr>
+        <tr>
+          <td class="rank">11</td>
+          <td class="trait"><b>Humor autodespectivo y costeño</b><span>Se ríe de sí mismo (el saludo al novio equivocado, jugar al carrito fingiendo), del vecino, del "vivo" del avión. Nunca del oyente.</span></td>
+          <td class="ex">"Yo era un pequeño señor con bigote cuando viajé por primera vez."</td>
+          <td>Compra permiso emocional para el golpe que viene después.</td>
+          <td><span class="pill p-high">Alta</span></td>
+          <td class="conf">Alta</td>
+        </tr>
+        <tr>
+          <td class="rank">12</td>
+          <td class="trait"><b>Anticipación de la objeción en voz del oyente</b><span>Interpreta la resistencia del público y le contesta, a veces poniéndose el nombre en boca ajena.</span></td>
+          <td class="ex">"Y Carlos, vinimos aquí a escuchar del poder de Dios. Sí, sí. Toma un poquito de sol."</td>
+          <td>Desarma la resistencia antes de que se formule.</td>
+          <td><span class="pill p-high">Alta</span></td>
+          <td class="conf">Alta</td>
+        </tr>
+        <tr>
+          <td class="rank">13</td>
+          <td class="trait"><b>Repetición triple del principio portable</b><span>La frase clave se repite tres veces seguidas, a veces con orden al público de repetirla.</span></td>
+          <td class="ex">"Ve sin saber. Ve sin saber. Ve sin saber."</td>
+          <td>Fija lo único que el oyente debe recordar el lunes.</td>
+          <td><span class="pill p-high">Alta</span></td>
+          <td class="conf">Alta</td>
+        </tr>
+        <tr>
+          <td class="rank">14</td>
+          <td class="trait"><b>Interpelación física al auditorio</b><span>Pide manos levantadas, cuentas hasta tres, declaraciones en voz alta, luces de celular. 11 llamados directos en 5 mensajes.</span></td>
+          <td class="ex">"Voy a contar hasta tres y vas a decir… Un, dos y tres."</td>
+          <td>Convierte al oyente en participante y ancla la decisión en un acto.</td>
+          <td><span class="pill p-high">Alta</span></td>
+          <td class="conf">Alta</td>
+        </tr>
+        <tr>
+          <td class="rank">15</td>
+          <td class="trait"><b>Detalle geográfico y económico local</b><span>Barranquilla, el platanal, el ICETEX, el aguacero, Falabella a las 8:30 de la noche, el profesor de inglés que no habla inglés.</span></td>
+          <td class="ex">"Nosotros compramos los carros más caros del mundo… y la estás reventando."</td>
+          <td>Dice "yo vengo de donde tú vienes" sin tener que afirmarlo.</td>
+          <td><span class="pill p-high">Alta</span></td>
+          <td class="conf">Alta</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============ C. ARQUITECTURAS ============ -->
+<section>
+  <p class="eyebrow">C</p>
+  <div class="sec-head"><h2>Arquitecturas recurrentes</h2></div>
+  <p class="sec-sub">Cinco estructuras identificadas. La primera es dominante y las demás son variantes o envolturas de ella.</p>
+  <div class="archs">
+
+    <div class="arch">
+      <div class="name">El ciclo de tres puntos <span class="count">9 de 10 mensajes</span></div>
+      <div class="flow">Escena cotidiana <span>→</span> "pero escúchame" <span>→</span> espejo bíblico <span>→</span> principio nombrado <span>→</span> abanico "quizás tú" <span>→</span> declaración en futuro</div>
+      <p class="note">El armazón maestro. El mensaje anuncia tres puntos numerados al principio ("tres razones", "tres principios", "tres momentos") y ejecuta este ciclo completo una vez por punto. Los tres puntos casi siempre comparten la misma forma gramatical: <em>ir sin saber cómo / ir sin saber cuándo / ir sin saber por qué así</em>.</p>
+    </div>
+
+    <div class="arch">
+      <div class="name">La metáfora extendida <span class="count">4 de 10</span></div>
+      <div class="flow">Objeto cotidiano <span>→</span> se declara sistema <span>→</span> cada punto es una parte del objeto <span>→</span> el objeto se vuelve la promesa</div>
+      <p class="note">Un solo objeto sostiene el mensaje entero y los tres puntos son sus partes. En «Que tengas un buen viaje», el viaje en avión da la maleta ligera, el asiento del medio y la confianza en el piloto. En «Una vuelta más», la muralla de Jericó da las vueltas, las puertas cerradas y el silencio confiado. Es la arquitectura más memorable y la que mejor sostiene un mensaje largo.</p>
+    </div>
+
+    <div class="arch">
+      <div class="name">Tensión entre dos versículos <span class="count">3 de 10</span></div>
+      <div class="flow">Se lee el texto <span>→</span> se señala la contradicción aparente <span>→</span> se sostiene la tensión <span>→</span> se resuelve por perspectiva, no por lógica</div>
+      <p class="note">Pone dos afirmaciones bíblicas en choque frontal y se niega a suavizarlo: las puertas de Jericó estaban <em>bien cerradas</em> y a la vez Dios dice <em>te he entregado</em> la ciudad. La resolución nunca es argumental; es un cambio de punto de observación. Es su recurso más intelectual y el que más se acerca al logos.</p>
+    </div>
+
+    <div class="arch">
+      <div class="name">Confesión que se vuelve doctrina <span class="count">3 de 10</span></div>
+      <div class="flow">Crisis personal narrada sin filtro <span>→</span> pregunta honesta a Dios <span>→</span> respuesta recibida <span>→</span> el texto que la explica <span>→</span> se ofrece al oyente</div>
+      <p class="note">El mensaje entero nace de un episodio propio no resuelto: el endeudamiento, los siete años sin buscar terapia, la pregunta de si es un farsante. La enseñanza llega como el hallazgo de alguien que estaba perdido, no como el resultado de un estudio. Es la arquitectura que produce la mayor conexión emocional del corpus.</p>
+    </div>
+
+    <div class="arch">
+      <div class="name">Dos generaciones, dos destinos <span class="count">2 de 10</span></div>
+      <div class="flow">Grupo A ante la promesa <span>→</span> evita el conflicto <span>→</span> vida ordinaria <span>|</span> Grupo B ante lo mismo <span>→</span> persiste <span>→</span> la promesa</div>
+      <p class="note">Estructura de contraste puro. La generación que volvió a Egipto contra la de Josué; el ayudante del rey que lo vio pero no lo probó contra los cuatro leprosos que caminaron. Sirve para introducir consecuencia sin amenazar: el castigo nunca es el infierno, es <em>una vida ordinaria de la que no hay nada que contar</em>.</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ D. DICCIONARIO ============ -->
+<section>
+  <p class="eyebrow">D</p>
+  <div class="sec-head"><h2>Diccionario estilístico</h2></div>
+  <p class="sec-sub">Conteos sobre las 82.854 palabras del corpus. La cifra a la derecha es el número de apariciones.</p>
+  <div class="lex">
+
+    <div class="lexcell">
+      <h4>Marcadores de énfasis</h4>
+      <ul>
+        <li><b>escúchame</b> <span class="n">70</span></li>
+        <li><b>óyeme bien / óyelo bien</b> <span class="n">34</span></li>
+        <li><b>escucha esto</b> <span class="n">16</span></li>
+        <li><b>esto es clave / esto es poderoso</b> <span class="n">frecuente</span></li>
+        <li><b>di eso con fuerza</b> <span class="n">ocasional</span></li>
+      </ul>
+    </div>
+
+    <div class="lexcell">
+      <h4>Verificadores de comprensión</h4>
+      <ul>
+        <li><b>¿te das cuenta?</b> <span class="n">30</span></li>
+        <li><b>¿estamos claros?</b> <span class="n">23</span></li>
+        <li><b>¿me hago entender?</b> <span class="n">(incluido arriba)</span></li>
+        <li><b>¿sí me entiendes?</b> <span class="n">recurrente</span></li>
+      </ul>
+    </div>
+
+    <div class="lexcell">
+      <h4>Aperturas de historia</h4>
+      <ul>
+        <li><b>¿sabes qué?</b> <span class="n">112</span></li>
+        <li><b>quiero contarte algo rápidamente</b> <span class="n">recurrente</span></li>
+        <li><b>te voy a poner un ejemplo</b> <span class="n">recurrente</span></li>
+        <li><b>quiero que pienses en esta escena</b> <span class="n">25</span></li>
+      </ul>
+    </div>
+
+    <div class="lexcell">
+      <h4>Conectores dominantes</h4>
+      <ul>
+        <li><b>y entonces</b> <span class="n">124</span></li>
+        <li><b>por eso</b> <span class="n">73</span></li>
+        <li><b>ahora bien / ahora</b> <span class="n">muy alto</span></li>
+        <li><b>lo segundo / y por último</b> <span class="n">estructural</span></li>
+      </ul>
+    </div>
+
+    <div class="lexcell">
+      <h4>Vocativo y muletillas</h4>
+      <ul>
+        <li><b>"Ey,"</b> <span class="n">99</span></li>
+        <li><b>hermano</b> <span class="n">frecuente</span></li>
+        <li><b>sencillamente</b> <span class="n">muy alto</span></li>
+        <li><b>verdad (intercalado)</b> <span class="n">muy alto</span></li>
+        <li><b>"perdón" (autocorrección)</b> <span class="n">frecuente</span></li>
+      </ul>
+    </div>
+
+    <div class="lexcell">
+      <h4>Modalizador de aplicación</h4>
+      <ul>
+        <li><b>quizás</b> <span class="n">151</span></li>
+        <li><b>hay gente que / hay alguien aquí</b> <span class="n">47</span></li>
+        <li><b>tú crees que</b> <span class="n">35</span></li>
+        <li><b>hay un momento en que</b> <span class="n">25</span></li>
+      </ul>
+    </div>
+
+    <div class="lexcell">
+      <h4>Léxico propio</h4>
+      <ul>
+        <li><b>la plena extensión de la promesa</b></li>
+        <li><b>espíritu cínico</b></li>
+        <li><b>vida ordinaria</b> (como sanción)</li>
+        <li><b>aceite vegetal</b> (lo que hay, no lo que quieres)</li>
+        <li><b>suerte divina</b></li>
+        <li><b>doble confesión</b></li>
+        <li><b>el platanal</b></li>
+        <li><b>rabá</b> (multiplicar, expandirse)</li>
+      </ul>
+    </div>
+
+    <div class="lexcell">
+      <h4>Cierres de idea</h4>
+      <ul>
+        <li><b>Así de sencillo.</b></li>
+        <li><b>Y esa es la historia de tu vida.</b></li>
+        <li><b>Ese es nuestro padre.</b></li>
+        <li><b>Señores, esto fue el living room.</b></li>
+        <li><b>Y con esto termino / vamos aterrizando</b></li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ E + F ============ -->
+<section>
+  <div class="split">
+    <div>
+      <p class="eyebrow">E</p>
+      <div class="sec-head"><h2>Caja de herramientas</h2></div>
+      <p class="sec-sub">Ordenada por frecuencia real, no por vistosidad.</p>
+      <div class="panel" style="border-color:var(--rule)">
+        <ul>
+          <li style="padding-left:34px"><b style="position:absolute;left:0;font-family:var(--mono);font-size:12px;color:var(--muted);font-weight:400">01</b> <b>Ejemplo concreto</b> — 47 "por ejemplo" explícitos, más decenas implícitos. El recurso número uno, sin competencia.</li>
+          <li style="padding-left:34px"><b style="position:absolute;left:0;font-family:var(--mono);font-size:12px;color:var(--muted);font-weight:400">02</b> <b>Pregunta retórica</b> — una cada 100 palabras, como puntuación oral.</li>
+          <li style="padding-left:34px"><b style="position:absolute;left:0;font-family:var(--mono);font-size:12px;color:var(--muted);font-weight:400">03</b> <b>Repetición</b> — anafórica ("quizás… quizás… quizás") y triple del principio clave.</li>
+          <li style="padding-left:34px"><b style="position:absolute;left:0;font-family:var(--mono);font-size:12px;color:var(--muted);font-weight:400">04</b> <b>Anécdota personal</b> — de tres a seis por mensaje, siempre en primera persona.</li>
+          <li style="padding-left:34px"><b style="position:absolute;left:0;font-family:var(--mono);font-size:12px;color:var(--muted);font-weight:400">05</b> <b>Contraste y antítesis</b> — 35 "no… sino"; también pares fijos: fe/esperanza, luz/barro, ganar/no perder.</li>
+          <li style="padding-left:34px"><b style="position:absolute;left:0;font-family:var(--mono);font-size:12px;color:var(--muted);font-weight:400">06</b> <b>Metáfora y analogía</b> — el motor conceptual: semilla, timón, vasija, maleta, turbulencia.</li>
+          <li style="padding-left:34px"><b style="position:absolute;left:0;font-family:var(--mono);font-size:12px;color:var(--muted);font-weight:400">07</b> <b>Anticipación de objeciones</b> — presente en los 10 mensajes.</li>
+          <li style="padding-left:34px"><b style="position:absolute;left:0;font-family:var(--mono);font-size:12px;color:var(--muted);font-weight:400">08</b> <b>Humor</b> — alto, pero siempre subordinado a una anécdota, nunca como chiste suelto.</li>
+          <li style="padding-left:34px"><b style="position:absolute;left:0;font-family:var(--mono);font-size:12px;color:var(--muted);font-weight:400">09</b> <b>Frase memorable</b> — una o dos por mensaje, deliberadamente portables.</li>
+          <li style="padding-left:34px"><b style="position:absolute;left:0;font-family:var(--mono);font-size:12px;color:var(--muted);font-weight:400">10</b> <b>Tríada</b> — media: aparece en la estructura de puntos más que en la frase.</li>
+          <li style="padding-left:34px"><b style="position:absolute;left:0;font-family:var(--mono);font-size:12px;color:var(--muted);font-weight:400">11</b> <b>Paradoja</b> — baja pero muy marcada: "creyó contra esperanza", "creo, pero ayuda mi incredulidad".</li>
+          <li style="padding-left:34px"><b style="position:absolute;left:0;font-family:var(--mono);font-size:12px;color:var(--muted);font-weight:400">12</b> <b>Cita de autoridad</b> — baja. Tres o cuatro en todo el corpus.</li>
+          <li style="padding-left:34px"><b style="position:absolute;left:0;font-family:var(--mono);font-size:12px;color:var(--muted);font-weight:400">13</b> <b>Estadística</b> — aislada. Un solo caso real, sobre mundiales de fútbol.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="prose">
+      <p class="eyebrow">F</p>
+      <div class="sec-head"><h2>Modelo de persuasión</h2></div>
+      <p class="sec-sub">Cómo se reparten ethos, pathos y logos.</p>
+      <p><strong>Pathos primero, y con ventaja.</strong> El grueso del trabajo persuasivo lo hace la identificación: el oyente se reconoce en una de las ocho situaciones del abanico y a partir de ahí el resto del argumento entra sin resistencia. La emoción dominante que construye no es el miedo sino el <strong>alivio</strong>: casi todos los mensajes descargan al oyente de una responsabilidad que creía suya.</p>
+      <p><strong>Ethos por exposición, no por credencial.</strong> Menciona que es abogado y empresario, pero nunca lo usa como argumento. La autoridad viene de haber estado peor: siete años sin pedir ayuda, deudas diez veces mayores que los ingresos, el aislamiento que sus hijos ya detectan. Cuando sí ejerce autoridad, la declara explícitamente y por delegación —«con la autoridad que Dios me ha dado»— nunca por mérito propio.</p>
+      <p><strong>Logos como estructura, no como prueba.</strong> El razonamiento existe y es visible —la tensión entre dos versículos, la distinción fe/esperanza, la etimología de <em>rabá</em>— pero funciona como andamio de credibilidad intelectual, no como demostración. Casi nunca cierra un punto con evidencia; lo cierra con una imagen o una declaración.</p>
+      <p><strong>Palancas específicas:</strong> validación emocional ("entiendo que lo que estás viviendo no te da para decir cosas positivas"), reducción de incertidumbre (el piloto ya conocía la turbulencia), aspiración generacional (lo que se rompe contigo se rompe para tus nietos), pertenencia (nombra gente de la sala), y urgencia suave (la vuelta de mañana lunes podría ser la última).</p>
+      <p><strong>Lo que evita:</strong> no hay culpa, no hay condena, no hay amenaza escatológica, y no hay polarización contra un grupo externo. El único "enemigo" nombrado es una actitud interna —el espíritu cínico— y el correctivo que propone para ella es apartarse, no combatirla.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ G. CURVA ============ -->
+<section>
+  <p class="eyebrow">G</p>
+  <div class="sec-head"><h2>Curva emocional típica</h2></div>
+  <p class="sec-sub">Consistente en 8 de los 10 mensajes. La caída del tercer tramo es deliberada y es donde se juega la credibilidad del resto.</p>
+  <div class="curve">
+    <svg viewBox="0 0 960 260" role="img" aria-label="Curva emocional: complicidad, reconocimiento, incomodidad, tensión sostenida, alivio y envío">
+      <line x1="40" y1="215" x2="920" y2="215" stroke="var(--rule)" stroke-width="1"/>
+      <line x1="40" y1="150" x2="920" y2="150" stroke="var(--rule-soft)" stroke-width="1" stroke-dasharray="3 5"/>
+      <line x1="40" y1="85" x2="920" y2="85" stroke="var(--rule-soft)" stroke-width="1" stroke-dasharray="3 5"/>
+      <path d="M 60 150 C 130 120, 170 108, 220 112 S 320 128, 370 178 S 470 196, 520 168 S 620 150, 680 96 S 800 52, 900 44"
+            fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+      <g>
+        <circle cx="60"  cy="150" r="4.5" fill="currentColor"/>
+        <circle cx="220" cy="112" r="4.5" fill="currentColor"/>
+        <circle cx="370" cy="178" r="5.5" fill="var(--hi)"/>
+        <circle cx="520" cy="168" r="4.5" fill="currentColor"/>
+        <circle cx="680" cy="96"  r="4.5" fill="currentColor"/>
+        <circle cx="900" cy="44"  r="5.5" fill="currentColor"/>
+      </g>
+      <g class="lbl-strong" text-anchor="middle">
+        <text x="60"  y="240">Complicidad</text>
+        <text x="220" y="240">Reconocimiento</text>
+        <text x="370" y="240" fill="var(--hi)">Incomodidad</text>
+        <text x="520" y="240">Tensión sostenida</text>
+        <text x="680" y="240">Alivio</text>
+        <text x="890" y="240">Envío</text>
+      </g>
+      <g class="lbl" text-anchor="middle">
+        <text x="60"  y="132">risa</text>
+        <text x="220" y="94">"ese soy yo"</text>
+        <text x="370" y="200">"esto me duele"</text>
+        <text x="520" y="190">"aún no veo"</text>
+        <text x="680" y="78">"no dependía de mí"</text>
+        <text x="890" y="26">declaración</text>
+      </g>
+    </svg>
+  </div>
+  <div class="prose col" style="margin-top:26px">
+    <p>El mensaje abre en <strong>complicidad</strong>: una anécdota que hace reír y que no compromete a nadie. Pasa rápido al <strong>reconocimiento</strong> —el abanico de "quizás tú" hasta que cada oyente encuentra su casilla— y desde ahí baja deliberadamente a la <strong>incomodidad</strong>, nombrando la conducta concreta: te precipitaste, hablaste de más justo cuando debías callar, te escondiste. Ese descenso no se resuelve enseguida: sostiene la <strong>tensión</strong> durante un tramo largo, que es donde vive el material bíblico duro (25 años esperando, 13 vueltas sin que caiga un ladrillo, 7 años sin pedir ayuda).</p>
+    <p>El <strong>alivio</strong> llega por un giro característico: la carga se traslada del oyente a Dios. «Esto nunca se trató de tu capacidad de ser fiel». El <strong>envío</strong> final es breve, en futuro y casi siempre acompañado de un acto físico —ponerse de pie, levantar la luz del celular, repetir una declaración a la cuenta de tres.</p>
+    <blockquote>La historia no trata de que no te equivoques, todo lo contrario. Esto nunca se trató de tu capacidad de tomar buenas decisiones.<cite>"Ve sin saber" · punto de alivio</cite></blockquote>
+  </div>
+</section>
+
+<!-- ============ H + I ============ -->
+<section>
+  <div class="split">
+    <div class="prose">
+      <p class="eyebrow">H</p>
+      <div class="sec-head"><h2>Relación con la audiencia</h2></div>
+      <p><strong>Él se asigna el papel de hermano mayor que ya se estrelló.</strong> No de experto ni de intermediario. Es explícito al respecto: dice que solo presta sus cuerdas vocales, que su poder no viene de su gestión, que a veces se pregunta si es un farsante. La única vez que reclama posición superior es funcional —para declarar bendición— y la atribuye a delegación.</p>
+      <p><strong>Al público le asigna el papel de alguien marcado que aún no lo sabe.</strong> No de pecador que debe corregirse ni de alumno que debe aprender. El oyente ya tiene el favor, ya tiene la promesa, ya tiene los dones: el problema nunca es de merecimiento sino de percepción. De ahí la oración que propone una y otra vez, que no pide nada nuevo: «abre mis ojos para ver lo que tú ya estás haciendo».</p>
+      <p>La relación es de <strong>proximidad asimétrica</strong>: mucha confianza y ninguna distancia protocolaria —tutea, bromea con nombres propios, admite no reconocer caras— pero conserva la iniciativa en todo momento. Pregunta, manda levantar la mano, cuenta hasta tres, ordena repetir. El oyente participa mucho pero nunca decide el rumbo.</p>
+    </div>
+
+    <div class="prose">
+      <p class="eyebrow">I</p>
+      <div class="sec-head"><h2>Lo que no hace</h2></div>
+      <p>Los rasgos ausentes son tan definitorios como los presentes, y varios son sorprendentes en el género.</p>
+      <p><strong>No moraliza.</strong> Lo rechaza en voz alta. En «Ve sin saber», tras contar el error de Abraham con Agar, dice que podría llevar la enseñanza a "no te precipites" y que sería mentir, porque la historia no trata de eso. Rechaza explícitamente el mensaje de conducta.</p>
+      <p><strong>No usa miedo ni condena.</strong> La consecuencia peor que nombra es "una vida ordinaria de la que no hay nada que contar" —cuarenta años de los que la Biblia solo dice que pasaron. Y aclara sobre la marcha que no debe entenderse como maldición.</p>
+      <p><strong>No polariza.</strong> Toca política repetidamente y se detiene: "no voy a hablar de política", "no quiero pelear con nadie". Habla de terapia y psiquiatría con respeto explícito, y menciona que él mismo asiste.</p>
+      <p><strong>No acumula autoridades ni datos.</strong> Casi ninguna cita de autor, casi ninguna estadística, ninguna exégesis técnica. Cuando usa el hebreo lo traduce y sigue.</p>
+      <p><strong>No habla en plural exhortativo.</strong> El "nosotros" queda reservado para la falla compartida.</p>
+      <p><strong>No idealiza su propia vida.</strong> Es el rasgo ausente más llamativo del corpus: en un género que premia el testimonio de victoria, cuenta las derrotas mientras siguen abiertas.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ J. HUELLA ============ -->
+<section>
+  <p class="eyebrow">J</p>
+  <div class="sec-head"><h2>Huella comunicativa</h2></div>
+  <p class="sec-sub">Con el nombre borrado de la transcripción, estos ocho indicadores bastarían para reconocer la autoría.</p>
+  <div class="rules">
+    <div class="rule"><h4>01 · Marcador</h4><p>"Escúchame" o "óyeme bien" cortando la mitad de una frase propia, varias veces por página.</p></div>
+    <div class="rule"><h4>02 · Abanico</h4><p>Cadenas de cinco a ocho "quizás tú…" seguidos, cada uno una vida distinta, sin transición entre ellos.</p></div>
+    <div class="rule"><h4>03 · Deuda propia</h4><p>Una crisis financiera o de salud mental propia, aún abierta, contada con cifras y sin resolución triunfal.</p></div>
+    <div class="rule"><h4>04 · Caribe concreto</h4><p>Barranquilla, el aguacero, el platanal, el ICETEX, Falabella, el profesor de inglés que no habla inglés.</p></div>
+    <div class="rule"><h4>05 · Familia como material</h4><p>Natalia, Calil, Yahua, Samara usados como ejemplo doctrinal, con sus rasgos de carácter descritos.</p></div>
+    <div class="rule"><h4>06 · Anti-moraleja</h4><p>Un momento explícito donde rechaza la lectura moral obvia del texto y dice que sería mentir.</p></div>
+    <div class="rule"><h4>07 · Antirreligión occidental</h4><p>Burla recurrente de la espiritualidad que ruega: "convencer a Dios de que sea bueno", el observador extranjero que mira por un hueco.</p></div>
+    <div class="rule"><h4>08 · Cierre en indicativo</h4><p>Última frase en futuro afirmativo y segunda persona singular, no en imperativo ni en súplica.</p></div>
+  </div>
+</section>
+
+<!-- ============ K. MODELO GENERATIVO ============ -->
+<section>
+  <p class="eyebrow">K</p>
+  <div class="sec-head"><h2>Reglas operativas para generar</h2></div>
+  <p class="sec-sub">Traducción directa del análisis a instrucciones aplicables por sección. Son las reglas que la app debería estar aplicando.</p>
+  <div class="rules">
+    <div class="rule"><h4>Estructura</h4><p>Tres puntos con la misma forma gramatical, anunciados al inicio. Cada punto ejecuta el ciclo completo de seis tiempos. Nunca abrir por el texto bíblico.</p></div>
+    <div class="rule"><h4>Longitud de frase</h4><p>Mediana de 11 a 13 palabras. Un tercio de las frases con 8 o menos. Permitir estallidos largos solo en enumeraciones.</p></div>
+    <div class="rule"><h4>Ritmo</h4><p>Una pregunta cada ~100 palabras. Insertar un marcador de escucha antes de cada afirmación central.</p></div>
+    <div class="rule"><h4>Persona</h4><p>Segunda del singular por defecto, en proporción 6 a 1. El plural solo para incluirse en el error.</p></div>
+    <div class="rule"><h4>Densidad de historia</h4><p>Ninguna afirmación abstracta sin ejemplo adyacente. De tres a seis anécdotas por mensaje, la mayoría propias.</p></div>
+    <div class="rule"><h4>Tipo de ejemplo</h4><p>Doméstico, físico y con precio o cifra. Preferir el aeropuerto, el restaurante, la cancha, el banco, la obra.</p></div>
+    <div class="rule"><h4>Nivel de abstracción</h4><p>Todo concepto se convierte en objeto manipulable dentro de la misma frase en que aparece.</p></div>
+    <div class="rule"><h4>Aplicación</h4><p>Abrir cada principio en cinco a ocho situaciones concretas encadenadas con "quizás".</p></div>
+    <div class="rule"><h4>Argumentación</h4><p>Reencuadrar por negación —"no es X, es Y"— antes de afirmar. Resolver por perspectiva, no por prueba.</p></div>
+    <div class="rule"><h4>Emoción</h4><p>Bajar a la incomodidad antes de subir. Trasladar la carga del oyente a Dios en el punto de alivio.</p></div>
+    <div class="rule"><h4>Cierre</h4><p>Futuro indicativo, segunda persona, breve. Añadir un acto físico si el contexto es presencial.</p></div>
+    <div class="rule"><h4>Prohibiciones</h4><p>Sin moraleja moral, sin miedo, sin cadena de citas, sin estadística, sin jerga teológica sin traducir.</p></div>
+  </div>
+</section>
+
+<!-- ============ L. FÓRMULA ============ -->
+<section>
+  <p class="eyebrow">L</p>
+  <div class="sec-head"><h2>Fórmula condensada</h2></div>
+  <div class="formula">
+    <p>Anécdota doméstica que desarma + <em>"escúchame"</em> que corta + texto bíblico contado con cuerpo + principio de cinco palabras repetido tres veces + abanico de <em>"quizás tú"</em> sobre deudas y diagnósticos + descarga de la culpa + cierre en futuro, nunca en moraleja.</p>
+  </div>
+</section>
+
+<!-- ============ NOTAS ============ -->
+<footer>
+  <p class="eyebrow" style="margin-bottom:14px">Notas metodológicas y límites</p>
+  <p><strong>Corpus.</strong> Diez transcripciones completas, 82.854 palabras: siete en el campus principal de Living Room Barranquilla, una como invitado en Familia de Dios, una en el congreso Pasión (México), una en Casa (Miami), más material grabado para transmisión online. Rango temporal aproximado: noviembre de 2021 a enero de 2026.</p>
+  <p><strong>Variación por contexto (§17).</strong> El estilo es notablemente estable entre contextos. Como invitado sube el volumen de referencias locales del anfitrión y baja el de anécdotas familiares; en congreso el contenido es más conceptual y hay más exégesis; online el saludo se alarga y aparecen llamados al chat. La arquitectura, los marcadores y la proporción de segunda persona no cambian.</p>
+  <p><strong>Evolución temporal (§18).</strong> Evidencia insuficiente para afirmar evolución. El corpus está muy concentrado en 2025–2026 y solo dos piezas son claramente anteriores, lo que no permite separar cambio de estilo de cambio de contexto. Lo único observable es un aumento de la autoexposición sobre salud mental y deuda en las piezas recientes, coherente con que esos episodios ocurrieron en ese periodo.</p>
+  <p><strong>Precisión de los conteos.</strong> Las cifras de palabras y expresiones son conteos literales sobre las transcripciones. Las métricas de frase y de densidad de preguntas se calcularon solo sobre los seis archivos con puntuación fiable; cuatro provienen de transcripción automática sin puntuar y se excluyeron de esa medición. Las transcripciones contienen errores de reconocimiento —nombres deformados, cifras corruptas— que no afectan a los patrones agregados pero sí pueden afectar a una cita aislada.</p>
+  <p><strong>Alcance.</strong> Este análisis describe estilo comunicativo, no evalúa el contenido ni las creencias expuestas, y no formula juicios psicológicos sobre el orador.</p>
+</footer>
+
+</div>
+
+  <script>
+    // Misma puerta que el resto de la app: sin sesión, al login.
+    (async function () {
+      try {
+        const r = await fetch('/auth/yo', { credentials: 'same-origin' });
+        if (!r.ok) throw new Error('sin sesión');
+      } catch {
+        location.replace('/login.html?volver=' + encodeURIComponent(location.pathname));
+      }
+    })();
+  </script>
+</body>
+
+</html>

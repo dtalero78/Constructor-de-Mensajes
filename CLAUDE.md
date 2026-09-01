@@ -173,6 +173,11 @@ y [public/voz.js](public/voz.js).
 - `/crear.html` → el agente. `?nuevo=1` empieza en limpio; `?mensaje=<id>` abre ese mensaje sin entrevista;
   `&ver=completo` cae directo en el consolidado. El avance se guarda en `localStorage` **y** en la base.
 - `/ideas.html` → clasificar una idea.
+- `/adn.html` → el análisis del estilo de la comunidad, medido sobre 10 prédicas. Es la fuente de
+  la que salen `tonoLivingRoom`, `materialQueSirve` y la calibración de `prompts.json`: si alguna
+  vez se discute por qué una regla es como es, la respuesta está ahí. Vive **dentro** de la app a
+  propósito, y no como enlace externo, para que no dependa de cuentas ajenas ni de que un enlace
+  siga vivo. Mantiene su propia tipografía porque es una lectura larga, no una pantalla operativa.
 
 Las respuestas del modelo llegan en Markdown y se renderizan con `formatOpenAiText()` (regex a HTML),
 que está duplicado en cada página.
