@@ -1321,7 +1321,7 @@
           <div class="hecho-cabecera">
             <span class="num">${i + 1}</span>
             <span class="nombre">${esc(p.nombre)}</span>
-            <span class="marca">${vacia ? 'Vacía' : 'Guardada'}</span>
+            <span class="marca">${vacia ? 'Vacía' : 'Expandir'}</span>
             <svg class="flecha" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor"
               stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
           </div>
@@ -1344,11 +1344,22 @@
       $('#tituloMensaje').textContent = t || 'Tu mensaje';
     }
 
+    /**
+     * Qué dice la etiqueta de la derecha en la cabecera de una sección.
+     * Antes decía "Guardada", que es un estado que no le sirve de nada a quien
+     * mira: la sección ya se guarda sola. Ahora dice qué pasa si la pulsas.
+     */
+    function pintarMarca(tarjeta) {
+      const marca = tarjeta.querySelector('.marca');
+      if (!marca) return;
+      if (tarjeta.classList.contains('sucia')) { marca.textContent = 'Sin guardar'; return; }
+      if (!(estado.guardados[tarjeta.dataset.pilar] || '').trim()) { marca.textContent = 'Vacía'; return; }
+      marca.textContent = tarjeta.classList.contains('abierta') ? 'Contraer' : 'Expandir';
+    }
+
     function marcarSucia(tarjeta, sucia) {
       tarjeta.classList.toggle('sucia', sucia);
-      tarjeta.querySelector('.marca').textContent = sucia
-        ? 'Sin guardar'
-        : (estado.guardados[tarjeta.dataset.pilar] ? 'Guardada' : 'Vacía');
+      pintarMarca(tarjeta);
       tarjeta.querySelector('[data-accion="guardar"]').hidden = !sucia;
       tarjeta.querySelector('[data-accion="descartar"]').hidden = !sucia;
     }
@@ -1362,7 +1373,7 @@
 
       limpiarError();
       tarjeta.classList.add('generando');
-      if (abrir) tarjeta.classList.add('abierta');
+      if (abrir) { tarjeta.classList.add('abierta'); pintarMarca(tarjeta); }
       botones.forEach(b => b.disabled = true);
       cuerpo.textContent = 'Escribiendo…';
 
@@ -1468,14 +1479,17 @@
         return;
       }
 
-      if (e.target.closest('.hecho-cabecera')) tarjeta.classList.toggle('abierta');
+      if (e.target.closest('.hecho-cabecera')) {
+        tarjeta.classList.toggle('abierta');
+        pintarMarca(tarjeta);
+      }
     });
 
     $('#hechos').addEventListener('input', (e) => {
       const tarjeta = e.target.closest('.hecho');
       if (!tarjeta || !e.target.classList.contains('hecho-cuerpo')) return;
       tarjeta.classList.add('abierta');
-      marcarSucia(tarjeta, true);
+      marcarSucia(tarjeta, true);   // marcarSucia ya repinta la etiqueta
     });
 
     /** Trae del servidor lo que ya esté guardado, para no depender del navegador. */
