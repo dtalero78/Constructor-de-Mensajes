@@ -452,6 +452,101 @@
     .abajo a:hover {
       background: var(--surface-2);
     }
+
+    /* La fila que abre el video se comporta como las demás, pero es un botón. */
+    button.fila {
+      width: 100%;
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+    }
+    button.fila:focus-visible {
+      outline: 2px solid var(--brand, #22B24C);
+      outline-offset: 2px;
+    }
+    .pastilla-play {
+      flex: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 10px;
+      border-radius: 20px;
+      background: #14181A;
+      color: #FFF;
+      font-size: 11.5px;
+      font-weight: 700;
+      letter-spacing: .02em;
+    }
+
+    /* ---- Modal del video ---- */
+    .modal-video {
+      /* Con tope de alto siempre queda fondo visible alrededor: si no, en pantallas
+         bajas el diálogo llena todo y no hay "fuera" donde pulsar para cerrar. */
+      width: min(1180px, 92vw);
+      max-height: 88vh;
+      /* El reset global (* { margin: 0 }) pisa el margin:auto que el navegador
+         da a los <dialog>, y el modal se pegaba a la esquina superior izquierda. */
+      margin: auto;
+      padding: 0;
+      border: 0;
+      border-radius: 16px;
+      background: #14181A;
+      color: #EDEFEF;
+      overflow: hidden;
+      box-shadow: 0 30px 80px -20px rgba(0, 0, 0, .6);
+    }
+    .modal-video::backdrop {
+      background: rgba(10, 12, 13, .78);
+      backdrop-filter: blur(3px);
+    }
+    .mv-barra {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 15px 18px;
+      border-bottom: 1px solid #262C2E;
+    }
+    .mv-titulo { flex: 1; min-width: 0; }
+    .mv-titulo b {
+      display: block;
+      font-size: 14.5px;
+      font-weight: 700;
+      letter-spacing: -.01em;
+    }
+    .mv-titulo span {
+      display: block;
+      font-size: 12.5px;
+      color: #8B9293;
+      margin-top: 2px;
+    }
+    .mv-cerrar {
+      flex: none;
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      border: 1px solid #2B3132;
+      background: transparent;
+      color: #BFC5C5;
+      cursor: pointer;
+    }
+    .mv-cerrar:hover { background: #1E2425; color: #FFF; }
+    .mv-cerrar:focus-visible { outline: 2px solid #5FBDB8; outline-offset: 2px; }
+    .mv-video {
+      display: block;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      max-height: calc(88vh - 68px);
+      object-fit: contain;
+      background: #000;
+    }
+
+    @media (max-width: 620px) {
+      .modal-video { width: 100vw; border-radius: 0; }
+      .pastilla-play { display: none; }
+    }
+
   </style>
 </head>
 
@@ -501,15 +596,17 @@
           stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6" /></svg>
       </a>
 
-      <a class="fila" href="/tutor-alpha.html" style="--tinte:#E6EEFC; --foco:42% 0%">
+      <button type="button" class="fila" id="btnPlantilla" style="--tinte:#E6EEFC; --foco:42% 0%">
         <span class="marca"><img src="/images/carlos.png" alt="" /></span>
         <span class="texto">
           <b>La plantilla LVR</b>
           <span>Cómo se arma un mensaje, pilar por pilar</span>
         </span>
-        <svg class="flecha" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-          stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6" /></svg>
-      </a>
+        <span class="pastilla-play">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+          6 min
+        </span>
+      </button>
 
       <a class="fila" href="/ideas.html" style="--tinte:#F0E9FC; --foco:50% 55%">
         <span class="marca"><img src="/images/ideas.png" alt="" /></span>
@@ -582,6 +679,24 @@
       </a>
     </nav>
   </div>
+  <dialog id="modalPlantilla" class="modal-video" aria-label="La plantilla LVR, un mensaje pilar por pilar">
+    <div class="mv-barra">
+      <div class="mv-titulo">
+        <b>La plantilla LVR</b>
+        <span>“Ve sin saber”, despiezado en los 8 pilares · 6 min</span>
+      </div>
+      <button type="button" class="mv-cerrar" id="cerrarPlantilla" aria-label="Cerrar">
+        <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.2"
+          stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <video id="videoPlantilla" class="mv-video" controls playsinline preload="none"
+      poster="/video/plantilla-lvr.jpg">
+      <source src="/video/plantilla-lvr.mp4" type="video/mp4" />
+      Tu navegador no puede reproducir este video.
+    </video>
+  </dialog>
+
 
   <script>
     const $ = (s) => document.querySelector(s);
@@ -727,7 +842,43 @@
       pintarSesion();
       cargarMensajes();
     })();
-  </script>
+  
+    /* ---- Modal de la plantilla LVR ---- */
+    (function () {
+      const modal = document.getElementById('modalPlantilla');
+      const video = document.getElementById('videoPlantilla');
+      const abrir = document.getElementById('btnPlantilla');
+      if (!modal || !video || !abrir) return;
+
+      // Dónde se quedó, para no obligar a buscar el punto otra vez.
+      let segundo = 0;
+
+      const cerrar = () => {
+        if (!video.paused) video.pause();
+        if (video.currentTime > 0) segundo = video.currentTime;
+        if (modal.open) modal.close();
+      };
+
+      abrir.addEventListener('click', () => {
+        modal.showModal();
+        if (segundo > 0) video.currentTime = segundo;
+        video.play().catch(() => { /* si el navegador lo bloquea, quedan los controles */ });
+      });
+      document.getElementById('cerrarPlantilla').addEventListener('click', cerrar);
+      modal.addEventListener('close', cerrar);
+
+      // Clic en el fondo. Se compara con el rectángulo del diálogo en vez de mirar
+      // e.target: al pulsar el ::backdrop el target no siempre es el <dialog>.
+      modal.addEventListener('click', (e) => {
+        const r = modal.getBoundingClientRect();
+        const dentro = e.clientX >= r.left && e.clientX <= r.right
+                    && e.clientY >= r.top && e.clientY <= r.bottom;
+        if (!dentro) cerrar();
+      });
+    })();
+</script>
+
+
 </body>
 
 </html>
