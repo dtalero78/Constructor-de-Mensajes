@@ -677,15 +677,33 @@ detect(3000).then(freePort => {
 // describe cómo suena un mensaje escrito y, dado a un entrevistador, lo empuja a
 // hablar como predicador en vez de preguntar. Aquí solo va qué material sirve.
 const materialQueSirve = `
-QUÉ MATERIAL SIRVE (para ti, no para recitárselo al predicador)
+QUÉ MATERIAL SIRVE, Y POR QUÉ (esto es tuyo; el "por qué" sí se le explica al predicador)
+
 - Lo concreto vale; lo abstracto no. "Mi gente está desanimada" no sirve todavía;
   "mi socio lleva tres meses sin vender y ya no viene los domingos" sí sirve.
+  POR QUÉ: la gente no se reconoce en una categoría, se reconoce en una escena.
+
 - Las escenas necesitan cuerpo: dónde fue, qué hora era, quién estaba, qué dijo,
-  cuánto costaba. Ese detalle es el que hace que un mensaje se recuerde.
+  cuánto costaba. POR QUÉ: el detalle concreto es lo único que se recuerda el lunes.
+  De un mensaje se olvida la idea y se recuerda la maleta, el mesero o la deuda.
+
 - Sirve más lo que al predicador todavía le duele que lo que ya tiene resuelto.
-  Una derrota abierta conecta; una lección aprendida se oye a consejo.
+  POR QUÉ: una derrota abierta hace que el que escucha baje la guardia; una lección
+  ya aprendida suena a consejo, y al consejo la gente se le cierra.
+
 - La plata, las deudas, el trabajo y los hijos son terreno normal aquí, no tabú.
+  POR QUÉ: es donde vive de verdad la preocupación de quien escucha.
+
 - Una audiencia es una persona con nombre y situación, nunca "todos" ni "la gente".
+  POR QUÉ: solo sabiendo a quién concreto le habla se puede abrir después el mensaje
+  en varias vidas y que cada uno encuentre la suya.
+
+- La objeción real importa tanto como la idea. POR QUÉ: si el mensaje no se hace cargo
+  de lo que la gente va a pensar en contra, suena fácil y no se lo creen.
+
+- Lo que la persona hace distinto el lunes tiene que ser algo observable, no un estado
+  de ánimo. POR QUÉ: el mensaje cierra afirmando lo que va a pasar, y para eso hace
+  falta saber qué es "eso" en concreto.
 `;
 
 
@@ -778,8 +796,14 @@ con tu mejor lectura de lo que dijo: es un punto de partida que él va a poder e
 no un contrato.
 
 FORMATO: la respuesta se valida contra un esquema fijo, así que rellena todos los campos.
-- Con estado "preguntando": escribe "pregunta" y "porQue" (media línea diciendo para qué
-  sirve esa pregunta), y en "briefing" pon lo que ya sepas, con "" en lo que aún no.
+- Con estado "preguntando": escribe "pregunta" y "porQue", y en "briefing" pon lo que ya
+  sepas, con "" en lo que aún no.
+  El "porQue" es lo que el predicador va a leer debajo de la pregunta, y sirve para que
+  aprenda a armar mensajes, no solo para armar este. Una o dos frases explicando POR QUÉ
+  esa pregunta ayuda a que el mensaje funcione, con el criterio de arriba y en lenguaje
+  llano. Ejemplo: "Te pido la escena y no el tema porque de un mensaje se olvida la idea
+  y se recuerda la imagen concreta." Nada de jerga ni de nombres de secciones: es un
+  consejo de oficio, dicho como se lo dirías a un amigo.
 - Con estado "listo": deja "pregunta" y "porQue" en "", y entrega el briefing completo,
   redactado en frases claras y en las palabras del predicador, no en las tuyas.
 `;
@@ -861,7 +885,14 @@ app.post('/agente/entrevista', requiereSesion, async (req, res) => {
 // Living Room tampoco viajan al cliente en texto plano.
 // ============================================================
 const MODELO_VOZ = "gpt-realtime-2.1";
-const VOZ_AGENTE = "marin";
+// Las diez voces de Realtime son multilingües: ninguna es "latina" de fábrica, el
+// acento lo fija el prompt. marin y cedar son las de mejor calidad según OpenAI.
+// Se puede probar otra sin tocar código: VOZ_AGENTE=cedar en el entorno.
+// Opciones: alloy, ash, ballad, coral, echo, sage, shimmer, verse, marin, cedar.
+const VOCES_VALIDAS = ["alloy","ash","ballad","coral","echo","sage","shimmer","verse","marin","cedar"];
+const VOZ_AGENTE = VOCES_VALIDAS.includes(process.env.VOZ_AGENTE || "")
+  ? process.env.VOZ_AGENTE
+  : "cedar";
 
 const promptEntrevistadorVoz = `
 Eres el entrevistador de Living Room Speakers y estás hablando POR VOZ con un predicador.
@@ -887,11 +918,21 @@ CÓMO TRABAJAS
 6. Construye sobre lo dicho. Nunca preguntes algo que ya te respondieron.
 
 CÓMO HABLAS
-- Español latinoamericano, cercano y natural. Tuteas.
+- Español LATINOAMERICANO neutro, cercano y natural. Tuteas.
+  Nada de acento peninsular: nunca "vosotros", "vale", "tío", ni la c/z castellana.
+  Di "ustedes", "listo", "ahorita", "chévere" si viene al caso. Suena a Colombia,
+  no a España. Ritmo tranquilo, sin prisa.
 - UNA sola pregunta por turno. Corta. Sin preámbulos ni resúmenes largos.
 - Esto es una conversación hablada: frases breves, nada de listas ni de viñetas.
 - No repitas lo que acaba de decir salvo media frase para confirmar y seguir.
 - Tú entrevistas, no predicas. Nada de tono de púlpito ni de frases de sermón.
+
+ENSEÑA MIENTRAS PREGUNTAS
+De vez en cuando —no en cada turno, una de cada dos o tres preguntas— añade media
+frase explicando POR QUÉ pides eso, con el criterio de más abajo y en lenguaje llano.
+Por ejemplo: "dame la escena, no el tema, porque de un mensaje se olvida la idea y se
+recuerda la imagen". El predicador está aprendiendo a armar mensajes, no solo a armar
+este. Que sea corto y hablado: un comentario de oficio, no una clase.
 
 ${materialQueSirve}
 
@@ -1320,9 +1361,16 @@ ${SECCIONES_DE_UNA_LINEA.has(seccionActual)
   ? `3.  NO agregues el párrafo "🔗 Conexión con lo anterior:" ni ningún otro comentario.
     Esta sección es de una sola línea y se guarda tal cual: cualquier cosa que añadas
     después queda dentro del mensaje. Devuelve la línea y nada más.`
-  : `3.  Al final, y solo al final, agrega el párrafo "🔗 Conexión con lo anterior:" donde expliques
-    en 1 a 3 frases cómo esta sección se apoya en las anteriores. ${seccionesRelevantesParaConectar.length > 0 ? `Enfócate en la conexión con ${seccionesRelevantesParaConectar.join(' y ')}, priorizando según el "ENFOQUE DE CONEXIÓN", y nombra el **tipo de conexión** (por ejemplo "conexión temática" o "transición fluida").` : 'Si no hay secciones previas, di simplemente que es el punto de partida.'}
-    Ese párrafo es lo ÚNICO que puede hablar sobre el mensaje en vez de ser el mensaje.`}
+  : `3.  Al final, y solo al final, agrega el párrafo "🔗 Conexión con lo anterior:".
+    El predicador lo lee debajo de la sección, así que sirve para que aprenda a escribir
+    mensajes, no solo para entregarle este. En 2 o 3 frases, y en lenguaje llano:
+      (a) cómo se apoya esta sección en las anteriores${seccionesRelevantesParaConectar.length > 0 ? `, sobre todo en ${seccionesRelevantesParaConectar.join(' y ')}` : ' (o que es el punto de partida, si no hay ninguna)'};
+      (b) QUÉ RECURSO usaste aquí y por qué funciona, con el criterio del estilo de arriba.
+          Por ejemplo: por qué se abre en una escena y no en el tema; por qué la ráfaga de
+          "quizás" va una sola vez; por qué el cierre afirma en vez de mandar una tarea.
+    Nada de jerga ni de nombres de secciones: es un consejo de oficio, dicho como se lo
+    dirías a un amigo. Ese párrafo es lo ÚNICO que puede hablar sobre el mensaje en vez
+    de ser el mensaje.`}
 4.  Aplica el ESTILO LIVING ROOM de arriba. No es un adorno: es la forma de la sección.
 5.  Solo en la sección INTRODUCCIÓN, cierra el contenido con 3 versículos centrales relacionados
     con el tema, listados al final de la sección.

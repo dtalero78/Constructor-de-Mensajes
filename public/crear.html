@@ -875,6 +875,29 @@
 
     @media (max-width: 720px) { .modos { grid-template-columns: 1fr; } }
 
+
+    /* La explicación del agente: por qué escribió la sección así. */
+    .hecho-nota {
+      margin: 0 18px 14px;
+      padding: 12px 14px;
+      border-left: 3px solid var(--brand);
+      background: var(--brand-soft);
+      border-radius: 0 10px 10px 0;
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--ink-2);
+    }
+    .hecho-nota::before {
+      content: 'Por qué quedó así';
+      display: block;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+      color: var(--brand-700);
+      margin-bottom: 5px;
+    }
+
   </style>
 </head>
 
@@ -1304,6 +1327,7 @@
           </div>
           <div class="hecho-cuerpo" contenteditable="true" spellcheck="false">${
             vacia ? 'Sin escribir todavía.' : formatOpenAiText(texto)}</div>
+          <div class="hecho-nota" hidden></div>
           <div class="hecho-pie">
             <button class="btn-mini" data-accion="guardar" hidden>Guardar cambios</button>
             <button class="btn-mini gris" data-accion="descartar" hidden>Descartar</button>
@@ -1354,8 +1378,20 @@
         });
 
         const sugerencia = data.sugerencia || '';
-        const corte = sugerencia.match(/🔗?\s*Conexi[oó]n con lo anterior[:：]?\s*/i);
+        // El modelo suele escribir el encabezado en markdown: "🔗 **Conexión con lo
+        // anterior:**". Hay que absorber el emoji y los asteriscos de los dos lados,
+        // o la sección termina en "🔗 **" y la nota empieza en "** ".
+        const corte = sugerencia.match(/\n*\s*(?:🔗\s*)?\*{0,2}\s*Conexi[oó]n con lo anterior\s*[:：]?\s*\*{0,2}\s*/i);
         const contenido = (corte ? sugerencia.split(corte[0])[0] : sugerencia).trim();
+        // Esa explicación se descartaba. Es donde el agente cuenta qué recurso usó y
+        // por qué funciona, así que se muestra: sirve para aprender a escribir, no
+        // solo para recibir el texto ya escrito.
+        const nota = corte ? sugerencia.split(corte[0]).slice(1).join(corte[0]).trim() : '';
+        const cajaNota = tarjeta.querySelector('.hecho-nota');
+        if (cajaNota) {
+          cajaNota.innerHTML = nota ? formatOpenAiText(nota) : '';
+          cajaNota.hidden = !nota;
+        }
 
         cuerpo.innerHTML = formatOpenAiText(contenido);
         tarjeta.classList.remove('vacia');

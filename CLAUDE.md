@@ -186,6 +186,30 @@ que está duplicado en cada página.
    prohíbe el meta-comentario ("## Sugerencia de TÍTULO", "Por qué funciona"). Antes, un título ocupaba
    2282 caracteres de ensayo; ahora, 30.
 
+### El agente enseña mientras trabaja
+
+La app no solo arma el mensaje: el predicador tiene que salir sabiendo armarlo. Por eso el "por qué"
+va en tres sitios y siempre **en lenguaje llano, sin jerga ni nombres de secciones**:
+
+- `materialQueSirve` no lista solo qué material vale, sino **por qué** vale. Es lo que el agente cita.
+- El campo `porQue` de la entrevista (texto) explica por qué esa pregunta ayuda a que el mensaje
+  funcione — no para qué sirve en el trámite. El prompt de voz hace lo mismo hablando, una de cada
+  dos o tres preguntas para no volverse pesado.
+- El párrafo "🔗 Conexión con lo anterior" que devuelve `/generar-una-sugerencia` explica además
+  **qué recurso se usó y por qué funciona**, y ahora se **muestra** bajo la tarjeta (`.hecho-nota`)
+  en vez de descartarse, que es lo que se hacía antes.
+
+Ojo con el corte de ese párrafo en `generarEnTarjeta`: el modelo lo escribe en markdown
+(`🔗 **Conexión con lo anterior:**`), así que el regex tiene que absorber el emoji y los asteriscos
+de los dos lados. Con un patrón ingenuo la sección acaba en "🔗 **" y la nota empieza en "** ".
+
+### La voz del agente
+
+Las diez voces de Realtime (`alloy, ash, ballad, coral, echo, sage, shimmer, verse, marin, cedar`)
+son multilingües: **ninguna es española ni latina de fábrica**. El acento lo fija el prompt, que
+prohíbe explícitamente el peninsular. Por defecto va `cedar` (con `marin`, las dos que OpenAI
+recomienda por calidad) y se puede cambiar sin tocar código con `VOZ_AGENTE=<voz>` en el entorno.
+
 ### Lo que escribe la IA se guarda solo
 
 `generarEnTarjeta()` llama a `guardarTarjeta()` en cuanto recibe el texto. Antes solo lo pintaba en
